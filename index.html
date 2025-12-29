@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Artifact Detector — Squashed UI</title>
+<title>Artifact Detector — Wider UI</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -16,78 +16,81 @@
   --inseam-brown:#6b3f2a;
 }
 
-/* page */
+/* page: use full available width so the UI is not thin */
 html,body{height:100%;margin:0;background:linear-gradient(180deg,#040403,#090807);font-family:Orbitron,system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--muted);display:flex;align-items:center;justify-content:center;}
-.wrap{width:100%;max-width:375px;padding:6px 8px;box-sizing:border-box;}
+.wrap{width:100%;max-width:100vw;padding:6px 6px;box-sizing:border-box;margin:0 auto;}
 
-/* outer frame - keep compact */
-.frame{position:relative;border-radius:12px;padding:6px;background:linear-gradient(180deg,var(--frame-top),var(--frame-bottom));box-shadow:0 10px 22px rgba(0,0,0,.8);border:2px solid rgba(0,0,0,0.35);overflow:visible;}
+/* outer frame: keep vertical size same but allow horizontal expansion */
+.frame{position:relative;border-radius:12px;padding:6px;background:linear-gradient(180deg,var(--frame-top),var(--frame-bottom));box-shadow:0 10px 22px rgba(0,0,0,.8);border:2px solid rgba(0,0,0,0.35);overflow:visible;max-width:100%;}
+
+/* subtle diagonal texture */
 .frame::before{content:"";position:absolute;inset:0;border-radius:12px;pointer-events:none;background-image:repeating-linear-gradient(135deg, rgba(0,0,0,0.04) 0 3px, transparent 3px 6px);mix-blend-mode:overlay;opacity:0.55;z-index:1}
 
 /* screws */
 .screw{position:absolute;width:12px;height:12px;border-radius:50%;background:linear-gradient(180deg,#2b1b12,#150d09);display:flex;align-items:center;justify-content:center;z-index:60;box-shadow:0 2px 4px rgba(0,0,0,0.6)}
 .screw:after{content:"+";color:#8a5a3a;font-weight:800;font-size:11px}
-.screw.tl{left:6px;top:6px} .screw.tr{right:6px;top:6px} .screw.bl{left:6px;bottom:6px} .screw.br{right:6px;bottom:6px}
+.screw.tl{left:8px;top:8px} .screw.tr{right:8px;top:8px} .screw.bl{left:8px;bottom:8px} .screw.br{right:8px;bottom:8px}
 
-/* screen outer - slightly thicker inseam but smaller overall */
-.screen-outer{border-radius:10px;padding:6px;background:linear-gradient(180deg, rgba(0,0,0,0.28), rgba(0,0,0,0.5)); z-index:4; border:5px solid var(--inseam-brown);}
+/* screen outer - bigger brown inseam */
+.screen-outer{border-radius:10px;padding:8px;background:linear-gradient(180deg, rgba(0,0,0,0.28), rgba(0,0,0,0.5)); z-index:4; border:6px solid var(--inseam-brown); margin:6px;}
 .screen-wrap{position:relative;border-radius:6px;padding:2px;background:linear-gradient(180deg,#021f12,#00140a);overflow:hidden;display:flex;align-items:center;justify-content:center;z-index:5;}
 
-/* canvas */
+/* canvas forced square in JS, CSS just ensures block display */
 canvas{display:block;border-radius:6px;}
 
-/* glass */
+/* glass cover */
 .glass-cover{position:absolute;left:10px;right:10px;top:10px;bottom:10px;border-radius:6px;background:rgba(0,0,0,0.12);z-index:18;pointer-events:none}
 
-/* corner labels smaller */
-.corner-label{position:absolute;color:#d6e6d0;font-size:11px;font-family:Orbitron,monospace;z-index:25}
-.lbl-tl{left:12px;top:8px} .lbl-tr{right:12px;top:8px} .lbl-bl{left:12px;bottom:10px} .lbl-br{right:12px;bottom:10px}
+/* corner labels smaller to avoid wrapping */
+.corner-label{position:absolute;color:#d6e6d0;font-size:10px;font-family:Orbitron,monospace;z-index:25}
+.lbl-tl{left:14px;top:10px} .lbl-tr{right:14px;top:10px} .lbl-bl{left:14px;bottom:12px} .lbl-br{right:14px;bottom:12px}
 
-/* backplate darker metal - tighten margins */
-.backplate{width:calc(100% - 24px);margin:6px auto 6px auto;padding:6px;border-radius:10px;background:linear-gradient(180deg,var(--steel-top),var(--steel-bottom));box-shadow:inset 0 1px 0 rgba(255,255,255,0.02),0 6px 12px rgba(0,0,0,0.45);position:relative;z-index:6;}
+/* backplate darker metal, wider to fill horizontal space */
+.backplate{width:calc(100% - 64px);max-width:calc(100vw - 64px);margin:6px auto 6px auto;padding:8px;border-radius:10px;background:linear-gradient(180deg,var(--steel-top),var(--steel-bottom));box-shadow:inset 0 1px 0 rgba(255,255,255,0.02),0 6px 12px rgba(0,0,0,0.45);position:relative;z-index:6;}
 .backplate::before{content:"";position:absolute;inset:0;border-radius:10px;pointer-events:none;background-image:repeating-linear-gradient(135deg, rgba(0,0,0,0.05) 0 3px, rgba(255,255,255,0.01) 3px 6px);opacity:0.55;}
 
-/* compact controls and larger UI elements (but less vertical space) */
-.controls-compact{display:flex;flex-direction:column;gap:6px;align-items:center;justify-content:center;padding:0 2px;}
+/* controls compact but with more horizontal room; increased spacing horizontally */
+.controls-compact{display:flex;flex-direction:column;gap:8px;align-items:center;justify-content:center;padding:0 6px;}
 
-/* detection LED (center) */
+/* main LED centered */
 .main-led-row{display:flex;align-items:center;gap:6px;justify-content:center;margin:0}
 .led{width:12px;height:12px;border-radius:50%;background:#2b0b0b;border:2px solid #2b0000;box-shadow:inset 0 1px 2px rgba(0,0,0,0.6);transition:all .08s linear}
 .led.on{background:linear-gradient(180deg,#ff3b3b,#9b0000);box-shadow:0 0 10px rgba(255,60,60,.9)}
 
-/* rad-row with Greek letters, slightly smaller than before */
-.rad-row{display:flex;align-items:center;justify-content:center;gap:16px;margin:2px 0 4px 0}
+/* rad-row with Greek letters */
+.rad-row{display:flex;align-items:center;justify-content:center;gap:22px;margin:2px 0 4px 0}
 .led-block{display:flex;flex-direction:column;align-items:center;gap:2px;font-family:Orbitron,monospace;font-size:12px;color:#222}
 .led-symbol{font-size:14px;line-height:12px;color:#222}
 
 /* fake leds */
-.fake-led{width:9px;height:9px;border-radius:50%;background:#111;border:1px solid rgba(0,0,0,0.5);box-shadow:inset 0 1px 1px rgba(255,255,255,0.02)}
+.fake-led{width:10px;height:10px;border-radius:50%;background:#111;border:1px solid rgba(0,0,0,0.5);box-shadow:inset 0 1px 1px rgba(255,255,255,0.02)}
 .fake-led.on{box-shadow:0 0 7px rgba(255,255,255,0.06)}
 .fake-led.blue.on{background:#70b8ff}
 .fake-led.green.on{background:#9fffae}
 .fake-led.red.on{background:#ff8b8b}
 
-/* pill ON button (simple) - centered, slightly smaller to fit */
-.power-btn{width:78px;height:32px;border-radius:16px;background:linear-gradient(180deg,#ff6b2b,#c84b1a);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:13px;border:0;box-shadow:0 6px 14px rgba(0,0,0,0.45);cursor:pointer}
+/* pill ON button (simple) - keep centered */
+.power-btn{width:88px;height:34px;border-radius:18px;background:linear-gradient(180deg,#ff6b2b,#c84b1a);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:13px;border:0;box-shadow:0 6px 14px rgba(0,0,0,0.45);cursor:pointer}
 .power-btn.off{filter:grayscale(30%) brightness(.72);background:linear-gradient(180deg,#43261a,#29120b)}
 
-/* bottom row - fake buttons + randomize */
-.row-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:4px;gap:8px}
-.fake-btn{width:22px;height:16px;border-radius:6px;background:linear-gradient(180deg,#3a2b1f,#25170e);display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:#c8d8c8}
-.green-btn{width:34px;height:34px;border-radius:50%;background:linear-gradient(180deg,#163f22,#0b2a17);display:flex;align-items:center;justify-content:center;color:#9fe8b7;font-weight:700;border:0}
+/* bottom row - enlarge nonfunctional buttons (RST bigger) */
+.row-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:4px;gap:10px}
+.fake-btn{width:34px;height:20px;border-radius:6px;background:linear-gradient(180deg,#3a2b1f,#25170e);display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:#c8d8c8}
+.fake-btn.rst{width:54px;height:22px} /* RST larger to fit its label */
+.green-btn{width:40px;height:40px;border-radius:50%;background:linear-gradient(180deg,#163f22,#0b2a17);display:flex;align-items:center;justify-content:center;color:#9fe8b7;font-weight:700;border:0}
 
-/* sliders row - smaller labels to avoid overlap */
+/* sliders row: labels smaller, prevent wrapping */
 .slider-row{display:flex;align-items:center;justify-content:space-between;margin-top:6px;gap:8px}
-.slider-label{background:#000;padding:5px 7px;border-radius:6px;color:var(--muted);font-size:12px}
+.slider-label{background:#000;padding:4px 6px;border-radius:6px;color:var(--muted);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sliders{width:100%;margin-top:6px;display:flex;flex-direction:column;gap:6px}
 input[type=range]{-webkit-appearance:none;width:100%;height:26px;background:transparent;padding:4px 0;margin:0}
 input[type=range]::-webkit-slider-runnable-track{height:7px;border-radius:8px;background:#0d0d0d;border:1px solid rgba(255,255,255,0.02)}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;margin-top:-6px;width:36px;height:18px;border-radius:9px;background:linear-gradient(180deg,#4b301d,#2d1a11),repeating-linear-gradient(45deg, rgba(0,0,0,0.06) 0 2px, rgba(255,255,255,0.01) 2px 4px);border:2px solid rgba(0,0,0,0.72)}
 
-/* info & rarity colours */
-.info{position:absolute;left:12px;top:36px;z-index:55;background:rgba(0,0,0,0.36);padding:6px 8px;border-radius:8px;color:#dfffe0;font-size:12px;min-width:110px;max-width:160px;box-shadow:0 6px 18px rgba(0,0,0,0.6);display:none}
+/* info & rarity colours: slightly smaller text to avoid overlap; larger width to prevent wrapping */
+.info{position:absolute;left:14px;top:40px;z-index:55;background:rgba(0,0,0,0.36);padding:6px 8px;border-radius:8px;color:#dfffe0;font-size:11px;min-width:150px;max-width:220px;box-shadow:0 6px 18px rgba(0,0,0,0.6);display:none}
 .info h3{margin:0 0 6px 0;font-size:13px}
-.badge{display:block;padding:3px 4px;border-radius:6px;margin-bottom:4px;background:rgba(0,0,0,0.18);border:1px solid rgba(0,255,140,0.06);font-size:12px}
+.badge{display:block;padding:3px 4px;border-radius:6px;margin-bottom:4px;background:rgba(0,0,0,0.18);border:1px solid rgba(0,255,140,0.06);font-size:11px}
 /* rarity colours */
 .badge.I{color:#ffffff}
 .badge.II{color:#9fffae}
@@ -98,7 +101,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;margin-top:-6px;
 .power-off-overlay{position:absolute;left:12px;right:12px;top:12px;bottom:12px;border-radius:6px;background:#000;z-index:40;display:block;pointer-events:none}
 .power-off-overlay.hidden{display:none}
 
-/* small screens tweak */
+/* responsive */
 @media(max-width:420px){ .wrap{padding:2px} canvas{max-width:92vw;} }
 </style>
 </head>
@@ -115,13 +118,13 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;margin-top:-6px;
         <canvas id="radar"></canvas>
         <div class="glass-cover"></div>
 
-        <div class="info" id="info">
+        <div class="info" id="info" aria-hidden="true">
           <h3 id="artifactName">—</h3>
           <div id="atype" class="badge">Type: —</div>
           <div id="rarity" class="badge">Tier: —</div>
           <div id="price" class="badge">Price: —</div>
           <div id="energy" style="margin-top:6px">Energy: —%</div>
-          <div id="stats" style="margin-top:6px;white-space:pre-line"></div>
+          <div id="stats" style="margin-top:6px;white-space:pre-line;font-size:11px"></div>
         </div>
 
         <div class="corner-label lbl-tl">MODE: SCAN</div>
@@ -150,10 +153,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;margin-top:-6px;
         <!-- pill ON button -->
         <div style="margin-top:4px"><button id="powerBtn" class="power-btn off">ON</button></div>
 
-        <!-- bottom / fake buttons -->
+        <!-- bottom row: larger fake buttons (RST larger) -->
         <div class="row-bottom" style="width:100%;margin-top:6px">
-          <div style="display:flex;gap:8px;align-items:center"><div class="fake-btn">A</div><div class="fake-btn">B</div></div>
-          <div style="display:flex;gap:8px;align-items:center"><div class="fake-btn">RST</div><button id="randBtn" class="green-btn">R</button></div>
+          <div style="display:flex;gap:10px;align-items:center"><div class="fake-btn">A</div><div class="fake-btn">B</div></div>
+          <div style="display:flex;gap:10px;align-items:center"><div class="fake-btn rst">RST</div><button id="randBtn" class="green-btn">R</button></div>
         </div>
 
         <!-- sliders -->
@@ -173,9 +176,13 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;margin-top:-6px;
 </div>
 
 <script>
-/* Responsive canvas sizing: choose radar size by both width and height to avoid vertical scrolling in Safari.
-   Larger radar where possible, but will shrink if viewport height is limited.
+/* WIDER UI version:
+ - Frame and backplate use more horizontal space (full viewport width minus margins).
+ - Canvas sizing logic considers both width and height and favors a larger circular radar if horizontal room exists.
+ - Labels/stats font sizes reduced slightly to avoid wrapping; RST button enlarged.
+ - Vertical size left unchanged so Safari bottom bar doesn't force scrolling.
 */
+
 const canvas = document.getElementById('radar'), ctx = canvas.getContext('2d');
 const proximityEl = document.getElementById('proximity'), directionEl = document.getElementById('direction');
 const proxLabel = document.getElementById('proxLabel'), distLabel = document.getElementById('distLabel');
@@ -189,21 +196,24 @@ const mainLed = document.getElementById('mainLed');
 
 let dpr = Math.max(window.devicePixelRatio || 1, 1);
 function sizeCanvas(){
-  // max width available inside wrap
-  const maxW = Math.min(window.innerWidth - 56, 340);
-  // also check available height (screen - room for controls). Choose size so radar fits.
-  const availH = Math.max(window.innerHeight - 200, 160);
-  const cssSize = Math.floor(Math.min(maxW * 0.92, availH * 0.64));
+  // compute helpful horizontal space (wider) but keep vertical limit to avoid scrolling in Safari
+  const sideMargins = 64; // frame/backplate margins/padding
+  const maxW = Math.min(window.innerWidth - sideMargins, 420);
+  // reserve vertical space for UI controls and top/bottom bars
+  const reservedVert = 210; // keep vertical size same as before; adjust canvas to fit remaining height
+  const availH = Math.max(window.innerHeight - reservedVert, 140);
+  // pick a size that uses horizontal space first but doesn't exceed available height
+  const cssSize = Math.floor(Math.min(maxW * 0.9, availH * 0.72));
   canvas.style.width = cssSize + 'px';
   canvas.style.height = cssSize + 'px';
-  canvas.width = cssSize * dpr;
-  canvas.height = cssSize * dpr;
+  canvas.width = Math.max(120, cssSize * dpr);
+  canvas.height = Math.max(120, cssSize * dpr);
   ctx.setTransform(dpr,0,0,dpr,0,0);
 }
 window.addEventListener('resize', sizeCanvas);
 sizeCanvas();
 
-/* --- retained behavior & tuning --- */
+/* retained behavior */
 let SWEEP_SPEED = 5.0;
 const TRAIL_STEPS = 12;
 const TRAIL_STEP_ANGLE = 3.2;
@@ -274,18 +284,13 @@ function updateInfoUI(){
 }
 
 function displayedToInternalAngle(dd){ return (270 + dd) % 360; }
-
-function updateDistanceLabel(){
-  const p = artifact.proximity;
-  if(p <= 0) proxLabel.textContent = "Distance = X";
-  else { const meters = Math.round((1 - (p/100)) * 20); proxLabel.textContent = "Distance = " + meters + "m"; }
-}
+function updateDistanceLabel(){ const p = artifact.proximity; if(p <= 0) proxLabel.textContent = "Distance = X"; else { const meters = Math.round((1 - (p/100)) * 20); proxLabel.textContent = "Distance = " + meters + "m"; } }
 
 /* UI events */
 proximityEl.addEventListener('input', e=>{ artifact.proximity = Number(e.target.value); updateDistanceLabel(); if(artifact.proximity <= 0){ lastDetectedAt = -999999; visibleAlpha = 0; foundPreviously = false; }});
 directionEl.addEventListener('input', e=>{ const dd = Number(e.target.value); distLabel.textContent = "Bearing = " + Math.round(dd) + "°"; artifact.angleDeg = displayedToInternalAngle(dd); });
 
-/* power button toggle */
+/* power toggle */
 function setPowerState(on){
   powerOn = !!on;
   if(powerOn){ powerBtn.classList.remove('off'); powerOverlay.classList.add('hidden'); ensureAudio(); if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); isAudioEnabled=true; }
@@ -321,7 +326,8 @@ function ledChanceForProximity(p){ if(p <= 0) return 0; const v = (Math.exp(LED_
         if(audioCtx && isAudioEnabled){
           try{
             const t = audioCtx.currentTime; const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
-            o.type = 'sine'; o.frequency.value = l.freq; g.gain.value = 0.00002; o.connect(g); g.connect(audioCtx.destination);
+            o.type = 'sine'; o.frequency.value = l.freq; g.gain.value = 0.00002;
+            o.connect(g); g.connect(audioCtx.destination);
             g.gain.setValueAtTime(0.00002, t); g.gain.linearRampToValueAtTime(0.018, t + 0.004); g.gain.exponentialRampToValueAtTime(0.00002, t + 0.09);
             o.start(t); o.stop(t + 0.10);
           }catch(e){}
@@ -334,7 +340,7 @@ function ledChanceForProximity(p){ if(p <= 0) return 0; const v = (Math.exp(LED_
 
 function proxToInterval(p){ const ratio = Math.max(0, Math.min(1, p/100)); return Math.round(MAX_BEEP_INTERVAL - (MAX_BEEP_INTERVAL - MIN_BEEP_INTERVAL) * ratio); }
 
-/* DRAW loop - strong scanlines and circular radar */
+/* DRAW loop */
 let noiseTime = 0;
 function draw(now){
   sizeCanvas();
@@ -360,7 +366,7 @@ function draw(now){
   }
   ctx.restore();
 
-  // radar perfect circle background
+  // radar perfect circle
   const g = ctx.createRadialGradient(cx,cy,6,cx,cy,maxR);
   g.addColorStop(0,"rgba(4,60,12,0.98)"); g.addColorStop(0.6,"rgba(10,90,26,0.62)"); g.addColorStop(1,"rgba(3,28,8,0.9)");
   ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx,cy,maxR,0,Math.PI*2); ctx.fill();
@@ -413,18 +419,18 @@ function draw(now){
   ctx.beginPath(); ctx.fillStyle="rgba(0,0,0,0.28)"; ctx.arc(cx,cy,6,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.strokeStyle="rgba(0,255,140,0.5)"; ctx.arc(cx,cy,6,0,Math.PI*2); ctx.stroke();
 
-  // info panel when found
+  // info panel
   if(Math.round(current.proximity) >= 100 && artifact.meta && powerOn){
     infoPanel.style.display='block';
     updateInfoUI();
     if(!foundPreviously) foundPreviously = true;
   } else { infoPanel.style.display='none'; foundPreviously = false; }
 
-  // subtle noise
+  // noise
   noiseTime += 0.9; if(noiseTime > 10000) noiseTime = 0;
   for(let i=0;i<6;i++){ const nx = cx + Math.cos((i*23 + noiseTime*6)/12) * (maxR*(0.2 + 0.8*Math.random())); const ny = cy + Math.sin((i*17 + noiseTime*5)/10) * (maxR*(0.2 + 0.8*Math.random())); ctx.fillStyle='rgba(0,255,140,0.02)'; ctx.fillRect(nx,ny,1,1); }
 
-  // main beeping & LED
+  // main beep & LED
   const nowMs = performance.now();
   if(powerOn && artifact.proximity >= 100){ if(!continuousOsc && audioCtx && isAudioEnabled) startContinuousTone(); mainLed.classList.add('on'); }
   else {
@@ -450,7 +456,7 @@ function lerpAngle(a,b,t){ const diff = angleDiff(b,a); return (a + diff*t + 360
 
 ensureAudio(); randomizeArtifact(); draw();
 
-/* small listeners */
+/* listeners */
 directionEl.addEventListener('input', ()=>{ distLabel.textContent = "Bearing = " + Math.round(directionEl.value) + "°"; });
 proximityEl.addEventListener('input', ()=>{ updateDistanceLabel(); });
 </script>
