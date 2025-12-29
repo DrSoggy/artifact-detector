@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Artifact Detector — Fixes</title>
+<title>Artifact Detector — Compact + Metal Backplate</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -14,105 +14,93 @@
   --panel:#0b1409;
   --screw-dark:#2c1c14;
   --screw-top:#6b3f2a;
+  --steel-top:#bfc4c7;
+  --steel-bottom:#8e9598;
 }
 
-/* layout: slightly wider but shorter to avoid vertical scrolling */
-html,body{height:100%;margin:0;background:linear-gradient(180deg,#060403,#0b0806);font-family:Orbitron,system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--muted);display:flex;align-items:center;justify-content:center;}
-.wrap{width:100%;max-width:378px;padding:3px;box-sizing:border-box;} /* fit iPhone SE */
+/* page */
+html,body{height:100%;margin:0;background:linear-gradient(180deg,#050405,#0b0806);font-family:Orbitron,system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--muted);display:flex;align-items:center;justify-content:center;}
+.wrap{width:100%;max-width:378px;padding:6px 8px;box-sizing:border-box;} /* tuned to fit iPhone SE */
 
-/* frame with orange/rust gradient + diagonal texture */
-.frame{
-  position:relative;border-radius:12px;padding:4px;
-  background: linear-gradient(180deg,var(--frame-top),var(--frame-bottom));
-  box-shadow:0 8px 20px rgba(0,0,0,.75);
-  border:3px solid rgba(0,0,0,0.28);
-  overflow:visible;
-}
-.frame::before{
-  content:"";position:absolute;inset:0;border-radius:12px;pointer-events:none;
-  background-image: repeating-linear-gradient(135deg, rgba(0,0,0,0.04) 0 3px, transparent 3px 6px);
-  mix-blend-mode:overlay;opacity:0.55;z-index:1;
-}
+/* outer frame - orange */
+.frame{position:relative;border-radius:12px;padding:6px;background:linear-gradient(180deg,var(--frame-top),var(--frame-bottom));box-shadow:0 10px 22px rgba(0,0,0,.8);border:3px solid rgba(0,0,0,0.28);overflow:visible;}
+.frame::before{content:"";position:absolute;inset:0;border-radius:12px;pointer-events:none;background-image:repeating-linear-gradient(135deg, rgba(0,0,0,0.04) 0 3px, transparent 3px 6px);mix-blend-mode:overlay;opacity:0.55;z-index:1}
 
 /* screws */
 .screw{position:absolute;width:14px;height:14px;border-radius:50%;background:linear-gradient(180deg,var(--screw-dark),#1b120d);box-shadow:inset 0 2px 4px rgba(255,200,150,0.04),0 2px 4px rgba(0,0,0,0.6);border:2px solid rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:60}
 .screw:after{content:"+";color:var(--screw-top);font-weight:800;font-size:11px;transform:rotate(30deg)}
 .screw.tl{left:6px;top:6px} .screw.tr{right:6px;top:6px} .screw.bl{left:6px;bottom:6px} .screw.br{right:6px;bottom:6px}
 
-/* screen outer - no seam */
-.screen-outer{border-radius:10px;padding:3px;background:linear-gradient(180deg, rgba(0,0,0,0.28), rgba(0,0,0,0.5)); z-index:2}
-.screen-seam{display:none}
-
-/* scale display slightly smaller to create thicker seams visually */
-.screen-wrap{position:relative;border-radius:8px;padding:3px;background:linear-gradient(180deg,#021f12,#00140a);overflow:hidden;display:flex;align-items:center;justify-content:center;z-index:4;transform-origin:center;transform:scale(0.90)}
+/* screen */
+.screen-outer{border-radius:10px;padding:3px;background:linear-gradient(180deg, rgba(0,0,0,0.28), rgba(0,0,0,0.5)); z-index:3}
+.screen-wrap{position:relative;border-radius:8px;padding:3px;background:linear-gradient(180deg,#021f12,#00140a);overflow:hidden;display:flex;align-items:center;justify-content:center;z-index:4;transform-origin:center;transform:scale(0.88)} /* a bit smaller */
 
 /* canvas */
 canvas{display:block;border-radius:6px;width:100%;height:auto;}
 
-/* glass dark plane */
+/* glass */
 .glass-cover{position:absolute;left:12px;right:12px;top:12px;bottom:12px;border-radius:8px;background:rgba(0,0,0,0.18);z-index:18;pointer-events:none}
 
-/* corner labels (small) */
+/* corner labels */
 .corner-label{position:absolute;color:#cbdcbd;font-size:11px;font-family:Orbitron,monospace;z-index:25}
-.lbl-tl{left:14px;top:10px} .lbl-tr{right:14px;top:10px} .lbl-bl{left:14px;bottom:12px} .lbl-br{right:14px;bottom:12px}
+.lbl-tl{left:12px;top:8px} .lbl-tr{right:12px;top:8px} .lbl-bl{left:12px;bottom:10px} .lbl-br{right:12px;bottom:10px}
 
-/* main LED (detection LED) - left under screen */
-.main-led-row{display:flex;align-items:center;gap:8px;justify-content:flex-start;margin-top:6px;margin-left:8px;z-index:50}
+/* backplate - silver / metal - sits between frame and controls, not touching edges or screen */
+.backplate{width:calc(100% - 36px);margin:8px auto 6px auto;padding:8px;border-radius:10px;background:linear-gradient(180deg,var(--steel-top),var(--steel-bottom));box-shadow:inset 0 1px 0 rgba(255,255,255,0.04),0 6px 16px rgba(0,0,0,0.45);position:relative;z-index:5;}
+
+/* metal texture (diagonal lines) */
+.backplate::before{content:"";position:absolute;inset:0;border-radius:10px;pointer-events:none;background-image:repeating-linear-gradient(135deg, rgba(0,0,0,0.03) 0 3px, rgba(255,255,255,0.02) 3px 6px);opacity:0.55;}
+
+/* compact controls layout inside backplate */
+.controls-compact{display:flex;flex-direction:column;gap:6px;align-items:center;justify-content:center;padding:2px 4px;}
+
+/* main LED row (now inside backplate) */
+.main-led-row{display:flex;align-items:center;gap:8px;justify-content:center;margin:0}
 .led{width:14px;height:14px;border-radius:50%;background:#2b0b0b;border:2px solid #2b0000;box-shadow:inset 0 1px 3px rgba(0,0,0,0.6);transition:all .08s linear}
 .led.on{background:linear-gradient(180deg,#ff3b3b,#9b0000);box-shadow:0 0 10px rgba(255,60,60,.9)}
 
-/* radiation LED row centered above switch */
-.rad-row{display:flex;align-items:center;justify-content:center;gap:22px;margin-top:6px;z-index:50}
-.led-block{display:flex;flex-direction:column;align-items:center;gap:3px;font-family:Orbitron,monospace;font-size:12px;color:var(--muted)}
-.led-symbol{font-size:12px;line-height:12px;color:#d5d5d5}
+/* rad-row inside backplate, centered and compact */
+.rad-row{display:flex;align-items:center;justify-content:center;gap:20px;margin:2px 0 4px 0}
+.led-block{display:flex;flex-direction:column;align-items:center;gap:2px;font-family:Orbitron,monospace;font-size:12px;color:var(--muted)}
+.led-symbol{font-size:12px;line-height:12px;color:#2b2b2b;font-weight:700}
 
-/* decorative LEDs */
-.fake-led{width:10px;height:10px;border-radius:50%;background:#111;border:1px solid rgba(0,0,0,0.5);box-shadow:inset 0 1px 1px rgba(255,255,255,0.02);z-index:50}
+/* fake led */
+.fake-led{width:9px;height:9px;border-radius:50%;background:#111;border:1px solid rgba(0,0,0,0.5);box-shadow:inset 0 1px 1px rgba(255,255,255,0.02);z-index:50}
 .fake-led.on{box-shadow:0 0 7px rgba(255,255,255,0.06)}
-.fake-led.blue.on{background:#70b8ff;box-shadow:0 0 7px rgba(110,180,255,0.6)}
-.fake-led.green.on{background:#9fffae;box-shadow:0 0 7px rgba(140,255,170,0.6)}
-.fake-led.red.on{background:#ff8b8b;box-shadow:0 0 7px rgba(255,140,140,0.5)}
+.fake-led.blue.on{background:#70b8ff;}
+.fake-led.green.on{background:#9fffae;}
+.fake-led.red.on{background:#ff8b8b;}
 
-/* randomize button (right) */
-.green-btn{width:34px;height:34px;border-radius:50%;background:linear-gradient(180deg,#163f22,#0b2a17);box-shadow:inset 0 2px 0 rgba(255,255,255,0.02), 0 6px 12px rgba(0,0,0,0.6);color:#9fe8b7;font-weight:700;border:0;display:flex;align-items:center;justify-content:center;z-index:50}
-
-/* power switch visual (click toggles) - knob bigger and centered */
-.power-switch{width:90px;height:34px;border-radius:18px;background:linear-gradient(180deg,#4b2b10,#2b160a);position:relative;box-shadow:inset 0 1px 0 rgba(255,255,255,0.03),0 6px 14px rgba(0,0,0,0.45);display:flex;align-items:center;padding:5px;cursor:pointer;user-select:none;margin:8px auto 2px auto}
+/* switch - bigger knob fits perfectly */
+.power-switch{width:92px;height:36px;border-radius:18px;background:linear-gradient(180deg,#4b2b10,#2b160a);position:relative;display:flex;align-items:center;padding:5px;cursor:pointer;user-select:none;margin:4px auto}
 .power-switch .track{flex:1;height:100%;border-radius:14px;background:linear-gradient(180deg,#2b2b2b,#111);position:relative;overflow:hidden}
-.power-switch .knob{position:absolute;top:6px;left:6px;width:64px;height:22px;border-radius:10px;background:linear-gradient(180deg,#ff7b36,#c84b1a);box-shadow:0 2px 6px rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:12px;transform:translateX(0);transition:transform 140ms cubic-bezier(.2,.9,.2,1);pointer-events:none}
-.power-switch.on .knob{transform:translateX(32px)}
-.power-switch.on .knob{background:linear-gradient(180deg,#ff6b2b,#d4491a)}
+.power-switch .knob{position:absolute;top:6px;left:6px;width:68px;height:24px;border-radius:12px;background:linear-gradient(180deg,#ff7b36,#c84b1a);box-shadow:0 2px 6px rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:12px;transform:translateX(0);transition:transform 130ms ease;pointer-events:none}
+.power-switch.on .knob{transform:translateX(30px)}
 
-/* small fake buttons */
-.fake-btn{width:24px;height:16px;border-radius:6px;background:linear-gradient(180deg,#3a2b1f,#25170e);display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:#c8d8c8;box-shadow:inset 0 1px 0 rgba(255,255,255,0.02);z-index:50}
+/* compact fake buttons & randomize */
+.row-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:6px;gap:10px}
+.fake-btn{width:22px;height:14px;border-radius:6px;background:linear-gradient(180deg,#3a2b1f,#25170e);display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:#c8d8c8;box-shadow:inset 0 1px 0 rgba(255,255,255,0.02)}
+.green-btn{width:32px;height:32px;border-radius:50%;background:linear-gradient(180deg,#163f22,#0b2a17);display:flex;align-items:center;justify-content:center;color:#9fe8b7;font-weight:700;border:0}
 
-/* slider labels */
-.slider-label{display:inline-block;background:#000;padding:5px 7px;border-radius:6px;color:var(--muted);font-size:12px;font-family:Orbitron,monospace;box-shadow:inset 0 1px 0 rgba(255,255,255,0.02), 0 6px 12px rgba(0,0,0,0.45);z-index:50}
-
-/* sliders compact */
-.sliders{display:flex;flex-direction:column;gap:6px;margin-top:6px;z-index:50}
-input[type=range]{-webkit-appearance:none;width:100%;height:28px;background:transparent;padding:6px 0;margin:0}
+/* labels & sliders compact */
+.slider-row{display:flex;align-items:center;justify-content:space-between;margin-top:6px;gap:8px}
+.slider-label{background:#000;padding:6px 8px;border-radius:6px;color:var(--muted);font-size:12px}
+.sliders{width:100%;margin-top:6px}
+input[type=range]{-webkit-appearance:none;width:100%;height:26px;background:transparent;padding:4px 0;margin:0}
 input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:8px;background:#0d0d0d;border:1px solid rgba(255,255,255,0.02)}
-input[type=range]::-moz-range-track{height:8px;border-radius:8px;background:#0d0d0d;border:1px solid rgba(255,255,255,0.02)}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;margin-top:-7px;width:44px;height:20px;border-radius:10px;background:
-  linear-gradient(180deg,#4b301d,#2d1a11),
-  repeating-linear-gradient(45deg, rgba(0,0,0,0.06) 0 2px, rgba(255,255,255,0.01) 2px 4px);
-border:2px solid rgba(0,0,0,0.72);box-shadow:inset 0 2px 0 rgba(255,220,170,0.04);cursor:grab}
-input[type=range]::-moz-range-thumb{width:44px;height:20px;border-radius:10px;background:
-  linear-gradient(180deg,#4b301d,#2d1a11);border:2px solid rgba(0,0,0,0.72)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;margin-top:-7px;width:40px;height:18px;border-radius:9px;background:linear-gradient(180deg,#4b301d,#2d1a11),repeating-linear-gradient(45deg, rgba(0,0,0,0.06) 0 2px, rgba(255,255,255,0.01) 2px 4px);border:2px solid rgba(0,0,0,0.72)}
 
-/* info panel */
+/* info panel small */
 .info{position:absolute;left:12px;top:40px;z-index:55;background:rgba(0,0,0,0.36);padding:6px 8px;border-radius:8px;color:#dfffe0;font-size:12px;min-width:110px;max-width:160px;box-shadow:0 6px 18px rgba(0,0,0,0.6);display:none}
 .info h3{margin:0 0 6px 0;font-size:13px}
 .info .badge{display:block;padding:3px 4px;border-radius:6px;margin-bottom:4px;background:rgba(0,0,0,0.18);border:1px solid rgba(0,255,140,0.06);font-size:12px}
-.badge.I{color:#ffffff} .badge.II{color:#9fffae} .badge.III{color:#a9d6ff} .badge.IV{color:#ffd868}
 
-/* overlay when off (inside screen) */
+/* overlay when off */
 .power-off-overlay{position:absolute;left:12px;right:12px;top:12px;bottom:12px;border-radius:8px;background:#000;z-index:40;display:block;pointer-events:none}
 .power-off-overlay.hidden{display:none}
 
-/* responsive */
-@media(max-width:420px){ .wrap{padding:2px} canvas{max-width:92vw;} input[type=range]::-webkit-slider-thumb{width:40px;height:18px} }
+/* responsive tweaks */
+@media(max-width:420px){ .wrap{padding:2px} canvas{max-width:92vw;} }
 </style>
 </head>
 <body>
@@ -122,14 +110,11 @@ input[type=range]::-moz-range-thumb{width:44px;height:20px;border-radius:10px;ba
     <!-- screws -->
     <div class="screw tl"></div><div class="screw tr"></div><div class="screw bl"></div><div class="screw br"></div>
 
-    <div class="screen-outer" id="screenOuter">
-      <div class="screen-seam"></div>
-
-      <div class="screen-wrap" id="screenWrap">
-        <canvas id="radar" width="300" height="300"></canvas>
-
-        <div class="glass-cover" id="glassCover"></div>
-
+    <!-- screen (unchanged position) -->
+    <div class="screen-outer">
+      <div class="screen-wrap">
+        <canvas id="radar" width="280" height="280"></canvas>
+        <div class="glass-cover"></div>
         <div class="info" id="info">
           <h3 id="artifactName">—</h3>
           <div id="atype" class="badge">Type: —</div>
@@ -138,73 +123,67 @@ input[type=range]::-moz-range-thumb{width:44px;height:20px;border-radius:10px;ba
           <div id="energy" style="margin-top:6px">Energy: —%</div>
           <div id="stats" style="margin-top:6px;white-space:pre-line"></div>
         </div>
-
-        <!-- corner labels -->
         <div class="corner-label lbl-tl">MODE: SCAN</div>
         <div class="corner-label lbl-tr">BAT: 76%</div>
         <div class="corner-label lbl-bl">SENS: HIGH</div>
         <div class="corner-label lbl-br">SIG: —</div>
-
         <div class="power-off-overlay" id="powerOverlay"></div>
       </div>
     </div>
 
-    <!-- main detection LED (left) -->
-    <div class="main-led-row" aria-hidden="true">
-      <div id="mainLed" class="led" title="detection led"></div>
-      <div style="font-size:12px;color:#9fcf9c">LED</div>
-    </div>
+    <!-- metal backplate that contains the controls (doesn't touch outer frame edges or the screen) -->
+    <div class="backplate" aria-hidden="false">
+      <div class="controls-compact">
 
-    <!-- centered radiation LEDs above the switch -->
-    <div class="rad-row" aria-hidden="true">
-      <div class="led-block"><div class="led-symbol">a</div><div id="fakeLedBlue" class="fake-led blue"></div></div>
-      <div class="led-block"><div class="led-symbol">b</div><div id="fakeLedGreen" class="fake-led green"></div></div>
-      <div class="led-block"><div class="led-symbol">y</div><div id="fakeLedRed" class="fake-led red"></div></div>
-    </div>
+        <!-- main detection LED centered -->
+        <div class="main-led-row">
+          <div id="mainLed" class="led"></div>
+        </div>
 
-    <!-- right-side randomize + fake buttons row -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px">
-      <div style="display:flex;gap:8px;align-items:center">
-        <div class="fake-btn">A</div>
-        <div class="fake-btn">B</div>
+        <!-- radiation LEDs (centered) -->
+        <div class="rad-row">
+          <div class="led-block"><div class="led-symbol">a</div><div id="fakeLedBlue" class="fake-led blue"></div></div>
+          <div class="led-block"><div class="led-symbol">b</div><div id="fakeLedGreen" class="fake-led green"></div></div>
+          <div class="led-block"><div class="led-symbol">y</div><div id="fakeLedRed" class="fake-led red"></div></div>
+        </div>
+
+        <!-- switch -->
+        <div>
+          <div id="powerSwitch" class="power-switch off" title="Tap to toggle">
+            <div class="track"></div>
+            <div class="knob">ON</div>
+          </div>
+        </div>
+
+        <!-- compact row: fake buttons + randomize -->
+        <div class="row-bottom" style="width:100%;">
+          <div style="display:flex;gap:8px;align-items:center"><div class="fake-btn">A</div><div class="fake-btn">B</div></div>
+          <div style="display:flex;gap:8px;align-items:center"><div class="fake-btn">RST</div><button id="randBtn" class="green-btn">R</button></div>
+        </div>
+
+        <!-- sliders -->
+        <div style="width:100%;" class="slider-row">
+          <div class="slider-label" id="proxLabel">Distance = X</div>
+          <div class="slider-label" id="distLabel">Bearing = 0°</div>
+        </div>
+        <div class="sliders">
+          <input id="proximity" type="range" min="0" max="100" value="50">
+          <input id="direction" type="range" min="0" max="360" value="0" style="margin-top:6px">
+        </div>
+
       </div>
-      <div style="display:flex;align-items:center;gap:10px">
-        <div class="fake-btn">RST</div>
-        <button id="randBtn" class="green-btn" title="Randomize">R</button>
-      </div>
-    </div>
-
-    <!-- switch: click/tap toggles; knob snaps -->
-    <div style="display:flex;align-items:center;justify-content:center;margin-top:6px">
-      <div id="powerSwitch" class="power-switch off" title="Tap to toggle">
-        <div class="track"></div>
-        <div class="knob">ON</div>
-      </div>
-    </div>
-
-    <!-- slider labels -->
-    <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:6px">
-      <div class="slider-label" id="proxLabel">Distance = X</div>
-      <div class="slider-label" id="distLabel">Bearing = 0°</div>
-    </div>
-
-    <div class="sliders" style="margin-top:6px">
-      <div><input id="proximity" type="range" min="0" max="100" value="50"></div>
-      <div><input id="direction" type="range" min="0" max="360" value="0"></div>
     </div>
 
   </div>
 </div>
 
 <script>
-/* Fixes applied:
- - main LED re-added and wired (mainLed)
- - power switch no longer draggable; click toggles; knob bigger and snaps
- - bearing mapping: displayed 0 -> internal front (270), formula below
- - canvas made smaller to avoid scrolling
- - radiation LEDs centered and letters a/b/y above
- - exponential LED chance, desynced timers retained
- - info panel hidden when power off
+/* Compact detector script — updated:
+ - UI compacted, backplate added
+ - haptics removed (no navigator.vibrate calls)
+ - switch click toggles, knob snaps
+ - LED exponential chance as before
+ - behaviour otherwise preserved
 */
 
 const canvas = document.getElementById('radar'), ctx = canvas.getContext('2d');
@@ -220,9 +199,9 @@ const mainLed = document.getElementById('mainLed');
 
 let dpr = Math.max(window.devicePixelRatio || 1, 1);
 function sizeCanvas(){
-  // smaller canvas to ensure whole unit fits vertically on iPhone SE
+  // keep it small and short so the whole unit fits vertically
   const maxW = Math.min(window.innerWidth - 36, 320);
-  const cssSize = Math.floor(maxW * 0.86); // reduced to avoid vertical scrolling
+  const cssSize = Math.floor(maxW * 0.72); // compact
   canvas.style.width = cssSize + 'px';
   canvas.style.height = cssSize + 'px';
   canvas.width = cssSize * dpr;
@@ -234,10 +213,10 @@ sizeCanvas();
 
 /* Config */
 let SWEEP_SPEED = 5.0;
-const TRAIL_STEPS = 14;
+const TRAIL_STEPS = 12;
 const TRAIL_STEP_ANGLE = 3.2;
 const DETECT_ARC = 28;
-const LERP = 0.12;
+const LERP = 0.14;
 const FADE_MS = 900;
 const MIN_BEEP_INTERVAL = 80;
 const MAX_BEEP_INTERVAL = 2200;
@@ -248,7 +227,7 @@ let audioCtx = null, continuousOsc = null, continuousGain = null, isAudioEnabled
 let powerOn = false;
 let lastBeepTime = 0, ledFlashUntil = 0, foundPreviously = false;
 
-/* names/types/rarities */
+/* data */
 const names = ["Krovavaya","Siren","Mire","Tesla","Viper","Lump","Echo","Glimmer","Cvar","Nexus","Shard","Wisp"];
 const types = ["Electro","Gravity","Thermal","Bio","Psy","Rad"];
 const rarities = [
@@ -265,9 +244,9 @@ let artifact = { angleDeg:0, proximity: Number(proximityEl.value), meta:null };
 let current = { angleDeg: artifact.angleDeg, proximity: artifact.proximity };
 let lastDetectedAt = -999999, visibleAlpha = 0;
 
-/* audio helpers + haptic */
+/* audio helpers (no haptics) */
 function ensureAudio(){ if(audioCtx) return; try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ audioCtx=null; } }
-function clickSound(){ if(!audioCtx){ ensureAudio(); if(!audioCtx) return; } try{ const t=audioCtx.currentTime; const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); o.type='triangle'; o.frequency.value=900; g.gain.value=0.0006; o.connect(g); g.connect(audioCtx.destination); g.gain.setValueAtTime(0.0006,t); g.gain.linearRampToValueAtTime(0.12,t+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+0.06); o.start(t); o.stop(t+0.08);}catch(e){} }
+function clickSound(){ if(!audioCtx){ ensureAudio(); if(!audioCtx) return; } try{ const t=audioCtx.currentTime; const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); o.type='triangle'; o.frequency.value=900; g.gain.value=0.0004; o.connect(g); g.connect(audioCtx.destination); g.gain.setValueAtTime(0.0004,t); g.gain.linearRampToValueAtTime(0.09,t+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+0.05); o.start(t); o.stop(t+0.06);}catch(e){} }
 function playBeep(){
   if(!audioCtx || !powerOn) return;
   const t = audioCtx.currentTime;
@@ -275,25 +254,21 @@ function playBeep(){
   const g = audioCtx.createGain();
   o.type = 'sine';
   o.frequency.value = 680 + (artifact.meta?.energy || 0) * 1.6;
-  g.gain.value = 0;
   o.connect(g); g.connect(audioCtx.destination);
   const dur = BEEP_DURATION/1000;
-  g.gain.setValueAtTime(0.0001, t);
-  g.gain.exponentialRampToValueAtTime(0.15, t + 0.008);
-  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  g.gain.setValueAtTime(0.00008, t);
+  g.gain.exponentialRampToValueAtTime(0.12, t + 0.007);
+  g.gain.exponentialRampToValueAtTime(0.00008, t + dur);
   o.start(t);
   o.stop(t + dur + 0.02);
-  try{ if(navigator.vibrate) navigator.vibrate(18); }catch(e){}
 }
-function hapticFound(){ try{ if(navigator.vibrate) navigator.vibrate([28,60,20]); }catch(e){} }
-
-function startContinuousTone(){ if(!audioCtx||!powerOn||continuousOsc) return; continuousOsc = audioCtx.createOscillator(); continuousGain = audioCtx.createGain(); continuousOsc.type='sine'; continuousOsc.frequency.value=920; continuousGain.gain.value=0; continuousOsc.connect(continuousGain); continuousGain.connect(audioCtx.destination); continuousOsc.start(); continuousGain.gain.linearRampToValueAtTime(0.18,audioCtx.currentTime+0.05); }
+function startContinuousTone(){ if(!audioCtx||!powerOn||continuousOsc) return; continuousOsc = audioCtx.createOscillator(); continuousGain = audioCtx.createGain(); continuousOsc.type='sine'; continuousOsc.frequency.value=920; continuousGain.gain.value=0; continuousOsc.connect(continuousGain); continuousGain.connect(audioCtx.destination); continuousOsc.start(); continuousGain.gain.linearRampToValueAtTime(0.14,audioCtx.currentTime+0.05); }
 function stopContinuousTone(){ if(!continuousOsc) return; try{ continuousGain.gain.linearRampToValueAtTime(0.0001,audioCtx.currentTime+0.02); setTimeout(()=>{ try{ continuousOsc.stop(); continuousOsc.disconnect(); continuousGain.disconnect(); }catch(e){} continuousOsc=null; continuousGain=null; },80);}catch(e){ continuousOsc=null; continuousGain=null; } }
 
 /* price */
 function computePrice(meta){ if(!meta) return 0; const base=meta._base; const energyFactor=1 + (meta.energy * 0.0065); const weightFactor=1 + (meta.weight * 0.01); const radPenalty=Math.max(0.6,1 - (meta.radiation * 0.005)); const randomVar=0.93 + Math.random()*0.14; let p=Math.round(base * energyFactor * weightFactor * radPenalty * randomVar); return Math.max(100,p); }
 
-/* randomize artifact */
+/* spawn */
 function randomizeArtifact(){
   const baseName = names[Math.floor(Math.random()*names.length)];
   const type = types[Math.floor(Math.random()*types.length)];
@@ -310,7 +285,7 @@ function randomizeArtifact(){
   lastDetectedAt = -999999; visibleAlpha = 0;
   foundPreviously = false;
   const angle = Math.floor(Math.random()*360);
-  artifact.angleDeg = angle;
+  artifact.angleDeg = (270 + angle) % 360; // keep mapping so 0 front
   directionEl.value = angle;
   distLabel.textContent = "Bearing = " + Math.round(directionEl.value) + "°";
   updateInfoUI();
@@ -328,55 +303,35 @@ function updateInfoUI(){
   rarityEl.className = 'badge ' + ({'I':'','II':'II','III':'III','IV':'IV'}[artifact.meta.tier]||'');
 }
 
-/* displayed degrees -> internal angle mapping: 0° = front => internal = 270 + displayed */
+/* displayed degrees -> internal angle (0° = front) */
 function displayedToInternalAngle(dd){ return (270 + dd) % 360; }
 
-/* Distance mapping 20m -> 0m */
+/* distance label (20m -> 0m) */
 function updateDistanceLabel(){
   const p = artifact.proximity;
   if(p <= 0){ proxLabel.textContent = "Distance = X"; }
-  else {
-    const meters = Math.round((1 - (p/100)) * 20);
-    proxLabel.textContent = "Distance = " + meters + "m";
-  }
+  else { const meters = Math.round((1 - (p/100)) * 20); proxLabel.textContent = "Distance = " + meters + "m"; }
 }
 
 /* UI handlers */
-proximityEl.addEventListener('input', e=>{
-  artifact.proximity = Number(e.target.value);
-  updateDistanceLabel();
-  if(artifact.proximity <= 0){ lastDetectedAt = -999999; visibleAlpha = 0; foundPreviously = false; }
-});
-directionEl.addEventListener('input', e=>{
-  const dd = Number(e.target.value);
-  distLabel.textContent = "Bearing = " + Math.round(dd) + "°";
-  artifact.angleDeg = displayedToInternalAngle(dd);
-});
+proximityEl.addEventListener('input', e=>{ artifact.proximity = Number(e.target.value); updateDistanceLabel(); if(artifact.proximity <= 0){ lastDetectedAt = -999999; visibleAlpha = 0; foundPreviously = false; } });
+directionEl.addEventListener('input', e=>{ const dd = Number(e.target.value); distLabel.textContent = "Bearing = " + Math.round(dd) + "°"; artifact.angleDeg = displayedToInternalAngle(dd); });
 
-/* power toggle (click only) */
+/* switch click toggles, knob snaps */
 function setPowerState(on){
   powerOn = !!on;
   const knob = powerSwitch.querySelector('.knob');
   if(powerOn){
     powerSwitch.classList.remove('off'); powerSwitch.classList.add('on');
-    knob.style.transform = 'translateX(32px)';
-    powerOverlay.classList.add('hidden');
-    ensureAudio(); if(audioCtx && audioCtx.state==='suspended') audioCtx.resume();
-    isAudioEnabled = true;
+    knob.style.transform = 'translateX(30px)';
+    powerOverlay.classList.add('hidden'); ensureAudio(); if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); isAudioEnabled=true;
   } else {
     powerSwitch.classList.remove('on'); powerSwitch.classList.add('off');
     knob.style.transform = 'translateX(0px)';
-    powerOverlay.classList.remove('hidden');
-    stopContinuousTone();
-    isAudioEnabled = false;
-    mainLed.classList.remove('on');
-    infoPanel.style.display = 'none';
+    powerOverlay.classList.remove('hidden'); stopContinuousTone(); isAudioEnabled=false; mainLed.classList.remove('on'); infoPanel.style.display='none';
   }
 }
-powerSwitch.addEventListener('click', ()=>{
-  setPowerState(!powerOn);
-  clickSound();
-});
+powerSwitch.addEventListener('click', ()=>{ setPowerState(!powerOn); clickSound(); });
 
 /* randomize */
 randBtn.addEventListener('click', ()=>{ ensureAudio(); if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); isAudioEnabled=true; randomizeArtifact(); });
@@ -386,13 +341,9 @@ document.addEventListener('touchstart', function once(){ ensureAudio(); if(audio
 /* LED exponential chance */
 const LED_MIN = 0.01, LED_MAX = 0.50, LED_K = 0.035;
 const LED_DEN = (Math.exp(LED_K * 100) - 1);
-function ledChanceForProximity(p){
-  if(p <= 0) return 0;
-  const v = (Math.exp(LED_K * p) - 1) / LED_DEN;
-  return LED_MIN + (LED_MAX - LED_MIN) * v;
-}
+function ledChanceForProximity(p){ if(p <= 0) return 0; const v = (Math.exp(LED_K * p) - 1) / LED_DEN; return LED_MIN + (LED_MAX - LED_MIN) * v; }
 
-/* desynced LED timers (same as before) */
+/* desynced LED timers */
 (function desyncedLEDs(){
   const leds = [
     {el: fakeLedBlue, freq: 1200, interval: 33},
@@ -429,10 +380,10 @@ function ledChanceForProximity(p){
   });
 })();
 
-/* mapping proximity -> beep interval */
+/* mapping proximity to beep interval */
 function proxToInterval(p){ const ratio = Math.max(0, Math.min(1, p/100)); return Math.round(MAX_BEEP_INTERVAL - (MAX_BEEP_INTERVAL - MIN_BEEP_INTERVAL) * ratio); }
 
-/* drawing loop */
+/* draw loop */
 let noiseTime = 0;
 function draw(now){
   sizeCanvas();
@@ -447,7 +398,7 @@ function draw(now){
 
   ctx.clearRect(0,0,size,size);
 
-  // analog horizontal lines
+  // analog lines
   ctx.save();
   for(let y=0;y<=size;y+=1.6){
     ctx.strokeStyle = `rgba(0,0,0,${0.08 + 0.04*Math.sin((y+noiseTime*12)/20)})`;
@@ -456,7 +407,7 @@ function draw(now){
   }
   ctx.restore();
 
-  // radar circle
+  // background circle
   const g = ctx.createRadialGradient(cx,cy,6,cx,cy,maxR);
   g.addColorStop(0,"rgba(2,40,8,0.98)"); g.addColorStop(0.6,"rgba(8,70,18,0.6)"); g.addColorStop(1,"rgba(2,20,6,0.9)");
   ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx,cy,maxR,0,Math.PI*2); ctx.fill();
@@ -475,7 +426,7 @@ function draw(now){
     const stepAngle = sweepAngle - i * TRAIL_STEP_ANGLE;
     const a = degToRad(stepAngle);
     const alpha = Math.max(0, 0.46 * (1 - i / TRAIL_STEPS));
-    if(i > TRAIL_STEPS * 0.45) ctx.filter='blur(4px)'; else ctx.filter='none';
+    if(i > TRAIL_STEPS * 0.45) ctx.filter='blur(3px)'; else ctx.filter='none';
     const halfWidth = degToRad(10);
     const grad = ctx.createLinearGradient(Math.cos(a)*0, Math.sin(a)*0, Math.cos(a)*maxR, Math.sin(a)*maxR);
     grad.addColorStop(0, `rgba(0,255,120,${alpha})`); grad.addColorStop(1, `rgba(0,255,80,${alpha*0.02})`);
@@ -492,7 +443,7 @@ function draw(now){
   ctx.fillStyle = gradFront; ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,maxR,aFront-halfFront,aFront+halfFront); ctx.closePath(); ctx.globalCompositeOperation='lighter'; ctx.fill();
   ctx.restore();
 
-  // artifact (if proximity>0)
+  // artifact (if inside)
   if(artifact.proximity > 0){
     const artAngle = current.angleDeg;
     const diff = angleDiff(sweepAngle, artAngle);
@@ -508,15 +459,15 @@ function draw(now){
     }
   } else { lastDetectedAt = -999999; visibleAlpha = 0; }
 
-  // center marker
+  // center dot
   ctx.beginPath(); ctx.fillStyle="rgba(0,0,0,0.28)"; ctx.arc(cx,cy,6,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.strokeStyle="rgba(0,255,140,0.5)"; ctx.arc(cx,cy,6,0,Math.PI*2); ctx.stroke();
 
-  // info panel visibility
+  // info panel visibility (only when found & on)
   if(Math.round(current.proximity) >= 100 && artifact.meta && powerOn){
     infoPanel.style.display='block';
     updateInfoUI();
-    if(!foundPreviously){ foundPreviously = true; hapticFound(); }
+    if(!foundPreviously){ foundPreviously = true; /* no haptics */ }
   } else {
     infoPanel.style.display='none';
     foundPreviously = false;
@@ -526,7 +477,7 @@ function draw(now){
   noiseTime += 0.9; if(noiseTime > 10000) noiseTime = 0;
   for(let i=0;i<8;i++){ const nx = cx + Math.cos((i*23 + noiseTime*6)/12) * (maxR*(0.2 + 0.8*Math.random())); const ny = cy + Math.sin((i*17 + noiseTime*5)/10) * (maxR*(0.2 + 0.8*Math.random())); ctx.fillStyle='rgba(0,255,140,0.02)'; ctx.fillRect(nx,ny,1,1); }
 
-  // main beeping
+  // main beeping and main LED
   const nowMs = performance.now();
   if(powerOn && artifact.proximity >= 100){
     if(!continuousOsc && audioCtx && isAudioEnabled) startContinuousTone();
@@ -562,7 +513,7 @@ function proxToInterval(p){ const ratio = Math.max(0, Math.min(1, p/100)); retur
 /* start */
 ensureAudio(); randomizeArtifact(); draw();
 
-/* small UI listeners */
+/* small listeners */
 directionEl.addEventListener('input', ()=>{ distLabel.textContent = "Bearing = " + Math.round(directionEl.value) + "°"; });
 proximityEl.addEventListener('input', ()=>{ updateDistanceLabel(); });
 
