@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Artifact Detector — Fixed</title>
+<title>Artifact Detector — Bearing/Distance Update</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -28,7 +28,7 @@ html,body{height:100%;margin:0;background:linear-gradient(180deg,#020202,#0b0b0b
   border:3px solid rgba(0,0,0,0.28);
   overflow:visible;
 }
-/* frame texture (diagonal lines) - now only here so it doesn't overlap inner UI */
+/* frame texture (diagonal lines) */
 .frame::before{
   content:"";position:absolute;inset:0;border-radius:12px;pointer-events:none;
   background-image: repeating-linear-gradient(135deg, rgba(0,0,0,0.03) 0 3px, transparent 3px 6px);
@@ -41,9 +41,9 @@ html,body{height:100%;margin:0;background:linear-gradient(180deg,#020202,#0b0b0b
 .screw:after{content:"+";color:var(--screw-top);font-weight:800;font-size:11px;transform:rotate(30deg)}
 .screw.tl{left:6px;top:6px} .screw.tr{right:6px;top:6px} .screw.bl{left:6px;bottom:6px} .screw.br{right:6px;bottom:6px}
 
-/* Screen outer (inner seam kept minimal and non-textured) */
+/* Screen outer - removed inner seam visuals (keeps layout) */
 .screen-outer{border-radius:10px;padding:4px;background:linear-gradient(180deg, rgba(0,0,0,0.3), rgba(0,0,0,0.5)); z-index:2}
-.screen-seam{position:absolute;left:10px;right:10px;top:10px;bottom:10px;border-radius:8px;pointer-events:none;z-index:3;box-shadow: inset 0 0 0 2px rgba(120,70,40,0.28);background:transparent}
+.screen-seam{display:none} /* removed as requested */
 
 /* inner canvas container */
 .screen-wrap{position:relative;border-radius:8px;padding:4px;background:linear-gradient(180deg,#021f12,#00140a);overflow:hidden;display:flex;align-items:center;justify-content:center;z-index:4}
@@ -82,10 +82,10 @@ canvas{display:block;border-radius:6px;width:100%;height:auto;}
 /* fake buttons opaque */
 .fake-btn{width:26px;height:18px;border-radius:6px;background:linear-gradient(180deg,#3a2b1f,#25170e);display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:#c8d8c8;box-shadow:inset 0 1px 0 rgba(255,255,255,0.02);z-index:50}
 
-/* slider labels (black panels) */
+/* slider labels (black panels) - names swapped as requested */
 .slider-label{display:inline-block;background:#000;padding:6px 8px;border-radius:6px;color:var(--muted);font-size:12px;font-family:Orbitron,monospace;box-shadow:inset 0 1px 0 rgba(255,255,255,0.02), 0 6px 12px rgba(0,0,0,0.45);z-index:50}
 
-/* sliders: solid dark slit; thumb has distinct texture different from frame */
+/* sliders: solid dark slit; thumb has distinct texture */
 .sliders{display:flex;flex-direction:column;gap:6px;margin-top:6px;z-index:50}
 input[type=range]{-webkit-appearance:none;width:100%;height:30px;background:transparent;padding:6px 0;margin:0}
 input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:8px;background:#0d0d0d;border:1px solid rgba(255,255,255,0.02)}
@@ -103,7 +103,7 @@ input[type=range]::-moz-range-thumb{width:46px;height:22px;border-radius:12px;ba
 .info .badge{display:block;padding:3px 4px;border-radius:6px;margin-bottom:4px;background:rgba(0,0,0,0.18);border:1px solid rgba(0,255,140,0.06);font-size:12px}
 .badge.I{color:#ffffff} .badge.II{color:#9fffae} .badge.III{color:#a9d6ff} .badge.IV{color:#ffd868}
 
-/* overlay when off (inside screen only) */
+/* overlay when off (cover only inside screen) */
 .power-off-overlay{position:absolute;left:12px;right:12px;top:12px;bottom:12px;border-radius:8px;background:#000;z-index:40;display:block;pointer-events:none}
 .power-off-overlay.hidden{display:none}
 
@@ -147,7 +147,7 @@ input[type=range]::-moz-range-thumb{width:46px;height:22px;border-radius:12px;ba
       </div>
     </div>
 
-    <!-- controls row -->
+    <!-- controls -->
     <div class="controls" style="margin-top:6px">
       <div class="left-controls">
         <div id="led" class="led"></div>
@@ -179,10 +179,10 @@ input[type=range]::-moz-range-thumb{width:46px;height:22px;border-radius:12px;ba
       </div>
     </div>
 
-    <!-- slider label panels -->
+    <!-- slider labels (names swapped) -->
     <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:8px">
-      <div class="slider-label" id="proxLabel">Proximity = 50</div>
-      <div class="slider-label" id="distLabel">Distance = 50</div>
+      <div class="slider-label" id="proxLabel">Distance = X</div>
+      <div class="slider-label" id="distLabel">Bearing = 50</div>
     </div>
 
     <div class="sliders">
@@ -194,13 +194,14 @@ input[type=range]::-moz-range-thumb{width:46px;height:22px;border-radius:12px;ba
 </div>
 
 <script>
-/* Fixed detector script:
- - fixed syntax error that stopped JS
- - frame texture now applied only to frame (::before) so it doesn't overlap inner UI
- - screws smaller; plus sign brown
- - decorative blinkers only when powered on; check 1000 ms; flash 100 ms; quiet beep per LED
- - all controls wired correctly; randomize updates sliders and sets proximity to 0
- - when power OFF, radar drawing and blinkers are paused
+/* Behavior updates per your request:
+ - labels swapped: left shows Distance (X when outside), right shows Bearing (0-100)
+ - Distance display: if proximity==0 -> "X"; else meters 50..0 (linear: 50m at just inside, 0m at proximity=100)
+ - stats box hidden when power is off
+ - decorative LEDs check every 500ms, chance = baseProb * (proximity/100) (0 when proximity=0)
+ - decorative flash = 100ms + tiny quiet beep each
+ - removed seam (CSS) already
+ - haptic: navigator.vibrate on beep and on found (short pattern)
 */
 
 const canvas = document.getElementById('radar'), ctx = canvas.getContext('2d');
@@ -240,6 +241,7 @@ const BEEP_DURATION = 70;
 /* audio & state */
 let audioCtx = null, continuousOsc = null, continuousGain = null, isAudioEnabled=false, powerOn=false;
 let lastBeepTime = 0, ledFlashUntil = 0;
+let foundPreviously = false; // used for found vibration trigger
 
 /* DB rarities */
 const names = ["Krovavaya","Siren","Mire","Tesla","Viper","Lump","Echo","Glimmer","Cvar","Nexus","Shard","Wisp"];
@@ -258,10 +260,33 @@ let artifact = { angleDeg:0, proximity: Number(proximityEl.value), meta:null };
 let current = { angleDeg: artifact.angleDeg, proximity: artifact.proximity };
 let lastDetectedAt = -999999, visibleAlpha = 0;
 
-/* audio helpers */
+/* audio helpers + haptic */
 function ensureAudio(){ if(audioCtx) return; try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ audioCtx=null; } }
 function clickSound(){ if(!audioCtx){ ensureAudio(); if(!audioCtx) return; } try{ const t=audioCtx.currentTime; const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); o.type='triangle'; o.frequency.value=900; g.gain.value=0.0006; o.connect(g); g.connect(audioCtx.destination); g.gain.setValueAtTime(0.0006,t); g.gain.linearRampToValueAtTime(0.12,t+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+0.06); o.start(t); o.stop(t+0.08);}catch(e){} }
-function playBeep(){ if(!audioCtx || !powerOn) return; const t=audioCtx.currentTime; const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); o.type='sine'; o.frequency.value = 680 + (artifact.meta?.energy||0)*1.6; g.gain.value = 0; o.connect(g); g.connect(audioCtx.destination); const dur = BEEP_DURATION/1000; g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.15,t+0.008); g.gain.exponentialRampToValueAtTime(0.0001,t+dur); o.start(t); o.stop(t+dur+0.02); }
+function playBeep(){
+  if(!audioCtx || !powerOn) return;
+  const t = audioCtx.currentTime;
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.type = 'sine';
+  o.frequency.value = 680 + (artifact.meta?.energy || 0) * 1.6;
+  g.gain.value = 0;
+  o.connect(g); g.connect(audioCtx.destination);
+  const dur = BEEP_DURATION/1000;
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(0.15, t + 0.008);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.start(t);
+  o.stop(t + dur + 0.02);
+  // mild haptic on beep (may not work in iOS Safari, harmless if unsupported)
+  try{ if(navigator.vibrate) navigator.vibrate(18); }catch(e){}
+}
+
+/* small haptic pattern for found (two short pulses) */
+function hapticFound(){
+  try{ if(navigator.vibrate) navigator.vibrate([28,60,20]); }catch(e){}
+}
+
 function startContinuousTone(){ if(!audioCtx||!powerOn||continuousOsc) return; continuousOsc = audioCtx.createOscillator(); continuousGain = audioCtx.createGain(); continuousOsc.type='sine'; continuousOsc.frequency.value=920; continuousGain.gain.value=0; continuousOsc.connect(continuousGain); continuousGain.connect(audioCtx.destination); continuousOsc.start(); continuousGain.gain.linearRampToValueAtTime(0.18,audioCtx.currentTime+0.05); }
 function stopContinuousTone(){ if(!continuousOsc) return; try{ continuousGain.gain.linearRampToValueAtTime(0.0001,audioCtx.currentTime+0.02); setTimeout(()=>{ try{ continuousOsc.stop(); continuousOsc.disconnect(); continuousGain.disconnect(); }catch(e){} continuousOsc=null; continuousGain=null; },80);}catch(e){ continuousOsc=null; continuousGain=null; } }
 
@@ -280,11 +305,13 @@ function randomizeArtifact(){
   meta.price = computePrice(meta);
   artifact.meta = meta;
   artifact.proximity = 0;
-  proximityEl.value = 0; proxLabel.textContent = "Proximity = 0";
+  proximityEl.value = 0;
+  updateDistanceLabel();
   lastDetectedAt = -999999; visibleAlpha = 0;
+  foundPreviously = false;
   const angle = Math.random()*360; artifact.angleDeg = angle;
   const sliderVal = (((angle - 180 + 360) % 360) / 360) * 100;
-  directionEl.value = Math.round(sliderVal); distLabel.textContent = "Distance = " + Math.round(directionEl.value);
+  directionEl.value = Math.round(sliderVal); distLabel.textContent = "Bearing = " + Math.round(directionEl.value);
   updateInfoUI();
 }
 
@@ -300,18 +327,30 @@ function updateInfoUI(){
   rarityEl.className = 'badge ' + ({'I':'','II':'II','III':'III','IV':'IV'}[artifact.meta.tier]||'');
 }
 
-/* mapping slider -> angle (0..100 => behind/front/behind) */
+/* slider->angle mapping (same behavior) */
 function sliderToAngle(sl){ return ((50 - sl) / 50) * 180; }
+
+/* update left label (Distance): X if outside detection (proximity==0). Otherwise show meters 50..0 linear with proximity */
+function updateDistanceLabel(){
+  const p = artifact.proximity;
+  if(p <= 0){
+    proxLabel.textContent = "Distance = X";
+  } else {
+    // linear: p just above 0 -> distance close to 50m, p=100 -> 0m
+    const meters = Math.round((1 - (p/100)) * 50);
+    proxLabel.textContent = "Distance = " + meters + "m";
+  }
+}
 
 /* UI handlers */
 proximityEl.addEventListener('input', e=>{
   artifact.proximity = Number(e.target.value);
-  proxLabel.textContent = "Proximity = " + artifact.proximity;
-  if(artifact.proximity <= 0){ lastDetectedAt = -999999; visibleAlpha = 0; }
+  updateDistanceLabel();
+  if(artifact.proximity <= 0){ lastDetectedAt = -999999; visibleAlpha = 0; foundPreviously = false; }
 });
 directionEl.addEventListener('input', e=>{
   const sv = Number(e.target.value);
-  distLabel.textContent = "Distance = " + Math.round(sv);
+  distLabel.textContent = "Bearing = " + Math.round(sv);
   artifact.angleDeg = (sliderToAngle(sv) + 360) % 360;
 });
 
@@ -319,50 +358,54 @@ directionEl.addEventListener('input', e=>{
 powerBtn.addEventListener('click', ()=>{
   powerOn = !powerOn;
   if(powerOn){ powerBtn.classList.remove('off'); powerOverlay.classList.add('hidden'); ensureAudio(); if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); isAudioEnabled = true; }
-  else { powerBtn.classList.add('off'); powerOverlay.classList.remove('hidden'); stopContinuousTone(); isAudioEnabled=false; ledEl.classList.remove('on'); }
+  else { powerBtn.classList.add('off'); powerOverlay.classList.remove('hidden'); stopContinuousTone(); isAudioEnabled=false; ledEl.classList.remove('on'); infoPanel.style.display='none'; } // ensure stat box hidden when power off
   clickSound();
 });
 randBtn.addEventListener('click', ()=>{ ensureAudio(); if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); isAudioEnabled = true; randomizeArtifact(); });
 
 document.addEventListener('touchstart', function once(){ ensureAudio(); if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); isAudioEnabled = true; document.removeEventListener('touchstart', once); }, {passive:true});
 
-/* decorative blinkers: 1000ms check; only when powered on; quiet beep; 100ms flash */
+/* decorative blinkers: 500ms check; chance scales with proximity; 100ms flash; very quiet beep */
 (function decorativeBlinkers(){
   const leds = [
-    {el: fakeLedBlue, prob: 0.12, freq: 1100},
-    {el: fakeLedGreen, prob: 0.10, freq: 880},
-    {el: fakeLedRed, prob: 0.08, freq: 660}
+    {el: fakeLedBlue, baseProb: 0.18, freq: 1200},
+    {el: fakeLedGreen, baseProb: 0.14, freq: 920},
+    {el: fakeLedRed, baseProb: 0.10, freq: 700}
   ];
   setInterval(()=>{
-    if(!powerOn) return;
+    if(!powerOn) return; // don't blink when off
     if(!audioCtx) ensureAudio();
+    const p = Math.max(0, Math.min(100, artifact.proximity || 0)); // 0..100
+    const factor = p / 100;
     leds.forEach(l=>{
-      if(Math.random() < l.prob){
+      const prob = l.baseProb * factor;
+      if(Math.random() < prob){
         l.el.classList.add('on');
+        // quiet beep
         if(audioCtx && isAudioEnabled){
           try{
             const t = audioCtx.currentTime;
             const o = audioCtx.createOscillator();
             const g = audioCtx.createGain();
             o.type = 'sine'; o.frequency.value = l.freq;
-            g.gain.value = 0.00005;
+            g.gain.value = 0.00003;
             o.connect(g); g.connect(audioCtx.destination);
-            g.gain.setValueAtTime(0.00005, t);
+            g.gain.setValueAtTime(0.00003, t);
             g.gain.linearRampToValueAtTime(0.02, t + 0.005);
-            g.gain.exponentialRampToValueAtTime(0.00005, t + 0.095);
+            g.gain.exponentialRampToValueAtTime(0.00003, t + 0.095);
             o.start(t); o.stop(t + 0.11);
           }catch(e){}
         }
         setTimeout(()=> l.el.classList.remove('on'), 100);
       }
     });
-  }, 1000);
+  }, 500);
 })();
 
 /* beep interval mapping */
 function proxToInterval(p){ const ratio = Math.max(0, Math.min(1, p/100)); return Math.round(MAX_BEEP_INTERVAL - (MAX_BEEP_INTERVAL - MIN_BEEP_INTERVAL) * ratio); }
 
-/* DRAW loop */
+/* DRAW loop + found detection haptic */
 let noiseTime = 0;
 function draw(now){
   sizeCanvas();
@@ -373,6 +416,7 @@ function draw(now){
   current.proximity = lerp(current.proximity, artifact.proximity, LERP);
   current.angleDeg = lerpAngle(current.angleDeg, artifact.angleDeg, LERP);
 
+  // if off, do not draw (overlay covers) and ensure info hidden
   if(!powerOn){ requestAnimationFrame(draw); return; }
 
   ctx.clearRect(0,0,size,size);
@@ -433,22 +477,50 @@ function draw(now){
     }
   } else { lastDetectedAt = -999999; visibleAlpha = 0; }
 
-  // center dot
+  // center marker
   ctx.beginPath(); ctx.fillStyle="rgba(0,0,0,0.28)"; ctx.arc(cx,cy,6,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.strokeStyle="rgba(0,255,140,0.5)"; ctx.arc(cx,cy,6,0,Math.PI*2); ctx.stroke();
 
-  // info panel show/hide
-  if(Math.round(current.proximity) >= 100 && artifact.meta && powerOn){ infoPanel.style.display='block'; updateInfoUI(); } else { infoPanel.style.display='none'; }
+  // info panel show/hide: only when ON and found
+  if(Math.round(current.proximity) >= 100 && artifact.meta && powerOn){
+    infoPanel.style.display='block';
+    updateInfoUI();
+    // trigger found haptic once (when transition into found)
+    if(!foundPreviously){
+      foundPreviously = true;
+      // short double haptic
+      hapticFound();
+    }
+  } else {
+    infoPanel.style.display='none';
+    foundPreviously = false;
+  }
 
   // noise
   noiseTime += 0.9; if(noiseTime > 10000) noiseTime = 0;
-  for(let i=0;i<8;i++){ const nx = cx + Math.cos((i*23 + noiseTime*6)/12) * (maxR*(0.2 + 0.8*Math.random())); const ny = cy + Math.sin((i*17 + noiseTime*5)/10) * (maxR*(0.2 + 0.8*Math.random())); ctx.fillStyle = 'rgba(0,255,140,0.02)'; ctx.fillRect(nx, ny, 1, 1); }
+  for(let i=0;i<8;i++){ const nx = cx + Math.cos((i*23 + noiseTime*6)/12) * (maxR*(0.2 + 0.8*Math.random())); const ny = cy + Math.sin((i*17 + noiseTime*5)/10) * (maxR*(0.2 + 0.8*Math.random())); ctx.fillStyle='rgba(0,255,140,0.02)'; ctx.fillRect(nx,ny,1,1); }
 
-  // main beeping driven by RAF
+  // main beeping driven by RAF (continues while dragging)
   const nowMs = performance.now();
-  if(powerOn && artifact.proximity >= 100){ if(!continuousOsc && audioCtx && isAudioEnabled) startContinuousTone(); ledEl.classList.add('on'); } else {
+  if(powerOn && artifact.proximity >= 100){
+    if(!continuousOsc && audioCtx && isAudioEnabled) startContinuousTone();
+    ledEl.classList.add('on');
+  } else {
     if(continuousOsc) stopContinuousTone();
-    if(powerOn && artifact.proximity > 0 && isAudioEnabled && audioCtx){ const interval = proxToInterval(artifact.proximity); if(!lastBeepTime) lastBeepTime = nowMs; if(nowMs - lastBeepTime >= interval){ playBeep(); lastBeepTime = nowMs; ledEl.classList.add('on'); ledFlashUntil = nowMs + Math.max(60,BEEP_DURATION); } if(nowMs > ledFlashUntil) ledEl.classList.remove('on'); } else { if(!continuousOsc) ledEl.classList.remove('on'); lastBeepTime = nowMs; }
+    if(powerOn && artifact.proximity > 0 && isAudioEnabled && audioCtx){
+      const interval = proxToInterval(artifact.proximity);
+      if(!lastBeepTime) lastBeepTime = nowMs;
+      if(nowMs - lastBeepTime >= interval){
+        playBeep();
+        lastBeepTime = nowMs;
+        ledEl.classList.add('on');
+        ledFlashUntil = nowMs + Math.max(60, BEEP_DURATION);
+      }
+      if(nowMs > ledFlashUntil) ledEl.classList.remove('on');
+    } else {
+      if(!continuousOsc) ledEl.classList.remove('on');
+      lastBeepTime = nowMs;
+    }
   }
 
   requestAnimationFrame(draw);
@@ -464,8 +536,8 @@ function lerpAngle(a,b,t){ const diff = angleDiff(b,a); return (a + diff*t + 360
 ensureAudio(); randomizeArtifact(); draw();
 
 /* UI small handlers */
-directionEl.addEventListener('input', ()=>{ distLabel.textContent = "Distance = " + Math.round(directionEl.value); });
-proximityEl.addEventListener('input', ()=>{ proxLabel.textContent = "Proximity = " + Math.round(proximityEl.value); });
+directionEl.addEventListener('input', ()=>{ distLabel.textContent = "Bearing = " + Math.round(directionEl.value); });
+proximityEl.addEventListener('input', ()=>{ updateDistanceLabel(); });
 
 </script>
 </body>
