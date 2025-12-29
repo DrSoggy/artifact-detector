@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Artifact Detector — Compact + Desynced LEDs</title>
+<title>Artifact Detector — Final</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -16,13 +16,13 @@
   --screw-top:#6b3f2a;
 }
 
-/* keep width increased ~15% but reduce vertical height by tightening paddings/margins */
+/* Wider to fit iPhone SE (max-width ~375px), slightly tighter vertical spacing */
 html,body{height:100%;margin:0;background:linear-gradient(180deg,#020202,#0b0b0b);font-family:Orbitron,system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--muted);display:flex;align-items:center;justify-content:center;}
-.wrap{width:100%;max-width:345px;padding:4px;box-sizing:border-box;} /* width increased, padding reduced */
+.wrap{width:100%;max-width:375px;padding:4px;box-sizing:border-box;} /* increased to fit SE */
 
-/* Frame & texture */
+/* Frame & subtle diagonal texture */
 .frame{
-  position:relative;border-radius:12px;padding:4px; /* reduced padding */
+  position:relative;border-radius:12px;padding:4px;
   background: linear-gradient(180deg,#5f442f,#3a281c);
   box-shadow:0 8px 22px rgba(0,0,0,.75);
   border:3px solid rgba(0,0,0,0.28);
@@ -34,34 +34,38 @@ html,body{height:100%;margin:0;background:linear-gradient(180deg,#020202,#0b0b0b
   mix-blend-mode:overlay;opacity:0.55;z-index:1;
 }
 
-/* screws smaller + brown plus sign */
+/* screws: small with brown + */
 .screw{position:absolute;width:14px;height:14px;border-radius:50%;background:linear-gradient(180deg,var(--screw-dark),#1b120d);box-shadow:inset 0 2px 4px rgba(255,200,150,0.04),0 2px 4px rgba(0,0,0,0.6);border:2px solid rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:60}
 .screw:after{content:"+";color:var(--screw-top);font-weight:800;font-size:11px;transform:rotate(30deg)}
 .screw.tl{left:6px;top:6px} .screw.tr{right:6px;top:6px} .screw.bl{left:6px;bottom:6px} .screw.br{right:6px;bottom:6px}
 
-/* Screen outer (no inner seam) */
-.screen-outer{border-radius:10px;padding:3px;background:linear-gradient(180deg, rgba(0,0,0,0.3), rgba(0,0,0,0.5)); z-index:2}
+/* Screen outer (no intrusive seam) */
+.screen-outer{border-radius:10px;padding:3px;background:linear-gradient(180deg, rgba(0,0,0,0.28), rgba(0,0,0,0.5)); z-index:2}
 .screen-seam{display:none}
 
-/* inner canvas container */
-.screen-wrap{position:relative;border-radius:8px;padding:3px;background:linear-gradient(180deg,#021f12,#00140a);overflow:hidden;display:flex;align-items:center;justify-content:center;z-index:4}
+/* inner canvas container - scaled slightly smaller to enlarge seams */
+.screen-wrap{position:relative;border-radius:8px;padding:3px;background:linear-gradient(180deg,#021f12,#00140a);overflow:hidden;display:flex;align-items:center;justify-content:center;z-index:4;transform-origin:center;}
 
-/* canvas: keep it square and wide; overall vertical space reduced by shrinking other elements */
+/* canvas */
 canvas{display:block;border-radius:6px;width:100%;height:auto;}
 
-/* glass dark plane */
+/* translucent dark plane */
 .glass-cover{position:absolute;left:12px;right:12px;top:12px;bottom:12px;border-radius:8px;background:rgba(0,0,0,0.18);z-index:18;pointer-events:none}
 
-/* corner-only labels (small) */
+/* corner labels */
 .corner-label{position:absolute;color:#cbdcbd;font-size:11px;font-family:Orbitron,monospace;z-index:25}
 .lbl-tl{left:14px;top:10px} .lbl-tr{right:14px;top:10px} .lbl-bl{left:14px;bottom:12px} .lbl-br{right:14px;bottom:12px}
 
-/* controls - tightened spacing */
+/* controls - tighter spacing */
 .controls{display:flex;align-items:center;justify-content:space-between;margin-top:4px;gap:8px;z-index:50}
 .left-controls{display:flex;align-items:center;gap:6px}
 .led{width:14px;height:14px;border-radius:50%;background:#2b0b0b;border:2px solid #2b0000;box-shadow:inset 0 1px 3px rgba(0,0,0,0.6);transition:all .08s linear}
 .led.on{background:linear-gradient(180deg,#ff3b3b,#9b0000);box-shadow:0 0 10px rgba(255,60,60,.9)}
 .right-controls{display:flex;align-items:center;gap:8px;}
+
+/* small text symbols over LEDs */
+.led-block{display:flex;flex-direction:column;align-items:center;gap:3px;font-family:Orbitron,monospace;font-size:11px}
+.led-symbol{color:#bfcfcf; font-size:12px; margin-bottom:-2px}
 
 /* decorative LEDs */
 .fake-led{width:9px;height:9px;border-radius:50%;background:#111;border:1px solid rgba(0,0,0,0.5);box-shadow:inset 0 1px 1px rgba(255,255,255,0.02);z-index:50}
@@ -73,17 +77,22 @@ canvas{display:block;border-radius:6px;width:100%;height:auto;}
 /* randomize button */
 .green-btn{width:34px;height:34px;border-radius:50%;background:linear-gradient(180deg,#163f22,#0b2a17);box-shadow:inset 0 2px 0 rgba(255,255,255,0.02), 0 6px 12px rgba(0,0,0,0.6);color:#9fe8b7;font-weight:700;border:0;display:flex;align-items:center;justify-content:center;z-index:50}
 
-/* power button slightly smaller height */
-.power-btn{display:block;margin:5px auto 4px auto;width:78px;height:28px;border-radius:8px;background:linear-gradient(180deg,#ff6b2b,#d4491a);color:#fff;border:0;font-weight:800;box-shadow:0 8px 20px rgba(0,0,0,0.45);z-index:50}
-.power-btn.off{filter:grayscale(50%) brightness(.7)}
+/* draggable switch track */
+.power-switch{width:78px;height:28px;border-radius:14px;background:linear-gradient(180deg,#61412a,#3b2315);position:relative;box-shadow:inset 0 1px 0 rgba(255,255,255,0.03),0 6px 14px rgba(0,0,0,0.45);display:flex;align-items:center;padding:3px;cursor:pointer;user-select:none}
+.power-switch.off{background:linear-gradient(180deg,#5c2b12,#3b1a0f)}
+.power-switch .track{flex:1;height:100%;border-radius:12px;background:linear-gradient(180deg,#2b2b2b,#111);position:relative;overflow:hidden}
+.power-switch .knob{position:absolute;top:3px;left:3px;width:44px;height:22px;border-radius:10px;background:linear-gradient(180deg,#ff7b36,#c84b1a);box-shadow:0 2px 6px rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:11px;transform:translateX(0);transition:transform 140ms cubic-bezier(.2,.9,.2,1);pointer-events:none}
+.power-switch.on .knob{transform:translateX(34px)} /* snaps right */
+.power-switch.on .knob{background:linear-gradient(180deg,#ff6b2b,#d4491a)}
+/* small text on knob removed, knob just a slider */
 
 /* fake buttons */
 .fake-btn{width:24px;height:16px;border-radius:6px;background:linear-gradient(180deg,#3a2b1f,#25170e);display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:#c8d8c8;box-shadow:inset 0 1px 0 rgba(255,255,255,0.02);z-index:50}
 
-/* slider labels */
+/* slider panels */
 .slider-label{display:inline-block;background:#000;padding:5px 7px;border-radius:6px;color:var(--muted);font-size:12px;font-family:Orbitron,monospace;box-shadow:inset 0 1px 0 rgba(255,255,255,0.02), 0 6px 12px rgba(0,0,0,0.45);z-index:50}
 
-/* sliders: compact */
+/* sliders */
 .sliders{display:flex;flex-direction:column;gap:6px;margin-top:6px;z-index:50}
 input[type=range]{-webkit-appearance:none;width:100%;height:28px;background:transparent;padding:6px 0;margin:0}
 input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:8px;background:#0d0d0d;border:1px solid rgba(255,255,255,0.02)}
@@ -95,17 +104,17 @@ border:2px solid rgba(0,0,0,0.72);box-shadow:inset 0 2px 0 rgba(255,220,170,0.04
 input[type=range]::-moz-range-thumb{width:44px;height:20px;border-radius:10px;background:
   linear-gradient(180deg,#4b301d,#2d1a11);border:2px solid rgba(0,0,0,0.72)}
 
-/* info panel moved down slightly and smaller */
+/* info panel */
 .info{position:absolute;left:12px;top:40px;z-index:55;background:rgba(0,0,0,0.36);padding:6px 8px;border-radius:8px;color:#dfffe0;font-size:12px;min-width:110px;max-width:160px;box-shadow:0 6px 18px rgba(0,0,0,0.6);display:none}
 .info h3{margin:0 0 6px 0;font-size:13px}
 .info .badge{display:block;padding:3px 4px;border-radius:6px;margin-bottom:4px;background:rgba(0,0,0,0.18);border:1px solid rgba(0,255,140,0.06);font-size:12px}
 .badge.I{color:#ffffff} .badge.II{color:#9fffae} .badge.III{color:#a9d6ff} .badge.IV{color:#ffd868}
 
-/* overlay when off (inside screen) */
+/* overlay when off (screen) */
 .power-off-overlay{position:absolute;left:12px;right:12px;top:12px;bottom:12px;border-radius:8px;background:#000;z-index:40;display:block;pointer-events:none}
 .power-off-overlay.hidden{display:none}
 
-/* responsive tweaks */
+/* responsive */
 @media(max-width:420px){ .wrap{padding:3px} canvas{max-width:92vw;} input[type=range]::-webkit-slider-thumb{width:40px;height:18px} }
 </style>
 </head>
@@ -119,13 +128,11 @@ input[type=range]::-moz-range-thumb{width:44px;height:20px;border-radius:10px;ba
     <div class="screen-outer" id="screenOuter">
       <div class="screen-seam"></div>
 
-      <div class="screen-wrap" id="screenWrap">
+      <div class="screen-wrap" id="screenWrap" style="transform:scale(0.95);"> <!-- scale down display slightly -->
         <canvas id="radar" width="360" height="360"></canvas>
 
-        <!-- glass plane -->
         <div class="glass-cover" id="glassCover"></div>
 
-        <!-- info -->
         <div class="info" id="info">
           <h3 id="artifactName">—</h3>
           <div id="atype" class="badge">Type: —</div>
@@ -145,17 +152,29 @@ input[type=range]::-moz-range-thumb{width:44px;height:20px;border-radius:10px;ba
       </div>
     </div>
 
-    <!-- controls -->
+    <!-- controls row -->
     <div class="controls" style="margin-top:4px">
       <div class="left-controls">
         <div id="led" class="led"></div>
         <div style="margin-left:6px;font-size:12px;color:#9fcf9c">LED</div>
-        <div style="width:6px"></div>
-        <div id="fakeLedBlue" class="fake-led blue" title="status blue"></div>
-        <div style="width:6px"></div>
-        <div id="fakeLedGreen" class="fake-led green" title="status green"></div>
-        <div style="width:6px"></div>
-        <div id="fakeLedRed" class="fake-led red" title="status red"></div>
+
+        <!-- Blue LED block with Alpha symbol -->
+        <div class="led-block" style="margin-left:8px">
+          <div class="led-symbol">Α</div>
+          <div id="fakeLedBlue" class="fake-led blue" title="alpha"></div>
+        </div>
+
+        <!-- Green LED block with Beta symbol -->
+        <div class="led-block">
+          <div class="led-symbol">Β</div>
+          <div id="fakeLedGreen" class="fake-led green" title="beta"></div>
+        </div>
+
+        <!-- Red LED block with Gamma symbol -->
+        <div class="led-block">
+          <div class="led-symbol">Γ</div>
+          <div id="fakeLedRed" class="fake-led red" title="gamma"></div>
+        </div>
       </div>
 
       <div class="right-controls">
@@ -164,7 +183,13 @@ input[type=range]::-moz-range-thumb{width:44px;height:20px;border-radius:10px;ba
       </div>
     </div>
 
-    <button id="powerBtn" class="power-btn off">ON</button>
+    <!-- draggable switch -->
+    <div style="display:flex;align-items:center;justify-content:center;margin-top:6px">
+      <div id="powerBtn" class="power-switch off" title="Drag to switch">
+        <div class="track"></div>
+        <div class="knob">ON</div>
+      </div>
+    </div>
 
     <!-- small decor row -->
     <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:6px">
@@ -177,34 +202,35 @@ input[type=range]::-moz-range-thumb{width:44px;height:20px;border-radius:10px;ba
       </div>
     </div>
 
-    <!-- slider labels: left Distance (meters, X if outside), right Bearing degrees -->
+    <!-- slider labels -->
     <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:6px">
       <div class="slider-label" id="proxLabel">Distance = X</div>
-      <div class="slider-label" id="distLabel">Bearing = 180°</div>
+      <div class="slider-label" id="distLabel">Bearing = 0°</div>
     </div>
 
     <div class="sliders" style="margin-top:6px">
       <div><input id="proximity" type="range" min="0" max="100" value="50"></div>
-      <div><input id="direction" type="range" min="0" max="360" value="180"></div>
+      <div><input id="direction" type="range" min="0" max="360" value="0"></div>
     </div>
 
   </div>
 </div>
 
 <script>
-/* Compact + desynced LEDs
- - kept all behavior, tightened vertical footprint while keeping width
- - distance scale uses 20m start -> 0m found
- - bearing slider 0..360°, displayed -> internal mapping kept
- - descriptive LEDs now use separate timers: blue 33ms, green 66ms, red 99ms
- - probability per check: 0% at proximity==0, else linearly from 5%..60% with p in [0..100]
- - at proximity==100, small LEDs constant ON and muted
+/* Final detector script:
+ - wrap max-width expanded (375px)
+ - display scaled down (.95) to enlarge seams visually
+ - bearing mapping: displayed degrees map directly to internal angle (0 in front)
+ - desynced LED timers (33/66/99ms), exponential chance formula (1% -> ~50%)
+ - draggable power switch with snapping
+ - small Greek symbols above LEDs
+ - distance stays 20m -> 0m scale
 */
 
 const canvas = document.getElementById('radar'), ctx = canvas.getContext('2d');
 const proximityEl = document.getElementById('proximity'), directionEl = document.getElementById('direction');
 const proxLabel = document.getElementById('proxLabel'), distLabel = document.getElementById('distLabel');
-const ledEl = document.getElementById('led'), randBtn = document.getElementById('randBtn'), powerBtn = document.getElementById('powerBtn');
+const ledEl = document.getElementById('led'), randBtn = document.getElementById('randBtn'), powerSwitch = document.getElementById('powerBtn');
 const powerOverlay = document.getElementById('powerOverlay');
 const infoPanel = document.getElementById('info'), artifactNameEl = document.getElementById('artifactName');
 const typeEl = document.getElementById('atype'), rarityEl = document.getElementById('rarity'), priceEl = document.getElementById('price');
@@ -213,8 +239,9 @@ const fakeLedBlue = document.getElementById('fakeLedBlue'), fakeLedGreen = docum
 
 let dpr = Math.max(window.devicePixelRatio || 1, 1);
 function sizeCanvas(){
-  const maxW = Math.min(window.innerWidth - 48, 299); // keep wide
-  const cssSize = Math.floor(maxW);
+  // keep fairly wide but slightly smaller display area (scaled in CSS wrapper)
+  const maxW = Math.min(window.innerWidth - 40, 320);
+  const cssSize = Math.floor(maxW * 0.95); // scale down display slightly to enlarge seams
   canvas.style.width = cssSize + 'px';
   canvas.style.height = cssSize + 'px';
   canvas.width = cssSize * dpr;
@@ -224,7 +251,7 @@ function sizeCanvas(){
 window.addEventListener('resize', sizeCanvas);
 sizeCanvas();
 
-/* CONFIG */
+/* Config */
 let SWEEP_SPEED = 5.0;
 const TRAIL_STEPS = 14;
 const TRAIL_STEP_ANGLE = 3.2;
@@ -236,11 +263,11 @@ const MAX_BEEP_INTERVAL = 2200;
 const BEEP_DURATION = 70;
 
 /* audio & state */
-let audioCtx = null, continuousOsc = null, continuousGain = null, isAudioEnabled=false, powerOn=false;
-let lastBeepTime = 0, ledFlashUntil = 0;
-let foundPreviously = false;
+let audioCtx = null, continuousOsc = null, continuousGain = null, isAudioEnabled=false;
+let powerOn = false;
+let lastBeepTime = 0, ledFlashUntil = 0, foundPreviously = false;
 
-/* DB rarities */
+/* names/types/rarities */
 const names = ["Krovavaya","Siren","Mire","Tesla","Viper","Lump","Echo","Glimmer","Cvar","Nexus","Shard","Wisp"];
 const types = ["Electro","Gravity","Thermal","Bio","Psy","Rad"];
 const rarities = [
@@ -251,7 +278,7 @@ const rarities = [
 ];
 function weightedRandom(arr){ const sum = arr.reduce((s,i)=>s+i.prob,0); const r=Math.random()*sum; let s=0; for(const a of arr){ s+=a.prob; if(r<=s) return a; } return arr[0]; }
 
-/* state */
+/* detector state */
 let sweepAngle = 0;
 let artifact = { angleDeg:0, proximity: Number(proximityEl.value), meta:null };
 let current = { angleDeg: artifact.angleDeg, proximity: artifact.proximity };
@@ -282,10 +309,10 @@ function hapticFound(){ try{ if(navigator.vibrate) navigator.vibrate([28,60,20])
 function startContinuousTone(){ if(!audioCtx||!powerOn||continuousOsc) return; continuousOsc = audioCtx.createOscillator(); continuousGain = audioCtx.createGain(); continuousOsc.type='sine'; continuousOsc.frequency.value=920; continuousGain.gain.value=0; continuousOsc.connect(continuousGain); continuousGain.connect(audioCtx.destination); continuousOsc.start(); continuousGain.gain.linearRampToValueAtTime(0.18,audioCtx.currentTime+0.05); }
 function stopContinuousTone(){ if(!continuousOsc) return; try{ continuousGain.gain.linearRampToValueAtTime(0.0001,audioCtx.currentTime+0.02); setTimeout(()=>{ try{ continuousOsc.stop(); continuousOsc.disconnect(); continuousGain.disconnect(); }catch(e){} continuousOsc=null; continuousGain=null; },80);}catch(e){ continuousOsc=null; continuousGain=null; } }
 
-/* price */
+/* pricing */
 function computePrice(meta){ if(!meta) return 0; const base=meta._base; const energyFactor=1 + (meta.energy * 0.0065); const weightFactor=1 + (meta.weight * 0.01); const radPenalty=Math.max(0.6,1 - (meta.radiation * 0.005)); const randomVar=0.93 + Math.random()*0.14; let p=Math.round(base * energyFactor * weightFactor * radPenalty * randomVar); return Math.max(100,p); }
 
-/* randomize artifact */
+/* artifact spawn */
 function randomizeArtifact(){
   const baseName = names[Math.floor(Math.random()*names.length)];
   const type = types[Math.floor(Math.random()*types.length)];
@@ -302,9 +329,9 @@ function randomizeArtifact(){
   lastDetectedAt = -999999; visibleAlpha = 0;
   foundPreviously = false;
   const angle = Math.random()*360; artifact.angleDeg = angle;
-  const displayed = (180 - angle + 360) % 360;
-  directionEl.value = Math.round(displayed);
-  distLabel.textContent = "Bearing = " + Math.round(displayed) + "°";
+  // displayed angle maps directly to internal (0=front)
+  directionEl.value = Math.round(angle % 360);
+  distLabel.textContent = "Bearing = " + Math.round(directionEl.value) + "°";
   updateInfoUI();
 }
 
@@ -320,15 +347,15 @@ function updateInfoUI(){
   rarityEl.className = 'badge ' + ({'I':'','II':'II','III':'III','IV':'IV'}[artifact.meta.tier]||'');
 }
 
-/* displayed degrees -> internal angle mapping */
-function displayedToInternalAngle(dd){ return (180 - dd + 360) % 360; }
+/* displayed degrees -> internal angle (identity mapping now) */
+function displayedToInternalAngle(dd){ return (dd + 360) % 360; }
 
 /* Distance mapping: 20m at just-inside -> 0m at found */
 function updateDistanceLabel(){
   const p = artifact.proximity;
   if(p <= 0){ proxLabel.textContent = "Distance = X"; }
   else {
-    const meters = Math.round((1 - (p/100)) * 20); // 20m max
+    const meters = Math.round((1 - (p/100)) * 20);
     proxLabel.textContent = "Distance = " + meters + "m";
   }
 }
@@ -340,61 +367,139 @@ proximityEl.addEventListener('input', e=>{
   if(artifact.proximity <= 0){ lastDetectedAt = -999999; visibleAlpha = 0; foundPreviously = false; }
 });
 directionEl.addEventListener('input', e=>{
-  const disp = Number(e.target.value);
-  distLabel.textContent = "Bearing = " + Math.round(disp) + "°";
-  artifact.angleDeg = displayedToInternalAngle(disp);
+  const dd = Number(e.target.value);
+  distLabel.textContent = "Bearing = " + Math.round(dd) + "°";
+  artifact.angleDeg = displayedToInternalAngle(dd);
 });
 
-/* power & randomize */
-powerBtn.addEventListener('click', ()=>{
-  powerOn = !powerOn;
-  if(powerOn){ powerBtn.classList.remove('off'); powerOverlay.classList.add('hidden'); ensureAudio(); if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); isAudioEnabled=true; }
-  else { powerBtn.classList.add('off'); powerOverlay.classList.remove('hidden'); stopContinuousTone(); isAudioEnabled=false; ledEl.classList.remove('on'); infoPanel.style.display='none'; }
-  clickSound();
-});
+/* power toggle logic (used both by switch and click) */
+function setPowerState(on){
+  powerOn = !!on;
+  if(powerOn){
+    powerSwitch.classList.remove('off'); powerSwitch.classList.add('on');
+    powerOverlay.classList.add('hidden');
+    ensureAudio(); if(audioCtx && audioCtx.state==='suspended') audioCtx.resume();
+    isAudioEnabled = true;
+  } else {
+    powerSwitch.classList.remove('on'); powerSwitch.classList.add('off');
+    powerOverlay.classList.remove('hidden');
+    stopContinuousTone();
+    isAudioEnabled = false;
+    ledEl.classList.remove('on');
+    infoPanel.style.display = 'none';
+  }
+}
+
+/* draggable switch implementation */
+(function makeSwitch(){
+  const sw = powerSwitch;
+  const knob = sw.querySelector('.knob');
+  const track = sw.querySelector('.track');
+  const trackRect = ()=>track.getBoundingClientRect();
+  const swRect = ()=>sw.getBoundingClientRect();
+  let dragging = false, startX = 0, startLeft = 0;
+  const knobWidth = 44; const swWidth = 78 - 6; // approximate travel area width (78 total - 2*3 padding)
+  // pointer handlers
+  sw.addEventListener('pointerdown', (ev)=>{
+    ev.preventDefault();
+    dragging = true;
+    sw.setPointerCapture(ev.pointerId);
+    startX = ev.clientX;
+    const transform = window.getComputedStyle(knob).transform;
+    startLeft =  (transform === 'none') ? 0 : Number(transform.split(',')[4]);
+  });
+  window.addEventListener('pointermove', (ev)=>{
+    if(!dragging) return;
+    const dx = ev.clientX - startX;
+    // clamp transform between 0 and 34 (knob moves 34px)
+    const min = 0, max = 34;
+    let x = startLeft + dx;
+    x = Math.max(min, Math.min(max, x));
+    knob.style.transition = 'none';
+    knob.style.transform = `translateX(${x}px)`;
+  });
+  window.addEventListener('pointerup', (ev)=>{
+    if(!dragging) return;
+    dragging = false;
+    // decide snap based on knob center position
+    const transform = window.getComputedStyle(knob).transform;
+    const curX = (transform === 'none') ? 0 : Number(transform.split(',')[4]);
+    const threshold = 17; // halfway
+    const goOn = curX >= threshold;
+    // snap visually
+    knob.style.transition = '';
+    if(goOn){
+      knob.style.transform = 'translateX(34px)';
+      setPowerState(true);
+    } else {
+      knob.style.transform = 'translateX(0px)';
+      setPowerState(false);
+    }
+    clickSound();
+  });
+
+  // also allow click toggle
+  sw.addEventListener('click', (ev)=>{
+    // if click while dragging, ignore
+    if(dragging) return;
+    setPowerState(!powerOn);
+    // move knob to snapped position
+    if(powerOn) knob.style.transform = 'translateX(34px)';
+    else knob.style.transform = 'translateX(0px)';
+    clickSound();
+  });
+})();
+
+/* randomize button */
 randBtn.addEventListener('click', ()=>{ ensureAudio(); if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); isAudioEnabled=true; randomizeArtifact(); });
 
 document.addEventListener('touchstart', function once(){ ensureAudio(); if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); isAudioEnabled=true; document.removeEventListener('touchstart', once); }, {passive:true});
 
-/* decorative LEDs: separate timers 33ms / 66ms / 99ms
-   chance per check: 0% if proximity==0
-   otherwise chance = minChance + (maxChance-minChance) * (p/100)
-   minChance = 0.05, maxChance = 0.60
-   when p==100: LEDs constant ON (muted)
+/* EXPONENTIAL chance function for LEDs:
+   - p in [0..100]
+   - chance ~ 0.01 at p~0, ease exponentially to ~0.5 at p=100
+   We'll use: chance = min + (max-min) * (exp(k*p)-1)/(exp(k*100)-1)
+   choose k = 0.035 for a moderate curve
 */
-(function desyncedBlinkers(){
+const LED_MIN = 0.01, LED_MAX = 0.50, LED_K = 0.035;
+const LED_DEN = (Math.exp(LED_K * 100) - 1);
+
+function ledChanceForProximity(p){
+  if(p <= 0) return 0;
+  const v = (Math.exp(LED_K * p) - 1) / LED_DEN;
+  return LED_MIN + (LED_MAX - LED_MIN) * v;
+}
+
+/* desynced LED timers: blue 33ms, green 66ms, red 99ms
+   when proximity=100 -> solid ON (muted)
+*/
+(function desyncedLEDs(){
   const leds = [
     {el: fakeLedBlue, freq: 1200, interval: 33},
     {el: fakeLedGreen, freq: 920, interval: 66},
     {el: fakeLedRed, freq: 700, interval: 99}
   ];
-  const minChance = 0.05, maxChance = 0.60;
-
   leds.forEach(l=>{
     setInterval(()=>{
-      if(!powerOn) return;
+      if(!powerOn) { l.el.classList.remove('on'); return; }
       if(!audioCtx) ensureAudio();
       const p = Math.max(0, Math.min(100, artifact.proximity || 0));
-      if(p <= 0){
-        l.el.classList.remove('on');
-        return;
-      }
+      if(p <= 0){ l.el.classList.remove('on'); return; }
       if(p >= 100){
-        // found: keep on, muted
-        l.el.classList.add('on');
+        l.el.classList.add('on'); // solid on when found; muted (we won't play small beep)
         return;
       }
-      const chance = minChance + (maxChance - minChance) * (p / 100);
+      const chance = ledChanceForProximity(p); // exponential mapping
       if(Math.random() < chance){
         l.el.classList.add('on');
-        // small quiet beep (muted relative to main). If artifact is found (p==100) we skip sound above
+        // quiet beep per led
         if(audioCtx && isAudioEnabled){
           try{
             const t = audioCtx.currentTime;
             const o = audioCtx.createOscillator();
             const g = audioCtx.createGain();
             o.type = 'sine'; o.frequency.value = l.freq;
-            g.gain.value = 0.00002; // very quiet
+            g.gain.value = 0.00002;
             o.connect(g); g.connect(audioCtx.destination);
             g.gain.setValueAtTime(0.00002, t);
             g.gain.linearRampToValueAtTime(0.018, t + 0.004);
@@ -408,7 +513,7 @@ document.addEventListener('touchstart', function once(){ ensureAudio(); if(audio
   });
 })();
 
-/* mapping proximity to beep interval (main) */
+/* beep interval mapping */
 function proxToInterval(p){ const ratio = Math.max(0, Math.min(1, p/100)); return Math.round(MAX_BEEP_INTERVAL - (MAX_BEEP_INTERVAL - MIN_BEEP_INTERVAL) * ratio); }
 
 /* DRAW loop */
@@ -426,7 +531,7 @@ function draw(now){
 
   ctx.clearRect(0,0,size,size);
 
-  // analog horizontal lines
+  // full-canvas horizontal analog lines
   ctx.save();
   for(let y=0;y<=size;y+=1.6){
     ctx.strokeStyle = `rgba(0,0,0,${0.08 + 0.04*Math.sin((y+noiseTime*12)/20)})`;
@@ -435,12 +540,12 @@ function draw(now){
   }
   ctx.restore();
 
-  // radar circle
+  // radar circle background
   const g = ctx.createRadialGradient(cx,cy,6,cx,cy,maxR);
   g.addColorStop(0,"rgba(2,40,8,0.98)"); g.addColorStop(0.6,"rgba(8,70,18,0.6)"); g.addColorStop(1,"rgba(2,20,6,0.9)");
   ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx,cy,maxR,0,Math.PI*2); ctx.fill();
 
-  // rings
+  // concentric rings
   ctx.lineWidth = 1.2; ctx.strokeStyle = "rgba(0,200,90,0.16)";
   for(let i=1;i<=4;i++){ ctx.beginPath(); ctx.arc(cx,cy,maxR*(i/4),0,Math.PI*2); ctx.stroke(); }
 
@@ -471,7 +576,7 @@ function draw(now){
   ctx.fillStyle = gradFront; ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,maxR,aFront-halfFront,aFront+halfFront); ctx.closePath(); ctx.globalCompositeOperation='lighter'; ctx.fill();
   ctx.restore();
 
-  // artifact
+  // artifact display (only if proximity > 0)
   if(artifact.proximity > 0){
     const artAngle = current.angleDeg; const diff = angleDiff(sweepAngle, artAngle); const visibleNow = Math.abs(diff) <= DETECT_ARC;
     const dist = maxR * (1 - (current.proximity/100)); const aRad = degToRad(artAngle); const ax = cx + Math.cos(aRad)*dist; const ay = cy + Math.sin(aRad)*dist;
@@ -482,18 +587,15 @@ function draw(now){
     }
   } else { lastDetectedAt = -999999; visibleAlpha = 0; }
 
-  // center dot
+  // center marker
   ctx.beginPath(); ctx.fillStyle="rgba(0,0,0,0.28)"; ctx.arc(cx,cy,6,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.strokeStyle="rgba(0,255,140,0.5)"; ctx.arc(cx,cy,6,0,Math.PI*2); ctx.stroke();
 
-  // info panel show/hide
+  // info panel: appear only when ON + found
   if(Math.round(current.proximity) >= 100 && artifact.meta && powerOn){
     infoPanel.style.display='block';
     updateInfoUI();
-    if(!foundPreviously){
-      foundPreviously = true;
-      hapticFound();
-    }
+    if(!foundPreviously){ foundPreviously = true; hapticFound(); }
   } else {
     infoPanel.style.display='none';
     foundPreviously = false;
@@ -503,7 +605,7 @@ function draw(now){
   noiseTime += 0.9; if(noiseTime > 10000) noiseTime = 0;
   for(let i=0;i<8;i++){ const nx = cx + Math.cos((i*23 + noiseTime*6)/12) * (maxR*(0.2 + 0.8*Math.random())); const ny = cy + Math.sin((i*17 + noiseTime*5)/10) * (maxR*(0.2 + 0.8*Math.random())); ctx.fillStyle='rgba(0,255,140,0.02)'; ctx.fillRect(nx,ny,1,1); }
 
-  // main beeping driven by RAF
+  // main beeping (continues while dragging)
   const nowMs = performance.now();
   if(powerOn && artifact.proximity >= 100){
     if(!continuousOsc && audioCtx && isAudioEnabled) startContinuousTone();
@@ -537,10 +639,10 @@ function lerpAngle(a,b,t){ const diff = angleDiff(b,a); return (a + diff*t + 360
 
 function proxToInterval(p){ const ratio = Math.max(0, Math.min(1, p/100)); return Math.round(MAX_BEEP_INTERVAL - (MAX_BEEP_INTERVAL - MIN_BEEP_INTERVAL) * ratio); }
 
-/* startup */
+/* setup and start */
 ensureAudio(); randomizeArtifact(); draw();
 
-/* small UI updates */
+/* UI small handlers */
 directionEl.addEventListener('input', ()=>{ distLabel.textContent = "Bearing = " + Math.round(directionEl.value) + "°"; });
 proximityEl.addEventListener('input', ()=>{ updateDistanceLabel(); });
 
