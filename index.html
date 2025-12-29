@@ -2,107 +2,77 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>STALKER Artifact Detector — Updated</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Artifact Detector — Compact</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg:#060606; --frame1:#6f5237; --frame2:#403022; --muted:#bfe9b6; --accent:#0ff08a;
-    --rust1:#8b5a3a; --rust2:#5b3b2a; --glass-highlight: rgba(255,255,255,0.12);
-  }
-  html,body{height:100%;margin:0;background:linear-gradient(180deg,#020202,#0b0b0b);font-family:Orbitron,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--muted);display:flex;align-items:center;justify-content:center;}
-  .wrap{width:100%;max-width:460px;padding:16px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;}
-  .frame{
-    width:100%;border-radius:14px;padding:14px;box-sizing:border-box;position:relative;
-    background: linear-gradient(180deg,var(--frame1),var(--frame2));
-    box-shadow:0 12px 36px rgba(0,0,0,0.75); border:4px solid rgba(0,0,0,0.22);
-  }
+:root{
+  --muted:#bfe9b6; --accent:#0ff08a; --rust1:#8b5a3a; --rust2:#5b3b2a;
+}
+html,body{height:100%;margin:0;background:linear-gradient(180deg,#020202,#0b0b0b);font-family:Orbitron,system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--muted);display:flex;align-items:center;justify-content:center;}
+.wrap{width:100%;max-width:360px;padding:12px;box-sizing:border-box;}
+.frame{position:relative;border-radius:12px;padding:10px;background:linear-gradient(180deg,#6f5237,#403022);box-shadow:0 10px 30px rgba(0,0,0,.7);border:3px solid rgba(0,0,0,0.28);overflow:visible}
 
-  /* rusty seam around display */
-  .screen-outer{
-    position:relative;border-radius:12px;padding:8px;background:
-      linear-gradient(180deg, rgba(0,0,0,0.38), rgba(0,0,0,0.55));
-    box-shadow: inset 0 2px 6px rgba(255,200,120,0.02);
-  }
-  .screen-seam{
-    position:absolute;left:6px;right:6px;top:6px;bottom:6px;border-radius:10px;
-    pointer-events:none; box-shadow: inset 0 0 0 2px rgba(120,70,40,0.45), inset 0 10px 30px rgba(0,0,0,0.6);
-    background: linear-gradient(180deg, rgba(120,60,30,0.04), rgba(20,10,6,0.15));
-    z-index:4;
-  }
+/* screws */
+.screw{position:absolute;width:16px;height:16px;border-radius:50%;background:linear-gradient(180deg,#6b4a34,#3f2918);box-shadow:inset 0 2px 4px rgba(255,200,150,0.06),0 2px 6px rgba(0,0,0,0.6);border:2px solid rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:30}
+.screw:after{content:"+";color:rgba(0,0,0,0.14);font-weight:900;font-size:10px;transform:rotate(30deg)}
+.screw.tl{left:6px;top:6px} .screw.tr{right:6px;top:6px} .screw.bl{left:6px;bottom:6px} .screw.br{right:6px;bottom:6px}
 
-  .screen-wrap{position:relative;border-radius:8px;padding:6px;background:linear-gradient(180deg,#03250f,#01160a);overflow:hidden;}
-  canvas{display:block;border-radius:6px;width:100%;height:auto;touch-action:none;-webkit-tap-highlight-color:transparent;}
+/* display outer seam & glass plane */
+.screen-outer{border-radius:10px;padding:6px;background:linear-gradient(180deg, rgba(0,0,0,0.28), rgba(0,0,0,0.46));box-shadow: inset 0 3px 10px rgba(0,0,0,0.6)}
+.screen-seam{position:absolute;left:8px;right:8px;top:8px;bottom:8px;border-radius:8px;pointer-events:none;z-index:14;box-shadow: inset 0 0 0 2px rgba(120,70,40,0.38)}
+.screen-wrap{position:relative;border-radius:8px;padding:6px;background:linear-gradient(180deg,#03250f,#01160a);overflow:hidden}
 
-  /* glass overlay */
-  .glass{
-    pointer-events:none; position:absolute; left:10px; right:10px; top:10px; bottom:10px; border-radius:8px; z-index:7;
-    background:
-      linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00)),
-      radial-gradient(400px 120px at 10% 8%, rgba(255,255,255,0.06), transparent 10%);
-    mix-blend-mode:screen; opacity:0.95;
-    box-shadow: inset 0 120px 140px rgba(255,255,255,0.02), inset 0 -8px 18px rgba(0,0,0,0.5);
-  }
+/* canvas square */
+canvas{display:block;border-radius:6px;width:100%;height:auto;}
 
-  /* screws in corners */
-  .screw{
-    position:absolute;width:18px;height:18px;border-radius:50%;background:linear-gradient(180deg,#6b4a34,#3f2918);
-    box-shadow: inset 0 2px 4px rgba(255,200,150,0.06), 0 2px 6px rgba(0,0,0,0.6); border:2px solid rgba(0,0,0,0.45); display:flex;align-items:center;justify-content:center;z-index:12;
-  }
-  .screw:after{content:"+";color:rgba(0,0,0,0.14);font-weight:900;font-size:12px;transform:rotate(30deg)}
-  .screw.tl{left:6px;top:6px} .screw.tr{right:6px;top:6px} .screw.bl{left:6px;bottom:6px} .screw.br{right:6px;bottom:6px}
+/* simple translucent dark plane (glass cover) */
+.glass-cover{position:absolute;left:10px;right:10px;top:10px;bottom:10px;border-radius:8px;background:rgba(0,0,0,0.14);z-index:22;pointer-events:none}
 
-  /* small fake panel decorations */
-  .panel-fake{position:absolute; font-size:11px; color:#cbdcbd; font-family:Orbitron,monospace; z-index:9}
-  .fake-tl{left:18px;top:8px} .fake-tr{right:18px;top:8px} .fake-bl{left:18px;bottom:16px} .fake-br{right:18px;bottom:16px}
+/* UI around display - corners only (no center text) */
+.corner-label{position:absolute;color:#cbdcbd;font-size:11px;font-family:Orbitron,monospace;z-index:25}
+.lbl-tl{left:14px;top:12px}
+.lbl-tr{right:14px;top:12px}
+.lbl-bl{left:14px;bottom:14px}
+.lbl-br{right:14px;bottom:14px}
 
-  /* control area & buttons */
-  .controls{display:flex;align-items:center;justify-content:space-between;margin-top:10px;gap:8px;}
-  .left-controls{display:flex;align-items:center;gap:8px}
-  .led{width:18px;height:18px;border-radius:50%;background:#2b0b0b;border:2px solid #2b0000;box-shadow:0 0 8px rgba(0,0,0,0.6) inset;transition:all .08s linear}
-  .led.on{background:linear-gradient(180deg,#ff3b3b,#9b0000);box-shadow:0 0 12px rgba(255,60,60,0.96),0 0 22px rgba(255,60,60,0.25);border-color:#3a0000}
-  .right-controls{display:flex;align-items:center;gap:8px}
-  .green-btn{width:40px;height:40px;border-radius:50%;background:linear-gradient(180deg,#2ee06a,#1c8b47);border:0;color:#052007;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(0,0,0,0.45)}
-  .power-btn{display:block;margin:8px auto 6px auto;width:84px;height:36px;border-radius:8px;background:linear-gradient(180deg,#ff6b2b,#d4491a);color:#fff;border:0;font-weight:800;box-shadow:0 10px 20px rgba(0,0,0,0.45)}
-  .power-btn.off{filter:grayscale(50%) brightness(.7)}
+/* controls and decorative elements */
+.controls{display:flex;align-items:center;justify-content:space-between;margin-top:10px;gap:8px}
+.left-controls{display:flex;align-items:center;gap:8px}
+.led{width:18px;height:18px;border-radius:50%;background:#2b0b0b;border:2px solid #2b0000;box-shadow:inset 0 2px 4px rgba(0,0,0,0.6);transition:all .08s linear}
+.led.on{background:linear-gradient(180deg,#ff3b3b,#9b0000);box-shadow:0 0 12px rgba(255,60,60,.96)}
+.fake-button{width:30px;height:18px;border-radius:6px;background:linear-gradient(180deg,#412f22,#2a1b12);display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:#c8d8c8;box-shadow:inset 0 1px 0 rgba(255,255,255,0.02)}
+.right-controls{display:flex;align-items:center;gap:8px}
 
-  /* sliders custom look (rusty pill knob) */
-  input[type=range]{-webkit-appearance:none;width:100%;height:28px;background:transparent;padding:6px 0}
-  input[type=range]::-webkit-slider-runnable-track{
-    height:10px;border-radius:10px;background:linear-gradient(90deg,#3b2b1e,#8b5a3a);box-shadow:inset 0 2px 4px rgba(0,0,0,0.4)
-  }
-  input[type=range]::-webkit-slider-thumb{
-    -webkit-appearance:none;margin-top:-7px;width:48px;height:22px;border-radius:12px;background:
-      linear-gradient(180deg,#6b3f2a,#3f2416);
-    border:2px solid rgba(0,0,0,0.5);box-shadow:inset 0 2px 0 rgba(255,220,170,0.06),0 4px 8px rgba(0,0,0,0.5);
-    background-image:
-      repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0 2px, rgba(0,0,0,0.03) 2px 4px),
-      linear-gradient(180deg,#6b3f2a,#3f2416);
-    cursor:grab;
-  }
-  /* firefox */
-  input[type=range]::-moz-range-track{height:10px;border-radius:10px;background:linear-gradient(90deg,#3b2b1e,#8b5a3a)}
-  input[type=range]::-moz-range-thumb{width:48px;height:22px;border-radius:12px;background:linear-gradient(180deg,#6b3f2a,#3f2416);border:2px solid rgba(0,0,0,0.5)}
+/* extra little fake leds & buttons between main buttons */
+.fake-led{width:10px;height:10px;border-radius:50%;background:#251414;border:1px solid rgba(0,0,0,0.5);box-shadow:inset 0 1px 1px rgba(255,255,255,0.02)}
+.fake-led.on{background:#ffd868;box-shadow:0 0 6px rgba(255,210,100,0.4)}
+.fake-small-btn{width:22px;height:22px;border-radius:6px;background:linear-gradient(180deg,#5b3b2a,#2f1f14);box-shadow:inset 0 1px 0 rgba(255,255,255,0.04)}
 
-  .sliders{display:flex;flex-direction:column;gap:8px;margin-top:10px}
-  label{font-size:13px;color:var(--muted)}
+/* on/power & randomize */
+.green-btn{width:36px;height:36px;border-radius:50%;background:linear-gradient(180deg,#2ee06a,#1c8b47);display:flex;align-items:center;justify-content:center;color:#052007;font-weight:700}
+.power-btn{display:block;margin:8px auto 6px auto;width:76px;height:34px;border-radius:8px;background:linear-gradient(180deg,#ff6b2b,#d4491a);color:#fff;border:0;font-weight:800;box-shadow:0 8px 20px rgba(0,0,0,0.45)}
+.power-btn.off{filter:grayscale(50%) brightness(.7)}
 
-  /* info panel */
-  .info{position:absolute;left:12px;top:12px;z-index:11;background:rgba(0,0,0,0.36);padding:6px 8px;border-radius:8px;color:#dfffe0;font-size:12px;min-width:120px;max-width:180px;box-shadow:0 6px 18px rgba(0,0,0,0.6);display:none}
-  .badge{background:rgba(0,0,0,0.18);padding:4px 6px;border-radius:6px;font-size:12px;color:var(--muted);border:1px solid rgba(0,255,140,0.06)}
-  .badge.I{color:#ffffff} .badge.II{color:#9fffae} .badge.III{color:#a9d6ff} .badge.IV{color:#ffd868}
-  .panel-fake2{position:absolute;z-index:9;font-size:11px;color:#cbdcbd;font-family:Orbitron,monospace}
+/* sliders with rusty thumb */
+.sliders{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+label{font-size:13px;color:var(--muted)}
+input[type=range]{-webkit-appearance:none;width:100%;height:32px;background:transparent;padding:8px 0}
+input[type=range]::-webkit-slider-runnable-track{height:10px;border-radius:10px;background:linear-gradient(90deg,#3b2b1e,#8b5a3a);box-shadow:inset 0 2px 4px rgba(0,0,0,0.4)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;margin-top:-7px;width:48px;height:22px;border-radius:12px;background:linear-gradient(180deg,#6b3f2a,#3f2416);border:2px solid rgba(0,0,0,0.5);background-image:repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0 2px, rgba(0,0,0,0.03) 2px 4px);cursor:grab}
+input[type=range]::-moz-range-track{height:10px;border-radius:10px;background:linear-gradient(90deg,#3b2b1e,#8b5a3a)}
+input[type=range]::-moz-range-thumb{width:48px;height:22px;border-radius:12px;background:linear-gradient(180deg,#6b3f2a,#3f2416);border:2px solid rgba(0,0,0,0.5)}
 
-  /* black overlay when power off */
-  .power-off-overlay{position:absolute;left:10px;right:10px;top:10px;bottom:10px;border-radius:8px;background:#000;z-index:20;display:block;pointer-events:none}
-  .power-off-overlay.hidden{display:none}
+.info{position:absolute;left:12px;top:12px;z-index:28;background:rgba(0,0,0,0.36);padding:6px 8px;border-radius:8px;color:#dfffe0;font-size:12px;min-width:120px;max-width:170px;box-shadow:0 6px 18px rgba(0,0,0,0.6);display:none}
+.info h3{margin:0 0 6px 0;font-size:14px}
+.info .badge{display:block;padding:3px 4px;border-radius:6px;margin-bottom:4px;background:rgba(0,0,0,0.18);border:1px solid rgba(0,255,140,0.06);font-size:12px}
+.badge.I{color:#ffffff} .badge.II{color:#9fffae} .badge.III{color:#a9d6ff} .badge.IV{color:#ffd868}
 
-  @media(max-width:420px){
-    .frame{padding:10px}
-    .screw{width:16px;height:16px}
-    input[type=range]::-webkit-slider-thumb{width:42px;height:20px}
-    .power-btn{width:72px;height:34px}
-  }
+/* power overlay when off: full black plane (no radar visible) */
+.power-off-overlay{position:absolute;left:10px;right:10px;top:10px;bottom:10px;border-radius:8px;background:#000;z-index:40;display:block;pointer-events:none}
+.power-off-overlay.hidden{display:none}
+
+@media (max-width:360px){ .wrap{padding:8px} .power-btn{width:68px;height:32px} input[type=range]::-webkit-slider-thumb{width:42px;height:20px} }
 </style>
 </head>
 <body>
@@ -116,48 +86,65 @@
       <div class="screen-seam"></div>
 
       <div class="screen-wrap" id="screenWrap">
-        <canvas id="radar" width="520" height="520"></canvas>
+        <canvas id="radar" width="480" height="480"></canvas>
 
-        <!-- glass highlight -->
-        <div class="glass"></div>
+        <!-- glass cover: now a simple translucent dark plane -->
+        <div class="glass-cover" id="glassCover"></div>
 
-        <!-- info - only shown at found -->
+        <!-- info (shows only when found) -->
         <div class="info" id="info">
           <h3 id="artifactName">—</h3>
-          <div style="margin-bottom:6px">
-            <span id="atype" class="badge">Type: —</span>
-            <span id="rarity" class="badge">Tier: —</span>
-            <span id="price" class="badge">Price: —</span>
-          </div>
-          <div id="energy" style="font-size:12px;margin-bottom:6px">Energy: —%</div>
-          <div id="stats" style="font-size:12px"></div>
+          <div id="atype" class="badge">Type: —</div>
+          <div id="rarity" class="badge">Tier: —</div>
+          <div id="price" class="badge">Price: —</div>
+          <div id="energy" style="margin-top:6px">Energy: —%</div>
+          <div id="stats" style="margin-top:6px"></div>
         </div>
 
-        <!-- fake labels (decorative) -->
-        <div class="panel-fake fake-tl">MODE: SCAN</div>
-        <div class="panel-fake fake-tr">BAT: 76%</div>
-        <div class="panel-fake fake-bl">SENS: HIGH</div>
-        <div class="panel-fake fake-br">SIG: —</div>
+        <!-- corner labels only -->
+        <div class="corner-label lbl-tl">MODE: SCAN</div>
+        <div class="corner-label lbl-tr">BAT: 76%</div>
+        <div class="corner-label lbl-bl">SENS: HIGH</div>
+        <div class="corner-label lbl-br">SIG: —</div>
 
-        <div class="panel-fake2" style="left:12px;top:56%">LOCK: OFF</div>
-        <div class="panel-fake2" style="right:12px;top:56%;text-align:right">EMG: NORM</div>
-
+        <!-- black overlay when power off -->
         <div class="power-off-overlay" id="powerOverlay"></div>
       </div>
     </div>
 
-    <div class="controls">
+    <!-- decorative controls row (LED + fake lights + R + ON) -->
+    <div class="controls" style="margin-top:10px">
       <div class="left-controls">
         <div id="led" class="led"></div>
-        <div style="margin-left:8px;font-size:13px;color:#9fcf9c">LED</div>
+        <div style="margin-left:6px;font-size:13px;color:#9fcf9c">LED</div>
+
+        <!-- small fake leds & buttons -->
+        <div style="width:12px"></div>
+        <div class="fake-led" id="fakeLed1"></div>
+        <div style="width:6px"></div>
+        <div class="fake-small-btn"></div>
       </div>
 
       <div class="right-controls">
+        <div class="fake-small-btn" title="nonfunctional"></div>
+        <div style="width:6px"></div>
         <button id="randBtn" class="green-btn" title="Randomize">R</button>
       </div>
     </div>
 
     <button id="powerBtn" class="power-btn off">ON</button>
+
+    <!-- extra small fake text/buttons above sliders area -->
+    <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:6px">
+      <div style="display:flex;gap:8px;align-items:center">
+        <div class="fake-button">A</div>
+        <div class="fake-button">B</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div class="fake-led" id="fakeLed2"></div>
+        <div class="fake-button">RST</div>
+      </div>
+    </div>
 
     <div class="sliders">
       <div>
@@ -165,8 +152,8 @@
         <input id="proximity" type="range" min="0" max="100" value="50">
       </div>
       <div>
-        <label>Direction <span id="dirVal">0°</span></label>
-        <input id="direction" type="range" min="0" max="100" value="0">
+        <label>Direction <span id="dirVal">50</span> (0–100)</label>
+        <input id="direction" type="range" min="0" max="100" value="50">
       </div>
     </div>
 
@@ -174,30 +161,28 @@
 </div>
 
 <script>
-/* Big update: removed crack; stronger analog; seam + screws + glass; custom range thumbs; rarities -> tiers I..IV with 50/30/15/5; slider mapping fixed */
+/* Compact detector update:
+ - fits iPhone SE by max-width 360
+ - denser, stronger scanlines
+ - slider now shows 0..100; mapping: 0->180°, 50->0°, 100->180°
+ - display fully black when power off (skip drawing)
+ - extra decorative lights/buttons added
+ - stats one-per-line
+ - glass cover replaced by translucent dark plane (CSS)
+*/
 
-const canvas = document.getElementById('radar');
-const ctx = canvas.getContext('2d');
-const proximityEl = document.getElementById('proximity');
-const directionEl = document.getElementById('direction');
-const proxValEl = document.getElementById('proxVal');
-const dirValEl = document.getElementById('dirVal');
-const ledEl = document.getElementById('led');
-const randBtn = document.getElementById('randBtn');
-const powerBtn = document.getElementById('powerBtn');
+const canvas = document.getElementById('radar'), ctx = canvas.getContext('2d');
+const proximityEl = document.getElementById('proximity'), directionEl = document.getElementById('direction');
+const proxValEl = document.getElementById('proxVal'), dirValEl = document.getElementById('dirVal');
+const ledEl = document.getElementById('led'), randBtn = document.getElementById('randBtn'), powerBtn = document.getElementById('powerBtn');
 const powerOverlay = document.getElementById('powerOverlay');
+const infoPanel = document.getElementById('info'), artifactNameEl = document.getElementById('artifactName');
+const typeEl = document.getElementById('atype'), rarityEl = document.getElementById('rarity'), priceEl = document.getElementById('price');
+const energyEl = document.getElementById('energy'), statsEl = document.getElementById('stats');
 
-const infoPanel = document.getElementById('info');
-const artifactNameEl = document.getElementById('artifactName');
-const typeEl = document.getElementById('atype');
-const rarityEl = document.getElementById('rarity');
-const priceEl = document.getElementById('price');
-const energyEl = document.getElementById('energy');
-const statsEl = document.getElementById('stats');
-
-let dpr = Math.max(window.devicePixelRatio || 1,1);
+let dpr = Math.max(window.devicePixelRatio||1,1);
 function sizeCanvas(){
-  const maxW = Math.min(window.innerWidth - 48, 420);
+  const maxW = Math.min(window.innerWidth - 48, 360);
   const cssSize = Math.floor(maxW);
   canvas.style.width = cssSize + 'px';
   canvas.style.height = cssSize + 'px';
@@ -208,10 +193,10 @@ function sizeCanvas(){
 window.addEventListener('resize', sizeCanvas);
 sizeCanvas();
 
-/* CONFIG */
+/* Settings */
 let SWEEP_SPEED = 5.0;
-const TRAIL_STEPS = 20;
-const TRAIL_STEP_ANGLE = 3.4;
+const TRAIL_STEPS = 18;
+const TRAIL_STEP_ANGLE = 3.2;
 const DETECT_ARC = 28;
 const LERP = 0.12;
 const FADE_MS = 900;
@@ -220,66 +205,57 @@ const MAX_BEEP_INTERVAL = 2200;
 const BEEP_DURATION = 70;
 
 /* audio */
-let audioCtx = null; let continuousOsc = null; let continuousGain = null; let isAudioEnabled = false; let powerOn = false;
-let lastBeepTime = 0; let ledFlashUntil = 0;
+let audioCtx = null, continuousOsc=null, continuousGain=null, isAudioEnabled=false, powerOn=false;
+let lastBeepTime = 0, ledFlashUntil=0;
 
-/* DB: rarities => tiers I..IV, probs 50/30/15/5 */
+/* DB & rarities (tiers I..IV: 50/30/15/5) */
 const names = ["Krovavaya","Siren","Mire","Tesla","Viper","Lump","Echo","Glimmer","Cvar","Nexus","Shard","Wisp"];
 const types = ["Electro","Gravity","Thermal","Bio","Psy","Rad"];
 const rarities = [
-  {tier:"I", name:"Common", prob:50, base:1500},
-  {tier:"II", name:"Uncommon", prob:30, base:3500},
-  {tier:"III", name:"Rare", prob:15, base:8000},
-  {tier:"IV", name:"Legendary", prob:5, base:50000}
+  {tier:"I",name:"Common",prob:50,base:1500},
+  {tier:"II",name:"Uncommon",prob:30,base:3500},
+  {tier:"III",name:"Rare",prob:15,base:8000},
+  {tier:"IV",name:"Legendary",prob:5,base:50000}
 ];
 function weightedRandom(arr){ const sum = arr.reduce((s,i)=>s+i.prob,0); const r=Math.random()*sum; let s=0; for(const a of arr){ s+=a.prob; if(r<=s) return a;} return arr[0]; }
 
 /* state */
 let sweepAngle = 0;
-let artifact = { angleDeg:0, proximity: Number(proximityEl.value), meta:null };
-let current = { angleDeg: artifact.angleDeg, proximity: artifact.proximity };
-let lastDetectedAt = -999999; let visibleAlpha = 0;
+let artifact = { angleDeg:0, proximity:Number(proximityEl.value), meta:null };
+let current = { angleDeg:artifact.angleDeg, proximity:artifact.proximity };
+let lastDetectedAt = -999999, visibleAlpha = 0;
 
 /* audio helpers */
 function ensureAudio(){ if(audioCtx) return; try{ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ audioCtx=null; } }
-function clickSound(){ if(!audioCtx) { ensureAudio(); if(!audioCtx) return; } try{ const t=audioCtx.currentTime; const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); o.type='triangle'; o.frequency.value=900; g.gain.value=0.0005; o.connect(g); g.connect(audioCtx.destination); g.gain.setValueAtTime(0.0005,t); g.gain.linearRampToValueAtTime(0.18,t+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+0.06); o.start(t); o.stop(t+0.08); }catch(e){} }
-function playBeep(){ if(!audioCtx || !powerOn) return; const t=audioCtx.currentTime; const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); o.type='sine'; o.frequency.value = 680 + (artifact.meta?.energy||0)*1.6; g.gain.value = 0; o.connect(g); g.connect(audioCtx.destination); const dur=BEEP_DURATION/1000; g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.15,t+0.008); g.gain.exponentialRampToValueAtTime(0.0001,t+dur); o.start(t); o.stop(t+dur+0.02); }
-function startContinuousTone(){ if(!audioCtx||!powerOn||continuousOsc) return; continuousOsc=audioCtx.createOscillator(); continuousGain=audioCtx.createGain(); continuousOsc.type='sine'; continuousOsc.frequency.value=920; continuousGain.gain.value=0.0; continuousOsc.connect(continuousGain); continuousGain.connect(audioCtx.destination); continuousOsc.start(); continuousGain.gain.linearRampToValueAtTime(0.18,audioCtx.currentTime+0.05); }
-function stopContinuousTone(){ if(!continuousOsc) return; try{ continuousGain.gain.linearRampToValueAtTime(0.0001,audioCtx.currentTime+0.02); setTimeout(()=>{ try{ continuousOsc.stop(); continuousOsc.disconnect(); continuousGain.disconnect(); }catch(e){} continuousOsc=null; continuousGain=null; },80);}catch(e){ continuousOsc=null; continuousGain=null } }
+function clickSound(){ if(!audioCtx){ ensureAudio(); if(!audioCtx) return; } try{ const t=audioCtx.currentTime; const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); o.type='triangle'; o.frequency.value=900; g.gain.value=0.0006; o.connect(g); g.connect(audioCtx.destination); g.gain.setValueAtTime(0.0006,t); g.gain.linearRampToValueAtTime(0.18,t+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+0.06); o.start(t); o.stop(t+0.08);}catch(e){} }
+function playBeep(){ if(!audioCtx || !powerOn) return; const t=audioCtx.currentTime; const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); o.type='sine'; o.frequency.value = 680 + (artifact.meta?.energy||0)*1.6; g.gain.value=0; o.connect(g); g.connect(audioCtx.destination); const dur=BEEP_DURATION/1000; g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.15,t+0.008); g.gain.exponentialRampToValueAtTime(0.0001,t+dur); o.start(t); o.stop(t+dur+0.02); }
+function startContinuousTone(){ if(!audioCtx||!powerOn||continuousOsc) return; continuousOsc=audioCtx.createOscillator(); continuousGain=audioCtx.createGain(); continuousOsc.type='sine'; continuousOsc.frequency.value=920; continuousGain.gain.value=0; continuousOsc.connect(continuousGain); continuousGain.connect(audioCtx.destination); continuousOsc.start(); continuousGain.gain.linearRampToValueAtTime(0.18,audioCtx.currentTime+0.05); }
+function stopContinuousTone(){ if(!continuousOsc) return; try{ continuousGain.gain.linearRampToValueAtTime(0.0001,audioCtx.currentTime+0.02); setTimeout(()=>{ try{ continuousOsc.stop(); continuousOsc.disconnect(); continuousGain.disconnect(); }catch(e){} continuousOsc=null; continuousGain=null; },80);}catch(e){continuousOsc=null;continuousGain=null;} }
 
-/* price calculation - energy 30..100 enforced when generated */
-function computePrice(meta){
-  if(!meta) return 0;
-  const base = meta._base;
-  const energyFactor = 1 + (meta.energy * 0.0065); // stronger influence
-  const weightFactor = 1 + (meta.weight * 0.01);
-  const radPenalty = Math.max(0.6, 1 - (meta.radiation * 0.005));
-  const randomVar = 0.93 + Math.random()*0.14;
-  let price = Math.round(base * energyFactor * weightFactor * radPenalty * randomVar);
-  return Math.max(100, price);
-}
+/* price compute */
+function computePrice(meta){ if(!meta) return 0; const base = meta._base; const energyFactor = 1 + (meta.energy * 0.0065); const weightFactor = 1 + (meta.weight * 0.01); const radPenalty = Math.max(0.6,1 - (meta.radiation * 0.005)); const randomVar = 0.93 + Math.random()*0.14; let p = Math.round(base * energyFactor * weightFactor * radPenalty * randomVar); return Math.max(100,p); }
 
-/* generate artifact: energy 30-100, proximity->0 (far) */
+/* randomize artifact (energy 30..100) */
 function randomizeArtifact(){
   const baseName = names[Math.floor(Math.random()*names.length)];
   const type = types[Math.floor(Math.random()*types.length)];
   const r = weightedRandom(rarities);
-  const energy = Math.floor(30 + Math.random()*71); // 30..100
+  const energy = Math.floor(30 + Math.random()*71);
   const weight = +( (0.2 + Math.random()*5.8).toFixed(2) );
   const radiation = +( (Math.random()*24).toFixed(1) );
   const meta = { name: baseName, type, tier: r.tier, rarityName: r.name, energy, weight, radiation, _base: r.base };
   meta.price = computePrice(meta);
   artifact.meta = meta;
   artifact.proximity = 0;
-  proximityEl.value=0; proxValEl.textContent = 0;
+  proximityEl.value = 0; proxValEl.textContent = 0;
   lastDetectedAt = -999999; visibleAlpha = 0;
   const angle = Math.random()*360; artifact.angleDeg = angle;
-  const sliderVal = (((angle - 180 + 360)%360)/360)*100;
-  directionEl.value = Math.round(sliderVal); dirValEl.textContent = Math.round((directionEl.value/100)*360)+"° (slider)";
+  const sliderVal = (((angle - 180 + 360) % 360) / 360) * 100;
+  directionEl.value = Math.round(sliderVal); dirValEl.textContent = Math.round(directionEl.value);
   updateInfoUI();
 }
 
-/* update info UI fields (prepared but shown only at found) */
+/* info UI (each stat on separate line) */
 function updateInfoUI(){
   if(!artifact.meta) return;
   artifactNameEl.textContent = artifact.meta.name;
@@ -288,102 +264,89 @@ function updateInfoUI(){
   priceEl.textContent = "Price: " + artifact.meta.price + " RU";
   energyEl.textContent = "Energy: " + artifact.meta.energy + "%";
   statsEl.innerHTML = `<div><strong>Weight:</strong> ${artifact.meta.weight} kg</div><div><strong>Radiation:</strong> ${artifact.meta.radiation} rads</div>`;
-  // set badge class for color
-  rarityEl.className = 'badge ' + ({'I':'','II':'II','III':'III','IV':'IV'}[artifact.meta.tier] || '');
+  // badge class color
+  rarityEl.className = 'badge ' + ({'I':'','II':'II','III':'III','IV':'IV'}[artifact.meta.tier]||'');
 }
 
-/* mapping: user wanted slider=0 -> behind, slider representing displayedDegrees where 180 is front.
-   We map displayedDegrees = sliderVal/100*360
-   internal angleDeg = (180 - displayedDegrees + 360) % 360. (This makes displayed 0 -> 180, displayed 180 -> 0)
-*/
-function sliderToAngle(sliderVal){
-  const disp = (sliderVal/100)*360;
-  return ((180 - disp + 360) % 360);
-}
+/* mapping slider->angle: slider 0..100 -> angle = (50 - slider)/50 * 180  (0=>180°,50=>0°,100=>180°) */
+function sliderToAngle(sliderVal){ return ((50 - sliderVal) / 50) * 180; }
 
-/* UI events */
-proximityEl.addEventListener('input',(e)=>{ artifact.proximity = Number(e.target.value); proxValEl.textContent = artifact.proximity; if(artifact.proximity<=0){ lastDetectedAt=-999999; visibleAlpha=0;} });
-directionEl.addEventListener('input',(e)=>{ const sv=Number(e.target.value); dirValEl.textContent = Math.round((sv/100)*360)+"° (slider)"; artifact.angleDeg = sliderToAngle(sv); });
+/* UI handlers */
+proximityEl.addEventListener('input', e=>{ artifact.proximity = Number(e.target.value); proxValEl.textContent = artifact.proximity; if(artifact.proximity<=0){ lastDetectedAt=-999999; visibleAlpha=0; } });
+directionEl.addEventListener('input', e=>{ const sv = Number(e.target.value); dirValEl.textContent = Math.round(sv); artifact.angleDeg = (sliderToAngle(sv) + 360) % 360; });
 
-/* power button (label stays ON) */
+/* power button */
 powerBtn.addEventListener('click', ()=>{
   powerOn = !powerOn;
-  if(powerOn){ powerBtn.classList.remove('off'); powerOverlay.classList.add('hidden'); ensureAudio(); if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); isAudioEnabled = true; }
+  if(powerOn){ powerBtn.classList.remove('off'); powerOverlay.classList.add('hidden'); ensureAudio(); if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); isAudioEnabled=true; }
   else { powerBtn.classList.add('off'); powerOverlay.classList.remove('hidden'); stopContinuousTone(); isAudioEnabled=false; ledEl.classList.remove('on'); }
   clickSound();
 });
 
 /* randomize button */
-randBtn.addEventListener('click', ()=>{
-  ensureAudio(); if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); isAudioEnabled = true; randomizeArtifact();
-});
+randBtn.addEventListener('click', ()=>{ ensureAudio(); if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); isAudioEnabled=true; randomizeArtifact(); });
 
-/* initial touch to enable audio (best-effort) */
+/* initial touch to enable audio */
 document.addEventListener('touchstart', function once(){ ensureAudio(); if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); isAudioEnabled=true; document.removeEventListener('touchstart', once); }, {passive:true});
 
-/* beep interval mapping */
-function proxToInterval(p){
-  const ratio = Math.max(0, Math.min(1, p/100));
-  return Math.round(MAX_BEEP_INTERVAL - (MAX_BEEP_INTERVAL - MIN_BEEP_INTERVAL)*ratio);
-}
+/* beep interval */
+function proxToInterval(p){ const ratio = Math.max(0, Math.min(1, p/100)); return Math.round(MAX_BEEP_INTERVAL - (MAX_BEEP_INTERVAL - MIN_BEEP_INTERVAL) * ratio); }
 
-/* DRAW loop */
+/* DRAW */
 let noiseTime = 0;
 function draw(now){
   sizeCanvas();
   const cssW = canvas.clientWidth; const cssH = canvas.clientHeight; const size = Math.min(cssW,cssH);
   const cx = size/2; const cy = size/2; const maxR = size*0.42;
 
+  // smooth state
   current.proximity = lerp(current.proximity, artifact.proximity, LERP);
   current.angleDeg = lerpAngle(current.angleDeg, artifact.angleDeg, LERP);
 
-  ctx.clearRect(0,0,size,size);
+  // if power off, fully skip drawing radar (black overlay covers it)
+  if(!powerOn){ requestAnimationFrame(draw); return; }
 
-  // if powered off, do not draw radar at all (overlay handles blackness)
-  if(!powerOn){ // still draw nothing except maybe faint glass is already overlaid
-    requestAnimationFrame(draw); return;
-  }
+  ctx.clearRect(0,0,size,size);
 
   // background circle
   const g = ctx.createRadialGradient(cx,cy,8,cx,cy,maxR);
-  g.addColorStop(0, "rgba(2,40,8,0.98)"); g.addColorStop(0.6,"rgba(8,70,18,0.6)"); g.addColorStop(1,"rgba(2,20,6,0.9)");
+  g.addColorStop(0,"rgba(2,40,8,0.98)"); g.addColorStop(0.6,"rgba(8,70,18,0.6)"); g.addColorStop(1,"rgba(2,20,6,0.9)");
   ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,maxR,0,Math.PI*2); ctx.fill();
 
-  // rings (stronger analog)
+  // rings
   ctx.lineWidth = 1.2; ctx.strokeStyle = "rgba(0,200,90,0.16)";
   for(let i=1;i<=4;i++){ ctx.beginPath(); ctx.arc(cx,cy,maxR*(i/4),0,Math.PI*2); ctx.stroke(); }
 
   // crosshair
   ctx.strokeStyle="rgba(0,220,120,0.09)"; ctx.beginPath(); ctx.moveTo(cx-maxR,cy); ctx.lineTo(cx+maxR,cy); ctx.moveTo(cx,cy-maxR); ctx.lineTo(cx,cy+maxR); ctx.stroke();
 
-  // stronger scanlines
+  // denser, more visible horizontal scanlines
   ctx.save();
-  for(let y = cy-maxR; y <= cy+maxR; y += 2.0){
+  for(let y = cy - maxR; y <= cy + maxR; y += 1.6){
     const dx = Math.sqrt(Math.max(0, maxR*maxR - (y-cy)*(y-cy)));
-    ctx.strokeStyle = `rgba(0,0,0,${0.04 + 0.03*Math.sin((y+noiseTime*12)/25)})`;
+    ctx.strokeStyle = `rgba(0,0,0,${0.08 + 0.04*Math.sin((y+noiseTime*12)/20)})`;
     ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(cx-dx,y); ctx.lineTo(cx+dx,y); ctx.stroke();
   }
   ctx.restore();
 
-  // sweep trail strictly behind the front wedge
-  sweepAngle = (sweepAngle + SWEEP_SPEED)%360;
+  // sweep trail strictly behind front wedge
+  sweepAngle = (sweepAngle + SWEEP_SPEED) % 360;
 
   ctx.save(); ctx.translate(cx,cy);
   for(let i=TRAIL_STEPS;i>0;i--){
-    const stepAngle = sweepAngle - i*TRAIL_STEP_ANGLE;
+    const stepAngle = sweepAngle - i * TRAIL_STEP_ANGLE;
     const a = degToRad(stepAngle);
-    const alpha = Math.max(0,0.46*(1 - i/TRAIL_STEPS));
-    if(i > TRAIL_STEPS*0.45) ctx.filter='blur(6px)'; else ctx.filter='none';
+    const alpha = Math.max(0, 0.46 * (1 - i / TRAIL_STEPS));
+    if(i > TRAIL_STEPS * 0.45) ctx.filter='blur(5px)'; else ctx.filter='none';
     const halfWidth = degToRad(10);
     const grad = ctx.createLinearGradient(Math.cos(a)*0, Math.sin(a)*0, Math.cos(a)*maxR, Math.sin(a)*maxR);
     grad.addColorStop(0, `rgba(0,255,120,${alpha})`); grad.addColorStop(1, `rgba(0,255,80,${alpha*0.02})`);
-    ctx.fillStyle = grad; ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0, maxR, a-halfWidth, a+halfWidth); ctx.closePath();
-    ctx.globalCompositeOperation='lighter'; ctx.fill();
+    ctx.fillStyle = grad; ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0, maxR, a-halfWidth, a+halfWidth); ctx.closePath(); ctx.globalCompositeOperation='lighter'; ctx.fill();
   }
   ctx.restore();
   ctx.filter='none'; ctx.globalCompositeOperation='source-over';
 
-  // draw solid front wedge
+  // solid front wedge
   ctx.save(); ctx.translate(cx,cy);
   const aFront = degToRad(sweepAngle); const halfFront = degToRad(9);
   const gradFront = ctx.createLinearGradient(0,0, Math.cos(aFront)*maxR, Math.sin(aFront)*maxR);
@@ -391,29 +354,29 @@ function draw(now){
   ctx.fillStyle = gradFront; ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,maxR,aFront-halfFront,aFront+halfFront); ctx.closePath(); ctx.globalCompositeOperation='lighter'; ctx.fill();
   ctx.restore();
 
-  // artifact display (visible only if prox>0 and after sweep passes it; fades out)
+  // artifact visible logic
   if(artifact.proximity > 0){
     const artAngle = current.angleDeg; const diff = angleDiff(sweepAngle, artAngle); const visibleNow = Math.abs(diff) <= DETECT_ARC;
     const dist = maxR * (1 - (current.proximity/100)); const aRad = degToRad(artAngle); const ax = cx + Math.cos(aRad)*dist; const ay = cy + Math.sin(aRad)*dist;
-    if(visibleNow){ lastDetectedAt = Date.now(); visibleAlpha = 1; } else { const since = Date.now() - lastDetectedAt; visibleAlpha = Math.max(0,1 - (since/FADE_MS)); }
+    if(visibleNow){ lastDetectedAt = Date.now(); visibleAlpha = 1; } else { const since = Date.now() - lastDetectedAt; visibleAlpha = Math.max(0, 1 - (since / FADE_MS)); }
     if(visibleAlpha > 0.02){
-      ctx.beginPath(); ctx.fillStyle = `rgba(100,255,140,${0.95*visibleAlpha})`; const pulse = 1 + 0.12*Math.sin(Date.now()/120); ctx.arc(ax,ay,6*pulse,0,Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.strokeStyle = `rgba(100,255,140,${0.18*visibleAlpha})`; ctx.arc(ax,ay,12*pulse,0,Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.fillStyle = `rgba(100,255,140,${0.95 * visibleAlpha})`; const pulse = 1 + 0.12*Math.sin(Date.now()/120); ctx.arc(ax,ay,6*pulse,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.strokeStyle = `rgba(100,255,140,${0.18 * visibleAlpha})`; ctx.arc(ax,ay,12*pulse,0,Math.PI*2); ctx.stroke();
     }
-  } else { lastDetectedAt=-999999; visibleAlpha=0; }
+  } else { lastDetectedAt = -999999; visibleAlpha = 0; }
 
   // center marker
   ctx.beginPath(); ctx.fillStyle="rgba(0,0,0,0.28)"; ctx.arc(cx,cy,6,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.strokeStyle="rgba(0,255,140,0.5)"; ctx.arc(cx,cy,6,0,Math.PI*2); ctx.stroke();
 
-  // info panel only when found (=100 prox) and powerOn
+  // info display logic (only when found and powered)
   if(Math.round(current.proximity) >= 100 && artifact.meta && powerOn){ infoPanel.style.display='block'; updateInfoUI(); } else { infoPanel.style.display='none'; }
 
   // noise
-  noiseTime += 0.8; if(noiseTime > 10000) noiseTime = 0;
+  noiseTime += 0.9; if(noiseTime > 10000) noiseTime = 0;
   for(let i=0;i<10;i++){ const nx = cx + Math.cos((i*23+noiseTime*6)/12)*(maxR*(0.2+0.8*Math.random())); const ny = cy + Math.sin((i*17+noiseTime*5)/10)*(maxR*(0.2+0.8*Math.random())); ctx.fillStyle='rgba(0,255,140,0.02)'; ctx.fillRect(nx,ny,1,1); }
 
-  // beeping driven by RAF (so it won't pause while dragging)
+  // beeping driven by RAF so dragging doesn't interrupt
   const nowMs = performance.now();
   if(powerOn && artifact.proximity >= 100){ if(!continuousOsc && audioCtx && isAudioEnabled) startContinuousTone(); ledEl.classList.add('on'); } else {
     if(continuousOsc) stopContinuousTone();
@@ -423,23 +386,21 @@ function draw(now){
   requestAnimationFrame(draw);
 }
 
-/* util */
-function degToRad(d){ return d*Math.PI/180; }
+/* helpers */
+function degToRad(d){ return d * Math.PI/180; }
 function lerp(a,b,t){ return a + (b-a)*t; }
 function angleDiff(a,b){ let d = (((a - b + 540) % 360) - 180); return d; }
-function lerpAngle(a,b,t){ const diff = angleDiff(b,a); return (a + diff*t + 360)%360; }
-
-function ensureAudio(){ if(audioCtx) return; try{ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ audioCtx=null; } }
+function lerpAngle(a,b,t){ const diff = angleDiff(b,a); return (a + diff*t + 360) % 360; }
+function ensureAudio(){ if(audioCtx) return; try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ audioCtx = null; } }
 function proxToInterval(p){ const ratio = Math.max(0, Math.min(1, p/100)); return Math.round(MAX_BEEP_INTERVAL - (MAX_BEEP_INTERVAL - MIN_BEEP_INTERVAL) * ratio); }
 
-/* startup */
+/* start */
 ensureAudio(); randomizeArtifact(); draw();
 
-/* UI helpers */
-directionEl.addEventListener('change', ()=>{ dirValEl.textContent = Math.round((directionEl.value/100)*360) + "° (slider)"; });
+/* UI text updates */
+directionEl.addEventListener('change', ()=>{ dirValEl.textContent = Math.round(directionEl.value); });
 proximityEl.addEventListener('change', ()=>{ proxValEl.textContent = proximityEl.value; });
 
-/* done */
 </script>
 </body>
 </html>
