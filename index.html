@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Artifact Detector — Compact + Metal Backplate</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Artifact Detector — Compact Metal Backplate v2</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -11,19 +11,19 @@
   --accent:#0ff08a;
   --frame-top:#9b4f20;   /* orange/rust tone */
   --frame-bottom:#6b2f10;
-  --panel:#0b1409;
+  --steel-top:#9aa0a4;   /* darker metal */
+  --steel-bottom:#6f7578;
+  --panel:#07140a;
   --screw-dark:#2c1c14;
   --screw-top:#6b3f2a;
-  --steel-top:#bfc4c7;
-  --steel-bottom:#8e9598;
 }
 
 /* page */
-html,body{height:100%;margin:0;background:linear-gradient(180deg,#050405,#0b0806);font-family:Orbitron,system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--muted);display:flex;align-items:center;justify-content:center;}
-.wrap{width:100%;max-width:378px;padding:6px 8px;box-sizing:border-box;} /* tuned to fit iPhone SE */
+html,body{height:100%;margin:0;background:linear-gradient(180deg,#040403,#090807);font-family:Orbitron,system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--muted);display:flex;align-items:center;justify-content:center;}
+.wrap{width:100%;max-width:378px;padding:4px 6px;box-sizing:border-box;transform:scaleY(0.90);} /* frame 10% shorter vertically via outer scaleY */
 
 /* outer frame - orange */
-.frame{position:relative;border-radius:12px;padding:6px;background:linear-gradient(180deg,var(--frame-top),var(--frame-bottom));box-shadow:0 10px 22px rgba(0,0,0,.8);border:3px solid rgba(0,0,0,0.28);overflow:visible;}
+.frame{position:relative;border-radius:12px;padding:6px 6px 4px 6px;background:linear-gradient(180deg,var(--frame-top),var(--frame-bottom));box-shadow:0 10px 22px rgba(0,0,0,.8);border:3px solid rgba(0,0,0,0.28);overflow:visible;transform-origin:center top;}
 .frame::before{content:"";position:absolute;inset:0;border-radius:12px;pointer-events:none;background-image:repeating-linear-gradient(135deg, rgba(0,0,0,0.04) 0 3px, transparent 3px 6px);mix-blend-mode:overlay;opacity:0.55;z-index:1}
 
 /* screws */
@@ -32,74 +32,78 @@ html,body{height:100%;margin:0;background:linear-gradient(180deg,#050405,#0b0806
 .screw.tl{left:6px;top:6px} .screw.tr{right:6px;top:6px} .screw.bl{left:6px;bottom:6px} .screw.br{right:6px;bottom:6px}
 
 /* screen */
-.screen-outer{border-radius:10px;padding:3px;background:linear-gradient(180deg, rgba(0,0,0,0.28), rgba(0,0,0,0.5)); z-index:3}
-.screen-wrap{position:relative;border-radius:8px;padding:3px;background:linear-gradient(180deg,#021f12,#00140a);overflow:hidden;display:flex;align-items:center;justify-content:center;z-index:4;transform-origin:center;transform:scale(0.88)} /* a bit smaller */
+.screen-outer{border-radius:10px;padding:3px;background:linear-gradient(180deg, rgba(0,0,0,0.28), rgba(0,0,0,0.5)); z-index:4}
+.screen-wrap{position:relative;border-radius:8px;padding:3px;background:linear-gradient(180deg,#021f12,#00140a);overflow:hidden;display:flex;align-items:center;justify-content:center;z-index:5;}
 
-/* canvas */
+/* canvas - we make this larger relative to the UI */
 canvas{display:block;border-radius:6px;width:100%;height:auto;}
 
 /* glass */
-.glass-cover{position:absolute;left:12px;right:12px;top:12px;bottom:12px;border-radius:8px;background:rgba(0,0,0,0.18);z-index:18;pointer-events:none}
+.glass-cover{position:absolute;left:10px;right:10px;top:10px;bottom:10px;border-radius:8px;background:rgba(0,0,0,0.12);z-index:18;pointer-events:none}
 
 /* corner labels */
 .corner-label{position:absolute;color:#cbdcbd;font-size:11px;font-family:Orbitron,monospace;z-index:25}
 .lbl-tl{left:12px;top:8px} .lbl-tr{right:12px;top:8px} .lbl-bl{left:12px;bottom:10px} .lbl-br{right:12px;bottom:10px}
 
-/* backplate - silver / metal - sits between frame and controls, not touching edges or screen */
-.backplate{width:calc(100% - 36px);margin:8px auto 6px auto;padding:8px;border-radius:10px;background:linear-gradient(180deg,var(--steel-top),var(--steel-bottom));box-shadow:inset 0 1px 0 rgba(255,255,255,0.04),0 6px 16px rgba(0,0,0,0.45);position:relative;z-index:5;}
+/* backplate - darker metal and diagonal texture */
+.backplate{width:calc(100% - 40px);margin:6px auto 4px auto;padding:6px;border-radius:10px;background:linear-gradient(180deg,var(--steel-top),var(--steel-bottom));box-shadow:inset 0 1px 0 rgba(255,255,255,0.02),0 6px 12px rgba(0,0,0,0.45);position:relative;z-index:6;}
+.backplate::before{content:"";position:absolute;inset:0;border-radius:10px;pointer-events:none;background-image:repeating-linear-gradient(135deg, rgba(0,0,0,0.05) 0 3px, rgba(255,255,255,0.01) 3px 6px);opacity:0.55;}
 
-/* metal texture (diagonal lines) */
-.backplate::before{content:"";position:absolute;inset:0;border-radius:10px;pointer-events:none;background-image:repeating-linear-gradient(135deg, rgba(0,0,0,0.03) 0 3px, rgba(255,255,255,0.02) 3px 6px);opacity:0.55;}
+/* compact controls inside backplate */
+.controls-compact{display:flex;flex-direction:column;gap:6px;align-items:center;justify-content:center;padding:0 2px;}
 
-/* compact controls layout inside backplate */
-.controls-compact{display:flex;flex-direction:column;gap:6px;align-items:center;justify-content:center;padding:2px 4px;}
-
-/* main LED row (now inside backplate) */
-.main-led-row{display:flex;align-items:center;gap:8px;justify-content:center;margin:0}
-.led{width:14px;height:14px;border-radius:50%;background:#2b0b0b;border:2px solid #2b0000;box-shadow:inset 0 1px 3px rgba(0,0,0,0.6);transition:all .08s linear}
+/* main LED row (center) */
+.main-led-row{display:flex;align-items:center;gap:6px;justify-content:center;margin:0}
+.led{width:13px;height:13px;border-radius:50%;background:#2b0b0b;border:2px solid #2b0000;box-shadow:inset 0 1px 3px rgba(0,0,0,0.6);transition:all .08s linear}
 .led.on{background:linear-gradient(180deg,#ff3b3b,#9b0000);box-shadow:0 0 10px rgba(255,60,60,.9)}
 
-/* rad-row inside backplate, centered and compact */
-.rad-row{display:flex;align-items:center;justify-content:center;gap:20px;margin:2px 0 4px 0}
-.led-block{display:flex;flex-direction:column;align-items:center;gap:2px;font-family:Orbitron,monospace;font-size:12px;color:var(--muted)}
-.led-symbol{font-size:12px;line-height:12px;color:#2b2b2b;font-weight:700}
+/* radiation LEDs */
+.rad-row{display:flex;align-items:center;justify-content:center;gap:18px;margin:2px 0 4px 0}
+.led-block{display:flex;flex-direction:column;align-items:center;gap:2px;font-family:Orbitron,monospace;font-size:13px;color:#2b2b2b}
+.led-symbol{font-size:14px;line-height:12px;color:#2b2b2b}
 
-/* fake led */
+/* small LED appearance */
 .fake-led{width:9px;height:9px;border-radius:50%;background:#111;border:1px solid rgba(0,0,0,0.5);box-shadow:inset 0 1px 1px rgba(255,255,255,0.02);z-index:50}
 .fake-led.on{box-shadow:0 0 7px rgba(255,255,255,0.06)}
 .fake-led.blue.on{background:#70b8ff;}
 .fake-led.green.on{background:#9fffae;}
 .fake-led.red.on{background:#ff8b8b;}
 
-/* switch - bigger knob fits perfectly */
-.power-switch{width:92px;height:36px;border-radius:18px;background:linear-gradient(180deg,#4b2b10,#2b160a);position:relative;display:flex;align-items:center;padding:5px;cursor:pointer;user-select:none;margin:4px auto}
-.power-switch .track{flex:1;height:100%;border-radius:14px;background:linear-gradient(180deg,#2b2b2b,#111);position:relative;overflow:hidden}
-.power-switch .knob{position:absolute;top:6px;left:6px;width:68px;height:24px;border-radius:12px;background:linear-gradient(180deg,#ff7b36,#c84b1a);box-shadow:0 2px 6px rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:12px;transform:translateX(0);transition:transform 130ms ease;pointer-events:none}
-.power-switch.on .knob{transform:translateX(30px)}
+/* circular knob (replacing pill) - fits perfectly */
+.power-switch{width:80px;height:44px;border-radius:22px;background:linear-gradient(180deg,#3e230f,#2b160a);position:relative;display:flex;align-items:center;padding:6px;cursor:pointer;user-select:none;margin:2px auto}
+.power-switch .track{flex:1;height:100%;border-radius:18px;background:linear-gradient(180deg,#222,#0d0d0d);position:relative;overflow:visible}
+.power-switch .knob{position:absolute;top:8px;left:8px;width:28px;height:28px;border-radius:50%;background:linear-gradient(180deg,#ff7b36,#c84b1a);box-shadow:0 2px 6px rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:11px;transform:translateX(0);transition:transform 120ms ease;pointer-events:none}
+.power-switch.on .knob{transform:translateX(36px)}
+.power-switch.on .knob{background:linear-gradient(180deg,#ff6b2b,#d4491a)}
 
-/* compact fake buttons & randomize */
-.row-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:6px;gap:10px}
-.fake-btn{width:22px;height:14px;border-radius:6px;background:linear-gradient(180deg,#3a2b1f,#25170e);display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:#c8d8c8;box-shadow:inset 0 1px 0 rgba(255,255,255,0.02)}
-.green-btn{width:32px;height:32px;border-radius:50%;background:linear-gradient(180deg,#163f22,#0b2a17);display:flex;align-items:center;justify-content:center;color:#9fe8b7;font-weight:700;border:0}
+/* compact bottom row */
+.row-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:4px;gap:8px}
+.fake-btn{width:20px;height:14px;border-radius:6px;background:linear-gradient(180deg,#3a2b1f,#25170e);display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:#c8d8c8;box-shadow:inset 0 1px 0 rgba(255,255,255,0.02)}
+.green-btn{width:30px;height:30px;border-radius:50%;background:linear-gradient(180deg,#163f22,#0b2a17);display:flex;align-items:center;justify-content:center;color:#9fe8b7;font-weight:700;border:0}
 
-/* labels & sliders compact */
+/* sliders and labels compact */
 .slider-row{display:flex;align-items:center;justify-content:space-between;margin-top:6px;gap:8px}
-.slider-label{background:#000;padding:6px 8px;border-radius:6px;color:var(--muted);font-size:12px}
-.sliders{width:100%;margin-top:6px}
-input[type=range]{-webkit-appearance:none;width:100%;height:26px;background:transparent;padding:4px 0;margin:0}
-input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:8px;background:#0d0d0d;border:1px solid rgba(255,255,255,0.02)}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;margin-top:-7px;width:40px;height:18px;border-radius:9px;background:linear-gradient(180deg,#4b301d,#2d1a11),repeating-linear-gradient(45deg, rgba(0,0,0,0.06) 0 2px, rgba(255,255,255,0.01) 2px 4px);border:2px solid rgba(0,0,0,0.72)}
+.slider-label{background:#000;padding:5px 7px;border-radius:6px;color:var(--muted);font-size:11px}
+.sliders{width:100%;margin-top:6px;display:flex;flex-direction:column;gap:6px}
+input[type=range]{-webkit-appearance:none;width:100%;height:24px;background:transparent;padding:4px 0;margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:7px;border-radius:8px;background:#0d0d0d;border:1px solid rgba(255,255,255,0.02)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;margin-top:-6px;width:36px;height:18px;border-radius:9px;background:linear-gradient(180deg,#4b301d,#2d1a11),repeating-linear-gradient(45deg, rgba(0,0,0,0.06) 0 2px, rgba(255,255,255,0.01) 2px 4px);border:2px solid rgba(0,0,0,0.72)}
 
-/* info panel small */
-.info{position:absolute;left:12px;top:40px;z-index:55;background:rgba(0,0,0,0.36);padding:6px 8px;border-radius:8px;color:#dfffe0;font-size:12px;min-width:110px;max-width:160px;box-shadow:0 6px 18px rgba(0,0,0,0.6);display:none}
+/* info badges and rarity colors */
+.info{position:absolute;left:12px;top:36px;z-index:55;background:rgba(0,0,0,0.36);padding:6px 8px;border-radius:8px;color:#dfffe0;font-size:12px;min-width:110px;max-width:170px;box-shadow:0 6px 18px rgba(0,0,0,0.6);display:none}
 .info h3{margin:0 0 6px 0;font-size:13px}
-.info .badge{display:block;padding:3px 4px;border-radius:6px;margin-bottom:4px;background:rgba(0,0,0,0.18);border:1px solid rgba(0,255,140,0.06);font-size:12px}
+.badge{display:block;padding:3px 4px;border-radius:6px;margin-bottom:4px;background:rgba(0,0,0,0.18);border:1px solid rgba(0,255,140,0.06);font-size:12px}
+/* rarity colours */
+.badge.I{color:#ffffff}        /* Common white */
+.badge.II{color:#9fffae}       /* Uncommon green */
+.badge.III{color:#a9d6ff}      /* Rare blue */
+.badge.IV{color:#ffd868}       /* Legendary gold */
 
 /* overlay when off */
 .power-off-overlay{position:absolute;left:12px;right:12px;top:12px;bottom:12px;border-radius:8px;background:#000;z-index:40;display:block;pointer-events:none}
 .power-off-overlay.hidden{display:none}
 
-/* responsive tweaks */
+/* responsive */
 @media(max-width:420px){ .wrap{padding:2px} canvas{max-width:92vw;} }
 </style>
 </head>
@@ -110,11 +114,12 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;margin-top:-7px;
     <!-- screws -->
     <div class="screw tl"></div><div class="screw tr"></div><div class="screw bl"></div><div class="screw br"></div>
 
-    <!-- screen (unchanged position) -->
+    <!-- screen -->
     <div class="screen-outer">
       <div class="screen-wrap">
-        <canvas id="radar" width="280" height="280"></canvas>
+        <canvas id="radar"></canvas>
         <div class="glass-cover"></div>
+
         <div class="info" id="info">
           <h3 id="artifactName">—</h3>
           <div id="atype" class="badge">Type: —</div>
@@ -123,6 +128,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;margin-top:-7px;
           <div id="energy" style="margin-top:6px">Energy: —%</div>
           <div id="stats" style="margin-top:6px;white-space:pre-line"></div>
         </div>
+
         <div class="corner-label lbl-tl">MODE: SCAN</div>
         <div class="corner-label lbl-tr">BAT: 76%</div>
         <div class="corner-label lbl-bl">SENS: HIGH</div>
@@ -131,34 +137,30 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;margin-top:-7px;
       </div>
     </div>
 
-    <!-- metal backplate that contains the controls (doesn't touch outer frame edges or the screen) -->
-    <div class="backplate" aria-hidden="false">
+    <!-- metal backplate -->
+    <div class="backplate">
       <div class="controls-compact">
 
-        <!-- main detection LED centered -->
-        <div class="main-led-row">
-          <div id="mainLed" class="led"></div>
-        </div>
+        <!-- main detection LED (centered) -->
+        <div class="main-led-row"><div id="mainLed" class="led"></div></div>
 
-        <!-- radiation LEDs (centered) -->
+        <!-- radiation LEDs with Greek letters (lowercase alpha, beta, gamma) -->
         <div class="rad-row">
-          <div class="led-block"><div class="led-symbol">a</div><div id="fakeLedBlue" class="fake-led blue"></div></div>
-          <div class="led-block"><div class="led-symbol">b</div><div id="fakeLedGreen" class="fake-led green"></div></div>
-          <div class="led-block"><div class="led-symbol">y</div><div id="fakeLedRed" class="fake-led red"></div></div>
+          <div class="led-block"><div class="led-symbol">&alpha;</div><div id="fakeLedBlue" class="fake-led blue"></div></div>
+          <div class="led-block"><div class="led-symbol">&beta;</div><div id="fakeLedGreen" class="fake-led green"></div></div>
+          <div class="led-block"><div class="led-symbol">&gamma;</div><div id="fakeLedRed" class="fake-led red"></div></div>
         </div>
 
-        <!-- switch -->
-        <div>
-          <div id="powerSwitch" class="power-switch off" title="Tap to toggle">
-            <div class="track"></div>
-            <div class="knob">ON</div>
-          </div>
+        <!-- circular knob switch -->
+        <div id="powerSwitch" class="power-switch off" title="Tap to toggle">
+          <div class="track"></div>
+          <div class="knob">ON</div>
         </div>
 
-        <!-- compact row: fake buttons + randomize -->
+        <!-- compact bottom / fake buttons -->
         <div class="row-bottom" style="width:100%;">
-          <div style="display:flex;gap:8px;align-items:center"><div class="fake-btn">A</div><div class="fake-btn">B</div></div>
-          <div style="display:flex;gap:8px;align-items:center"><div class="fake-btn">RST</div><button id="randBtn" class="green-btn">R</button></div>
+          <div style="display:flex;gap:6px;align-items:center"><div class="fake-btn">A</div><div class="fake-btn">B</div></div>
+          <div style="display:flex;gap:6px;align-items:center"><div class="fake-btn">RST</div><button id="randBtn" class="green-btn">R</button></div>
         </div>
 
         <!-- sliders -->
@@ -168,7 +170,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;margin-top:-7px;
         </div>
         <div class="sliders">
           <input id="proximity" type="range" min="0" max="100" value="50">
-          <input id="direction" type="range" min="0" max="360" value="0" style="margin-top:6px">
+          <input id="direction" type="range" min="0" max="360" value="0">
         </div>
 
       </div>
@@ -178,12 +180,13 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;margin-top:-7px;
 </div>
 
 <script>
-/* Compact detector script — updated:
- - UI compacted, backplate added
- - haptics removed (no navigator.vibrate calls)
- - switch click toggles, knob snaps
- - LED exponential chance as before
- - behaviour otherwise preserved
+/* Compact metal backplate v2 script
+ - Canvas sizing adjusted for larger display area and overall shorter frame
+ - Switch is circular knob, click to toggle and snaps
+ - Greek letters used for rad LEDs (&alpha; &beta; &gamma;)
+ - Analog (scanline) effect strengthened on canvas
+ - Rarity colours applied via .badge classes
+ - Haptics removed
 */
 
 const canvas = document.getElementById('radar'), ctx = canvas.getContext('2d');
@@ -199,9 +202,10 @@ const mainLed = document.getElementById('mainLed');
 
 let dpr = Math.max(window.devicePixelRatio || 1, 1);
 function sizeCanvas(){
-  // keep it small and short so the whole unit fits vertically
-  const maxW = Math.min(window.innerWidth - 36, 320);
-  const cssSize = Math.floor(maxW * 0.72); // compact
+  // larger display, but overall shorter frame via outer scaleY; picks available width
+  const maxW = Math.min(window.innerWidth - 36, 340);
+  // use a large fraction to make screen bigger while keeping compact UI
+  const cssSize = Math.floor(maxW * 0.90);
   canvas.style.width = cssSize + 'px';
   canvas.style.height = cssSize + 'px';
   canvas.width = cssSize * dpr;
@@ -211,12 +215,12 @@ function sizeCanvas(){
 window.addEventListener('resize', sizeCanvas);
 sizeCanvas();
 
-/* Config */
-let SWEEP_SPEED = 5.0;
-const TRAIL_STEPS = 12;
+/* Configs */
+let SWEEP_SPEED = 5.2;
+const TRAIL_STEPS = 14;
 const TRAIL_STEP_ANGLE = 3.2;
 const DETECT_ARC = 28;
-const LERP = 0.14;
+const LERP = 0.12;
 const FADE_MS = 900;
 const MIN_BEEP_INTERVAL = 80;
 const MAX_BEEP_INTERVAL = 2200;
@@ -265,10 +269,10 @@ function playBeep(){
 function startContinuousTone(){ if(!audioCtx||!powerOn||continuousOsc) return; continuousOsc = audioCtx.createOscillator(); continuousGain = audioCtx.createGain(); continuousOsc.type='sine'; continuousOsc.frequency.value=920; continuousGain.gain.value=0; continuousOsc.connect(continuousGain); continuousGain.connect(audioCtx.destination); continuousOsc.start(); continuousGain.gain.linearRampToValueAtTime(0.14,audioCtx.currentTime+0.05); }
 function stopContinuousTone(){ if(!continuousOsc) return; try{ continuousGain.gain.linearRampToValueAtTime(0.0001,audioCtx.currentTime+0.02); setTimeout(()=>{ try{ continuousOsc.stop(); continuousOsc.disconnect(); continuousGain.disconnect(); }catch(e){} continuousOsc=null; continuousGain=null; },80);}catch(e){ continuousOsc=null; continuousGain=null; } }
 
-/* price */
+/* pricing */
 function computePrice(meta){ if(!meta) return 0; const base=meta._base; const energyFactor=1 + (meta.energy * 0.0065); const weightFactor=1 + (meta.weight * 0.01); const radPenalty=Math.max(0.6,1 - (meta.radiation * 0.005)); const randomVar=0.93 + Math.random()*0.14; let p=Math.round(base * energyFactor * weightFactor * radPenalty * randomVar); return Math.max(100,p); }
 
-/* spawn */
+/* spawn random artifact */
 function randomizeArtifact(){
   const baseName = names[Math.floor(Math.random()*names.length)];
   const type = types[Math.floor(Math.random()*types.length)];
@@ -284,14 +288,14 @@ function randomizeArtifact(){
   updateDistanceLabel();
   lastDetectedAt = -999999; visibleAlpha = 0;
   foundPreviously = false;
-  const angle = Math.floor(Math.random()*360);
-  artifact.angleDeg = (270 + angle) % 360; // keep mapping so 0 front
-  directionEl.value = angle;
-  distLabel.textContent = "Bearing = " + Math.round(directionEl.value) + "°";
+  const displayAngle = Math.floor(Math.random()*360);
+  artifact.angleDeg = displayedToInternalAngle(displayAngle);
+  directionEl.value = displayAngle;
+  distLabel.textContent = "Bearing = " + Math.round(displayAngle) + "°";
   updateInfoUI();
 }
 
-/* update info */
+/* info UI & rarity colour application */
 function updateInfoUI(){
   if(!artifact.meta) return;
   artifactNameEl.textContent = artifact.meta.name;
@@ -300,30 +304,31 @@ function updateInfoUI(){
   priceEl.textContent = "Price: " + artifact.meta.price + " RU";
   energyEl.textContent = "Energy: " + artifact.meta.energy + "%";
   statsEl.innerText = `Weight: ${artifact.meta.weight} kg\nRadiation: ${artifact.meta.radiation} rads`;
-  rarityEl.className = 'badge ' + ({'I':'','II':'II','III':'III','IV':'IV'}[artifact.meta.tier]||'');
+  // set class for rarity to apply colour
+  rarityEl.className = 'badge ' + (artifact.meta.tier || '');
 }
 
-/* displayed degrees -> internal angle (0° = front) */
+/* displayed degrees -> internal mapping: 0° should be front (we map displayed -> internal such that 0 front) */
 function displayedToInternalAngle(dd){ return (270 + dd) % 360; }
 
-/* distance label (20m -> 0m) */
+/* distance label */
 function updateDistanceLabel(){
   const p = artifact.proximity;
   if(p <= 0){ proxLabel.textContent = "Distance = X"; }
   else { const meters = Math.round((1 - (p/100)) * 20); proxLabel.textContent = "Distance = " + meters + "m"; }
 }
 
-/* UI handlers */
-proximityEl.addEventListener('input', e=>{ artifact.proximity = Number(e.target.value); updateDistanceLabel(); if(artifact.proximity <= 0){ lastDetectedAt = -999999; visibleAlpha = 0; foundPreviously = false; } });
+/* UI events */
+proximityEl.addEventListener('input', e=>{ artifact.proximity = Number(e.target.value); updateDistanceLabel(); if(artifact.proximity <= 0){ lastDetectedAt = -999999; visibleAlpha = 0; foundPreviously = false; }});
 directionEl.addEventListener('input', e=>{ const dd = Number(e.target.value); distLabel.textContent = "Bearing = " + Math.round(dd) + "°"; artifact.angleDeg = displayedToInternalAngle(dd); });
 
-/* switch click toggles, knob snaps */
+/* switch click toggles (circular knob snaps) */
 function setPowerState(on){
   powerOn = !!on;
   const knob = powerSwitch.querySelector('.knob');
   if(powerOn){
     powerSwitch.classList.remove('off'); powerSwitch.classList.add('on');
-    knob.style.transform = 'translateX(30px)';
+    knob.style.transform = 'translateX(36px)';
     powerOverlay.classList.add('hidden'); ensureAudio(); if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); isAudioEnabled=true;
   } else {
     powerSwitch.classList.remove('on'); powerSwitch.classList.add('off');
@@ -338,12 +343,12 @@ randBtn.addEventListener('click', ()=>{ ensureAudio(); if(audioCtx && audioCtx.s
 
 document.addEventListener('touchstart', function once(){ ensureAudio(); if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); isAudioEnabled=true; document.removeEventListener('touchstart', once); }, {passive:true});
 
-/* LED exponential chance */
+/* LED exponential chance (1% -> 50%) */
 const LED_MIN = 0.01, LED_MAX = 0.50, LED_K = 0.035;
 const LED_DEN = (Math.exp(LED_K * 100) - 1);
 function ledChanceForProximity(p){ if(p <= 0) return 0; const v = (Math.exp(LED_K * p) - 1) / LED_DEN; return LED_MIN + (LED_MAX - LED_MIN) * v; }
 
-/* desynced LED timers */
+/* desynced LED timers (33/66/99ms) */
 (function desyncedLEDs(){
   const leds = [
     {el: fakeLedBlue, freq: 1200, interval: 33},
@@ -356,7 +361,7 @@ function ledChanceForProximity(p){ if(p <= 0) return 0; const v = (Math.exp(LED_
       if(!audioCtx) ensureAudio();
       const p = Math.max(0, Math.min(100, artifact.proximity || 0));
       if(p <= 0){ l.el.classList.remove('on'); return; }
-      if(p >= 100){ l.el.classList.add('on'); return; } // solid on when found
+      if(p >= 100){ l.el.classList.add('on'); return; }
       const chance = ledChanceForProximity(p);
       if(Math.random() < chance){
         l.el.classList.add('on');
@@ -380,16 +385,18 @@ function ledChanceForProximity(p){ if(p <= 0) return 0; const v = (Math.exp(LED_
   });
 })();
 
-/* mapping proximity to beep interval */
+/* beep interval mapping */
 function proxToInterval(p){ const ratio = Math.max(0, Math.min(1, p/100)); return Math.round(MAX_BEEP_INTERVAL - (MAX_BEEP_INTERVAL - MIN_BEEP_INTERVAL) * ratio); }
 
-/* draw loop */
+/* DRAW loop:
+   - stronger analog scanlines, CRT-like vignette to make analog effect visible
+*/
 let noiseTime = 0;
 function draw(now){
   sizeCanvas();
   const cssW = canvas.clientWidth, cssH = canvas.clientHeight;
   const size = Math.min(cssW, cssH);
-  const cx = size/2, cy = size/2, maxR = size*0.42;
+  const cx = size/2, cy = size/2, maxR = size*0.44;
 
   current.proximity = lerp(current.proximity, artifact.proximity, LERP);
   current.angleDeg = lerpAngle(current.angleDeg, artifact.angleDeg, LERP);
@@ -398,52 +405,61 @@ function draw(now){
 
   ctx.clearRect(0,0,size,size);
 
-  // analog lines
+  // crt scanlines — stronger
   ctx.save();
-  for(let y=0;y<=size;y+=1.6){
-    ctx.strokeStyle = `rgba(0,0,0,${0.08 + 0.04*Math.sin((y+noiseTime*12)/20)})`;
+  ctx.globalCompositeOperation = 'multiply';
+  for(let y=0;y<=size;y+=1.2){
+    const alpha = 0.06 + 0.03 * Math.sin((y + noiseTime*8)/12);
+    ctx.strokeStyle = `rgba(0,0,0,${alpha})`;
     ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(size,y); ctx.stroke();
   }
   ctx.restore();
 
-  // background circle
+  // vignette subtle
+  const vgrad = ctx.createRadialGradient(cx,cy,size*0.1,cx,cy,size*0.8);
+  vgrad.addColorStop(0,'rgba(0,0,0,0)');
+  vgrad.addColorStop(1,'rgba(0,0,0,0.32)');
+  ctx.fillStyle = vgrad;
+
+  // radar circle background
   const g = ctx.createRadialGradient(cx,cy,6,cx,cy,maxR);
-  g.addColorStop(0,"rgba(2,40,8,0.98)"); g.addColorStop(0.6,"rgba(8,70,18,0.6)"); g.addColorStop(1,"rgba(2,20,6,0.9)");
+  g.addColorStop(0,"rgba(4,60,12,0.98)"); g.addColorStop(0.6,"rgba(10,90,26,0.62)"); g.addColorStop(1,"rgba(3,28,8,0.9)");
   ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx,cy,maxR,0,Math.PI*2); ctx.fill();
 
   // rings
-  ctx.lineWidth = 1.2; ctx.strokeStyle = "rgba(0,200,90,0.16)";
+  ctx.lineWidth = 1.1; ctx.strokeStyle = "rgba(0,220,120,0.12)";
   for(let i=1;i<=4;i++){ ctx.beginPath(); ctx.arc(cx,cy,maxR*(i/4),0,Math.PI*2); ctx.stroke(); }
 
   // crosshair
-  ctx.strokeStyle="rgba(0,220,120,0.09)"; ctx.beginPath(); ctx.moveTo(cx-maxR,cy); ctx.lineTo(cx+maxR,cy); ctx.moveTo(cx,cy-maxR); ctx.lineTo(cx,cy+maxR); ctx.stroke();
+  ctx.strokeStyle="rgba(0,220,120,0.06)"; ctx.beginPath(); ctx.moveTo(cx-maxR,cy); ctx.lineTo(cx+maxR,cy); ctx.moveTo(cx,cy-maxR); ctx.lineTo(cx,cy+maxR); ctx.stroke();
 
-  // sweep trail
+  // sweep trail (single wedge with fading tail)
   sweepAngle = (sweepAngle + SWEEP_SPEED) % 360;
   ctx.save(); ctx.translate(cx,cy);
   for(let i=TRAIL_STEPS;i>0;i--){
     const stepAngle = sweepAngle - i * TRAIL_STEP_ANGLE;
     const a = degToRad(stepAngle);
-    const alpha = Math.max(0, 0.46 * (1 - i / TRAIL_STEPS));
-    if(i > TRAIL_STEPS * 0.45) ctx.filter='blur(3px)'; else ctx.filter='none';
-    const halfWidth = degToRad(10);
+    const alpha = Math.max(0, 0.5 * (1 - i / TRAIL_STEPS));
+    ctx.filter = (i > TRAIL_STEPS*0.45) ? 'blur(3px)' : 'none';
+    const half = degToRad(9);
     const grad = ctx.createLinearGradient(Math.cos(a)*0, Math.sin(a)*0, Math.cos(a)*maxR, Math.sin(a)*maxR);
     grad.addColorStop(0, `rgba(0,255,120,${alpha})`); grad.addColorStop(1, `rgba(0,255,80,${alpha*0.02})`);
-    ctx.fillStyle = grad; ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0, maxR, a-halfWidth, a+halfWidth); ctx.closePath(); ctx.globalCompositeOperation='lighter'; ctx.fill();
+    ctx.fillStyle = grad;
+    ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0, maxR, a-half, a+half); ctx.closePath(); ctx.globalCompositeOperation='lighter'; ctx.fill();
   }
   ctx.restore();
   ctx.filter='none'; ctx.globalCompositeOperation='source-over';
 
-  // solid front wedge
+  // main solid wedge (front)
   ctx.save(); ctx.translate(cx,cy);
-  const aFront = degToRad(sweepAngle); const halfFront = degToRad(9);
+  const aFront = degToRad(sweepAngle), halfFront = degToRad(8.8);
   const gradFront = ctx.createLinearGradient(0,0, Math.cos(aFront)*maxR, Math.sin(aFront)*maxR);
   gradFront.addColorStop(0,"rgba(0,255,150,0.98)"); gradFront.addColorStop(1,"rgba(0,255,80,0.06)");
   ctx.fillStyle = gradFront; ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,maxR,aFront-halfFront,aFront+halfFront); ctx.closePath(); ctx.globalCompositeOperation='lighter'; ctx.fill();
   ctx.restore();
 
-  // artifact (if inside)
+  // artifact: appears when within detection arc; fades away smoothly
   if(artifact.proximity > 0){
     const artAngle = current.angleDeg;
     const diff = angleDiff(sweepAngle, artAngle);
@@ -454,30 +470,30 @@ function draw(now){
     const ay = cy + Math.sin(aRad)*dist;
     if(visibleNow){ lastDetectedAt = Date.now(); visibleAlpha = 1; } else { const since = Date.now() - lastDetectedAt; visibleAlpha = Math.max(0, 1 - (since / FADE_MS)); }
     if(visibleAlpha > 0.02){
-      ctx.beginPath(); ctx.fillStyle = `rgba(100,255,140,${0.95 * visibleAlpha})`; const pulse = 1 + 0.12*Math.sin(Date.now()/120); ctx.arc(ax,ay,6*pulse,0,Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.strokeStyle = `rgba(100,255,140,${0.18 * visibleAlpha})`; ctx.arc(ax,ay,12*pulse,0,Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.fillStyle = `rgba(120,255,170,${0.95 * visibleAlpha})`; const pulse = 1 + 0.12*Math.sin(Date.now()/120); ctx.arc(ax,ay,6*pulse,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.strokeStyle = `rgba(120,255,170,${0.20 * visibleAlpha})`; ctx.arc(ax,ay,12*pulse,0,Math.PI*2); ctx.stroke();
     }
   } else { lastDetectedAt = -999999; visibleAlpha = 0; }
 
-  // center dot
+  // center marker
   ctx.beginPath(); ctx.fillStyle="rgba(0,0,0,0.28)"; ctx.arc(cx,cy,6,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.strokeStyle="rgba(0,255,140,0.5)"; ctx.arc(cx,cy,6,0,Math.PI*2); ctx.stroke();
 
-  // info panel visibility (only when found & on)
+  // info panel visibility (only when found & power on)
   if(Math.round(current.proximity) >= 100 && artifact.meta && powerOn){
     infoPanel.style.display='block';
     updateInfoUI();
-    if(!foundPreviously){ foundPreviously = true; /* no haptics */ }
+    if(!foundPreviously) foundPreviously = true;
   } else {
     infoPanel.style.display='none';
     foundPreviously = false;
   }
 
-  // noise
+  // subtle noise specks
   noiseTime += 0.9; if(noiseTime > 10000) noiseTime = 0;
-  for(let i=0;i<8;i++){ const nx = cx + Math.cos((i*23 + noiseTime*6)/12) * (maxR*(0.2 + 0.8*Math.random())); const ny = cy + Math.sin((i*17 + noiseTime*5)/10) * (maxR*(0.2 + 0.8*Math.random())); ctx.fillStyle='rgba(0,255,140,0.02)'; ctx.fillRect(nx,ny,1,1); }
+  for(let i=0;i<6;i++){ const nx = cx + Math.cos((i*23 + noiseTime*6)/12) * (maxR*(0.2 + 0.8*Math.random())); const ny = cy + Math.sin((i*17 + noiseTime*5)/10) * (maxR*(0.2 + 0.8*Math.random())); ctx.fillStyle='rgba(0,255,140,0.02)'; ctx.fillRect(nx,ny,1,1); }
 
-  // main beeping and main LED
+  // main beeping and detection LED
   const nowMs = performance.now();
   if(powerOn && artifact.proximity >= 100){
     if(!continuousOsc && audioCtx && isAudioEnabled) startContinuousTone();
@@ -508,12 +524,13 @@ function degToRad(d){ return d * Math.PI/180; }
 function lerp(a,b,t){ return a + (b-a)*t; }
 function angleDiff(a,b){ let d = (((a - b + 540) % 360) - 180); return d; }
 function lerpAngle(a,b,t){ const diff = angleDiff(b,a); return (a + diff*t + 360) % 360; }
+
 function proxToInterval(p){ const ratio = Math.max(0, Math.min(1, p/100)); return Math.round(MAX_BEEP_INTERVAL - (MAX_BEEP_INTERVAL - MIN_BEEP_INTERVAL) * ratio); }
 
-/* start */
+/* init */
 ensureAudio(); randomizeArtifact(); draw();
 
-/* small listeners */
+/* quick UI listeners */
 directionEl.addEventListener('input', ()=>{ distLabel.textContent = "Bearing = " + Math.round(directionEl.value) + "°"; });
 proximityEl.addEventListener('input', ()=>{ updateDistanceLabel(); });
 
