@@ -3,22 +3,22 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Artifact Detector — Updated</title>
+<title>Artifact Detector — Fixes</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --muted:#dfe9c8;
   --accent:#0ff08a;
-  --frame-top:#8a4f22;   /* orange/rust */
-  --frame-bottom:#5a2b10;
+  --frame-top:#9b4f20;   /* orange/rust tone */
+  --frame-bottom:#6b2f10;
   --panel:#0b1409;
   --screw-dark:#2c1c14;
   --screw-top:#6b3f2a;
 }
 
-/* layout: slightly wider to fit iPhone SE while shorter vertically */
+/* layout: slightly wider but shorter to avoid vertical scrolling */
 html,body{height:100%;margin:0;background:linear-gradient(180deg,#060403,#0b0806);font-family:Orbitron,system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--muted);display:flex;align-items:center;justify-content:center;}
-.wrap{width:100%;max-width:375px;padding:3px;box-sizing:border-box;} /* widened to fit SE */
+.wrap{width:100%;max-width:378px;padding:3px;box-sizing:border-box;} /* fit iPhone SE */
 
 /* frame with orange/rust gradient + diagonal texture */
 .frame{
@@ -44,7 +44,7 @@ html,body{height:100%;margin:0;background:linear-gradient(180deg,#060403,#0b0806
 .screen-seam{display:none}
 
 /* scale display slightly smaller to create thicker seams visually */
-.screen-wrap{position:relative;border-radius:8px;padding:3px;background:linear-gradient(180deg,#021f12,#00140a);overflow:hidden;display:flex;align-items:center;justify-content:center;z-index:4;transform-origin:center;transform:scale(0.92)}
+.screen-wrap{position:relative;border-radius:8px;padding:3px;background:linear-gradient(180deg,#021f12,#00140a);overflow:hidden;display:flex;align-items:center;justify-content:center;z-index:4;transform-origin:center;transform:scale(0.90)}
 
 /* canvas */
 canvas{display:block;border-radius:6px;width:100%;height:auto;}
@@ -56,16 +56,13 @@ canvas{display:block;border-radius:6px;width:100%;height:auto;}
 .corner-label{position:absolute;color:#cbdcbd;font-size:11px;font-family:Orbitron,monospace;z-index:25}
 .lbl-tl{left:14px;top:10px} .lbl-tr{right:14px;top:10px} .lbl-bl{left:14px;bottom:12px} .lbl-br{right:14px;bottom:12px}
 
-/* controls area — we keep only randomize at right, LEDs centered above the switch */
-.controls{display:flex;align-items:center;justify-content:space-between;margin-top:6px;gap:8px;z-index:50}
-.right-controls{display:flex;align-items:center;gap:8px;}
-
-/* main detection LED */
+/* main LED (detection LED) - left under screen */
+.main-led-row{display:flex;align-items:center;gap:8px;justify-content:flex-start;margin-top:6px;margin-left:8px;z-index:50}
 .led{width:14px;height:14px;border-radius:50%;background:#2b0b0b;border:2px solid #2b0000;box-shadow:inset 0 1px 3px rgba(0,0,0,0.6);transition:all .08s linear}
 .led.on{background:linear-gradient(180deg,#ff3b3b,#9b0000);box-shadow:0 0 10px rgba(255,60,60,.9)}
 
 /* radiation LED row centered above switch */
-.rad-row{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:6px;z-index:50}
+.rad-row{display:flex;align-items:center;justify-content:center;gap:22px;margin-top:6px;z-index:50}
 .led-block{display:flex;flex-direction:column;align-items:center;gap:3px;font-family:Orbitron,monospace;font-size:12px;color:var(--muted)}
 .led-symbol{font-size:12px;line-height:12px;color:#d5d5d5}
 
@@ -76,14 +73,14 @@ canvas{display:block;border-radius:6px;width:100%;height:auto;}
 .fake-led.green.on{background:#9fffae;box-shadow:0 0 7px rgba(140,255,170,0.6)}
 .fake-led.red.on{background:#ff8b8b;box-shadow:0 0 7px rgba(255,140,140,0.5)}
 
-/* randomize button */
+/* randomize button (right) */
 .green-btn{width:34px;height:34px;border-radius:50%;background:linear-gradient(180deg,#163f22,#0b2a17);box-shadow:inset 0 2px 0 rgba(255,255,255,0.02), 0 6px 12px rgba(0,0,0,0.6);color:#9fe8b7;font-weight:700;border:0;display:flex;align-items:center;justify-content:center;z-index:50}
 
-/* power switch visual (keeps sliding look but click toggles) */
-.power-switch{width:86px;height:30px;border-radius:16px;background:linear-gradient(180deg,#4b2b10,#2b160a);position:relative;box-shadow:inset 0 1px 0 rgba(255,255,255,0.03),0 6px 14px rgba(0,0,0,0.45);display:flex;align-items:center;padding:4px;cursor:pointer;user-select:none;margin:8px auto 2px auto}
-.power-switch .track{flex:1;height:100%;border-radius:12px;background:linear-gradient(180deg,#2b2b2b,#111);position:relative;overflow:hidden}
-.power-switch .knob{position:absolute;top:4px;left:4px;width:54px;height:22px;border-radius:10px;background:linear-gradient(180deg,#ff7b36,#c84b1a);box-shadow:0 2px 6px rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:11px;transform:translateX(0);transition:transform 130ms cubic-bezier(.2,.9,.2,1);pointer-events:none}
-.power-switch.on .knob{transform:translateX(28px)}
+/* power switch visual (click toggles) - knob bigger and centered */
+.power-switch{width:90px;height:34px;border-radius:18px;background:linear-gradient(180deg,#4b2b10,#2b160a);position:relative;box-shadow:inset 0 1px 0 rgba(255,255,255,0.03),0 6px 14px rgba(0,0,0,0.45);display:flex;align-items:center;padding:5px;cursor:pointer;user-select:none;margin:8px auto 2px auto}
+.power-switch .track{flex:1;height:100%;border-radius:14px;background:linear-gradient(180deg,#2b2b2b,#111);position:relative;overflow:hidden}
+.power-switch .knob{position:absolute;top:6px;left:6px;width:64px;height:22px;border-radius:10px;background:linear-gradient(180deg,#ff7b36,#c84b1a);box-shadow:0 2px 6px rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:12px;transform:translateX(0);transition:transform 140ms cubic-bezier(.2,.9,.2,1);pointer-events:none}
+.power-switch.on .knob{transform:translateX(32px)}
 .power-switch.on .knob{background:linear-gradient(180deg,#ff6b2b,#d4491a)}
 
 /* small fake buttons */
@@ -115,7 +112,7 @@ input[type=range]::-moz-range-thumb{width:44px;height:20px;border-radius:10px;ba
 .power-off-overlay.hidden{display:none}
 
 /* responsive */
-@media(max-width:420px){ .wrap{padding:3px} canvas{max-width:92vw;} input[type=range]::-webkit-slider-thumb{width:40px;height:18px} }
+@media(max-width:420px){ .wrap{padding:2px} canvas{max-width:92vw;} input[type=range]::-webkit-slider-thumb{width:40px;height:18px} }
 </style>
 </head>
 <body>
@@ -129,7 +126,7 @@ input[type=range]::-moz-range-thumb{width:44px;height:20px;border-radius:10px;ba
       <div class="screen-seam"></div>
 
       <div class="screen-wrap" id="screenWrap">
-        <canvas id="radar" width="320" height="320"></canvas>
+        <canvas id="radar" width="300" height="300"></canvas>
 
         <div class="glass-cover" id="glassCover"></div>
 
@@ -152,6 +149,12 @@ input[type=range]::-moz-range-thumb{width:44px;height:20px;border-radius:10px;ba
       </div>
     </div>
 
+    <!-- main detection LED (left) -->
+    <div class="main-led-row" aria-hidden="true">
+      <div id="mainLed" class="led" title="detection led"></div>
+      <div style="font-size:12px;color:#9fcf9c">LED</div>
+    </div>
+
     <!-- centered radiation LEDs above the switch -->
     <div class="rad-row" aria-hidden="true">
       <div class="led-block"><div class="led-symbol">a</div><div id="fakeLedBlue" class="fake-led blue"></div></div>
@@ -159,7 +162,7 @@ input[type=range]::-moz-range-thumb{width:44px;height:20px;border-radius:10px;ba
       <div class="led-block"><div class="led-symbol">y</div><div id="fakeLedRed" class="fake-led red"></div></div>
     </div>
 
-    <!-- randomize on the right of controls -->
+    <!-- right-side randomize + fake buttons row -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px">
       <div style="display:flex;gap:8px;align-items:center">
         <div class="fake-btn">A</div>
@@ -171,7 +174,7 @@ input[type=range]::-moz-range-thumb{width:44px;height:20px;border-radius:10px;ba
       </div>
     </div>
 
-    <!-- switch: click/touch toggles; visuals kept -->
+    <!-- switch: click/tap toggles; knob snaps -->
     <div style="display:flex;align-items:center;justify-content:center;margin-top:6px">
       <div id="powerSwitch" class="power-switch off" title="Tap to toggle">
         <div class="track"></div>
@@ -179,7 +182,7 @@ input[type=range]::-moz-range-thumb{width:44px;height:20px;border-radius:10px;ba
       </div>
     </div>
 
-    <!-- small row and sliders compact -->
+    <!-- slider labels -->
     <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:6px">
       <div class="slider-label" id="proxLabel">Distance = X</div>
       <div class="slider-label" id="distLabel">Bearing = 0°</div>
@@ -194,15 +197,14 @@ input[type=range]::-moz-range-thumb{width:44px;height:20px;border-radius:10px;ba
 </div>
 
 <script>
-/* Updated script:
- - switch no longer draggable: single tap toggles; knob snaps
- - knob centered and sized to fully fit inside track
- - 3 LEDs centered above switch; letters a,b,y above each
- - bearing mapping: 0° = in front, 180° = behind (displayed degrees -> internal angle = displayed - 90)
- - display scaled smaller via CSS; canvas reduced to fit without vertical scroll
- - frame color changed to orange; textures preserved
- - LED exponential chance kept (1% -> 50%), desynced timers preserved
- - other behavior unchanged
+/* Fixes applied:
+ - main LED re-added and wired (mainLed)
+ - power switch no longer draggable; click toggles; knob bigger and snaps
+ - bearing mapping: displayed 0 -> internal front (270), formula below
+ - canvas made smaller to avoid scrolling
+ - radiation LEDs centered and letters a/b/y above
+ - exponential LED chance, desynced timers retained
+ - info panel hidden when power off
 */
 
 const canvas = document.getElementById('radar'), ctx = canvas.getContext('2d');
@@ -214,13 +216,13 @@ const infoPanel = document.getElementById('info'), artifactNameEl = document.get
 const typeEl = document.getElementById('atype'), rarityEl = document.getElementById('rarity'), priceEl = document.getElementById('price');
 const energyEl = document.getElementById('energy'), statsEl = document.getElementById('stats');
 const fakeLedBlue = document.getElementById('fakeLedBlue'), fakeLedGreen = document.getElementById('fakeLedGreen'), fakeLedRed = document.getElementById('fakeLedRed');
-const mainLed = document.querySelector('.led');
+const mainLed = document.getElementById('mainLed');
 
 let dpr = Math.max(window.devicePixelRatio || 1, 1);
 function sizeCanvas(){
-  // shorten the canvas so the whole detector fits vertically but keep width
-  const maxW = Math.min(window.innerWidth - 40, 320);
-  const cssSize = Math.floor(maxW * 0.92); // slightly smaller for seams
+  // smaller canvas to ensure whole unit fits vertically on iPhone SE
+  const maxW = Math.min(window.innerWidth - 36, 320);
+  const cssSize = Math.floor(maxW * 0.86); // reduced to avoid vertical scrolling
   canvas.style.width = cssSize + 'px';
   canvas.style.height = cssSize + 'px';
   canvas.width = cssSize * dpr;
@@ -230,7 +232,7 @@ function sizeCanvas(){
 window.addEventListener('resize', sizeCanvas);
 sizeCanvas();
 
-/* Configs (unchanged) */
+/* Config */
 let SWEEP_SPEED = 5.0;
 const TRAIL_STEPS = 14;
 const TRAIL_STEP_ANGLE = 3.2;
@@ -326,8 +328,8 @@ function updateInfoUI(){
   rarityEl.className = 'badge ' + ({'I':'','II':'II','III':'III','IV':'IV'}[artifact.meta.tier]||'');
 }
 
-/* displayed degrees -> internal angle mapping: 0 = front -> internal = displayed - 90 */
-function displayedToInternalAngle(dd){ return (dd - 90 + 360) % 360; }
+/* displayed degrees -> internal angle mapping: 0° = front => internal = 270 + displayed */
+function displayedToInternalAngle(dd){ return (270 + dd) % 360; }
 
 /* Distance mapping 20m -> 0m */
 function updateDistanceLabel(){
@@ -354,13 +356,16 @@ directionEl.addEventListener('input', e=>{
 /* power toggle (click only) */
 function setPowerState(on){
   powerOn = !!on;
+  const knob = powerSwitch.querySelector('.knob');
   if(powerOn){
     powerSwitch.classList.remove('off'); powerSwitch.classList.add('on');
+    knob.style.transform = 'translateX(32px)';
     powerOverlay.classList.add('hidden');
     ensureAudio(); if(audioCtx && audioCtx.state==='suspended') audioCtx.resume();
     isAudioEnabled = true;
   } else {
     powerSwitch.classList.remove('on'); powerSwitch.classList.add('off');
+    knob.style.transform = 'translateX(0px)';
     powerOverlay.classList.remove('hidden');
     stopContinuousTone();
     isAudioEnabled = false;
@@ -370,18 +375,15 @@ function setPowerState(on){
 }
 powerSwitch.addEventListener('click', ()=>{
   setPowerState(!powerOn);
-  // visually snap knob
-  const knob = powerSwitch.querySelector('.knob');
-  if(powerOn) knob.style.transform = 'translateX(28px)'; else knob.style.transform = 'translateX(0px)';
   clickSound();
 });
 
-/* randomize button */
+/* randomize */
 randBtn.addEventListener('click', ()=>{ ensureAudio(); if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); isAudioEnabled=true; randomizeArtifact(); });
 
 document.addEventListener('touchstart', function once(){ ensureAudio(); if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); isAudioEnabled=true; document.removeEventListener('touchstart', once); }, {passive:true});
 
-/* exponential LED chance as before (1% -> 50%) */
+/* LED exponential chance */
 const LED_MIN = 0.01, LED_MAX = 0.50, LED_K = 0.035;
 const LED_DEN = (Math.exp(LED_K * 100) - 1);
 function ledChanceForProximity(p){
@@ -390,7 +392,7 @@ function ledChanceForProximity(p){
   return LED_MIN + (LED_MAX - LED_MIN) * v;
 }
 
-/* desynced LED timers (blue 33, green 66, red 99 ms). When found (p==100) they stay solid ON muted. */
+/* desynced LED timers (same as before) */
 (function desyncedLEDs(){
   const leds = [
     {el: fakeLedBlue, freq: 1200, interval: 33},
@@ -427,10 +429,10 @@ function ledChanceForProximity(p){
   });
 })();
 
-/* mapping proximity to beep interval (main) */
+/* mapping proximity -> beep interval */
 function proxToInterval(p){ const ratio = Math.max(0, Math.min(1, p/100)); return Math.round(MAX_BEEP_INTERVAL - (MAX_BEEP_INTERVAL - MIN_BEEP_INTERVAL) * ratio); }
 
-/* DRAW loop (careful to avoid syntax mistakes) */
+/* drawing loop */
 let noiseTime = 0;
 function draw(now){
   sizeCanvas();
@@ -445,7 +447,7 @@ function draw(now){
 
   ctx.clearRect(0,0,size,size);
 
-  // analog horizontal lines across whole display
+  // analog horizontal lines
   ctx.save();
   for(let y=0;y<=size;y+=1.6){
     ctx.strokeStyle = `rgba(0,0,0,${0.08 + 0.04*Math.sin((y+noiseTime*12)/20)})`;
@@ -454,7 +456,7 @@ function draw(now){
   }
   ctx.restore();
 
-  // radar circle (centered)
+  // radar circle
   const g = ctx.createRadialGradient(cx,cy,6,cx,cy,maxR);
   g.addColorStop(0,"rgba(2,40,8,0.98)"); g.addColorStop(0.6,"rgba(8,70,18,0.6)"); g.addColorStop(1,"rgba(2,20,6,0.9)");
   ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx,cy,maxR,0,Math.PI*2); ctx.fill();
@@ -466,7 +468,7 @@ function draw(now){
   // crosshair
   ctx.strokeStyle="rgba(0,220,120,0.09)"; ctx.beginPath(); ctx.moveTo(cx-maxR,cy); ctx.lineTo(cx+maxR,cy); ctx.moveTo(cx,cy-maxR); ctx.lineTo(cx,cy+maxR); ctx.stroke();
 
-  // sweep trail behind wedge
+  // sweep trail
   sweepAngle = (sweepAngle + SWEEP_SPEED) % 360;
   ctx.save(); ctx.translate(cx,cy);
   for(let i=TRAIL_STEPS;i>0;i--){
@@ -490,7 +492,7 @@ function draw(now){
   ctx.fillStyle = gradFront; ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,maxR,aFront-halfFront,aFront+halfFront); ctx.closePath(); ctx.globalCompositeOperation='lighter'; ctx.fill();
   ctx.restore();
 
-  // artifact (only if proximity>0)
+  // artifact (if proximity>0)
   if(artifact.proximity > 0){
     const artAngle = current.angleDeg;
     const diff = angleDiff(sweepAngle, artAngle);
@@ -510,7 +512,7 @@ function draw(now){
   ctx.beginPath(); ctx.fillStyle="rgba(0,0,0,0.28)"; ctx.arc(cx,cy,6,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.strokeStyle="rgba(0,255,140,0.5)"; ctx.arc(cx,cy,6,0,Math.PI*2); ctx.stroke();
 
-  // info panel show/hide only when ON & found
+  // info panel visibility
   if(Math.round(current.proximity) >= 100 && artifact.meta && powerOn){
     infoPanel.style.display='block';
     updateInfoUI();
@@ -520,11 +522,11 @@ function draw(now){
     foundPreviously = false;
   }
 
-  // noise specks
+  // noise
   noiseTime += 0.9; if(noiseTime > 10000) noiseTime = 0;
   for(let i=0;i<8;i++){ const nx = cx + Math.cos((i*23 + noiseTime*6)/12) * (maxR*(0.2 + 0.8*Math.random())); const ny = cy + Math.sin((i*17 + noiseTime*5)/10) * (maxR*(0.2 + 0.8*Math.random())); ctx.fillStyle='rgba(0,255,140,0.02)'; ctx.fillRect(nx,ny,1,1); }
 
-  // main beeping controlled by RAF, continuous tone when found
+  // main beeping
   const nowMs = performance.now();
   if(powerOn && artifact.proximity >= 100){
     if(!continuousOsc && audioCtx && isAudioEnabled) startContinuousTone();
@@ -557,7 +559,7 @@ function angleDiff(a,b){ let d = (((a - b + 540) % 360) - 180); return d; }
 function lerpAngle(a,b,t){ const diff = angleDiff(b,a); return (a + diff*t + 360) % 360; }
 function proxToInterval(p){ const ratio = Math.max(0, Math.min(1, p/100)); return Math.round(MAX_BEEP_INTERVAL - (MAX_BEEP_INTERVAL - MIN_BEEP_INTERVAL) * ratio); }
 
-/* init */
+/* start */
 ensureAudio(); randomizeArtifact(); draw();
 
 /* small UI listeners */
