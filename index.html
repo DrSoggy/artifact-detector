@@ -1,1 +1,556 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>STALKER Artifact Detector — Updated</title>
+<style>
+  :root{
+    --bg:#070606;
+    --frame1:#7b5b3f;
+    --frame2:#4f3726;
+    --panel:#031007;
+  }
+  /* page centering so scanner is centered on screen */
+  html,body{height:100%;margin:0;background:linear-gradient(180deg,#050505,#0b0b0b);font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;color:#cfe9c7;display:flex;align-items:center;justify-content:center;}
+  .wrap{width:100%;max-width:460px;padding:16px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;}
+  .frame{
+    width:100%;
+    border-radius:14px;
+    padding:12px;
+    box-sizing:border-box;
+    background:
+      radial-gradient(1200px 600px at 10% 10%, rgba(255,200,120,0.03), transparent 6%),
+      linear-gradient(180deg,var(--frame1), var(--frame2));
+    box-shadow: 0 12px 36px rgba(0,0,0,0.7);
+    border:4px solid rgba(0,0,0,0.2);
+    position:relative;
+    overflow:hidden;
+  }
+  /* extra rusty texture using multiple layered gradients */
+  .frame::before{
+    content:"";
+    position:absolute;left:0;right:0;top:0;bottom:0;border-radius:14px;
+    background-image:
+      radial-gradient(circle at 8% 12%, rgba(255,190,120,0.06), transparent 6%),
+      radial-gradient(circle at 82% 78%, rgba(255,160,90,0.03), transparent 12%),
+      repeating-linear-gradient(135deg, rgba(0,0,0,0.02) 0 2px, transparent 2px 6px);
+    pointer-events:none;
+    mix-blend-mode: overlay;
+  }
 
+  .screen-wrap{
+    background: linear-gradient(180deg,#07270c,#021605);
+    padding:10px;border-radius:10px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;
+  }
+  canvas{display:block;border-radius:8px;background:transparent;touch-action:none;-webkit-tap-highlight-color:transparent;}
+
+  /* CRT overlay (kept subtle) */
+  .screen-wrap::after{
+    content:"";position:absolute;inset:0;border-radius:8px;pointer-events:none;
+    background: repeating-linear-gradient(to bottom, rgba(0,0,0,0.03) 0 2px, rgba(0,0,0,0.00) 2px 4px), linear-gradient(180deg, rgba(0,0,0,0.06), rgba(0,0,0,0.14));
+    mix-blend-mode: overlay;opacity:0.9;
+  }
+
+  .controls{display:flex;align-items:center;justify-content:space-between;margin-top:10px;gap:8px;}
+  .left-controls{display:flex;align-items:center;gap:8px;}
+  .led{width:18px;height:18px;border-radius:50%;background:#2b0b0b;border:2px solid #2b0000;box-shadow:0 0 8px rgba(0,0,0,0.6) inset;transition:all 0.08s linear;}
+  .led.on{background:linear-gradient(180deg,#ff3b3b,#9b0000);box-shadow:0 0 12px rgba(255,60,60,0.95), 0 0 24px rgba(255,60,60,0.22);border-color:#3a0000;}
+  .right-controls{display:flex;align-items:center;gap:8px;}
+  button.green{width:40px;height:40px;border-radius:50%;background:linear-gradient(180deg,#2ee06a,#1c8b47);border:0;box-shadow:0 8px 20px rgba(0,0,0,0.45);display:inline-flex;align-items:center;justify-content:center;padding:0;}
+  .sliders{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
+  label{font-size:13px;color:#b8eab1}
+  input[type=range]{width:100%}
+
+  /* info overlay - made smaller and less intrusive */
+  .info{
+    position:absolute;left:12px;top:12px;z-index:6;
+    background:rgba(0,0,0,0.34);backdrop-filter: blur(2px);
+    padding:8px;border-radius:8px;color:#dfffe0;font-size:12px;min-width:120px;max-width:190px;
+    box-shadow:0 6px 14px rgba(0,0,0,0.6);display:none;
+  }
+  .info h3{margin:0 0 6px 0;font-size:14px}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
+  .badge{background:rgba(0,0,0,0.18);padding:4px 6px;border-radius:6px;font-size:12px;}
+
+  @media (max-width:420px){
+    .frame{padding:8px}
+    .led{width:16px;height:16px}
+    button.green{width:36px;height:36px}
+    .info{min-width:110px;max-width:160px;font-size:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="frame" id="frame">
+    <div class="screen-wrap">
+      <canvas id="radar" width="480" height="480" style="width:100%;height:auto;max-width:420px;"></canvas>
+      <!-- info panel - only shows at proximity==100 -->
+      <div class="info" id="info">
+        <h3 id="artifactName">—</h3>
+        <div class="row" style="margin-bottom:6px">
+          <div class="badge" id="atype">Type: —</div>
+          <div class="badge" id="rarity">Rarity: —</div>
+          <div class="badge" id="price">Price: —</div>
+        </div>
+        <div id="energy" style="font-size:12px;margin-bottom:6px">Energy: —%</div>
+        <div id="stats" style="font-size:12px"></div>
+      </div>
+    </div>
+
+    <div class="controls" style="margin-top:10px;">
+      <div class="left-controls">
+        <div id="led" class="led" title="Proximity LED"></div>
+        <div style="margin-left:8px;font-size:13px;color:#a8dca8">LED</div>
+      </div>
+
+      <div class="right-controls">
+        <button id="randBtn" class="green" title="Randomize"></button>
+      </div>
+    </div>
+
+    <div class="sliders">
+      <div>
+        <label>Proximity <span id="proxVal">50</span></label>
+        <input id="proximity" type="range" min="0" max="100" value="50">
+      </div>
+      <div>
+        <label>Direction <span id="dirVal">0°</span></label>
+        <input id="direction" type="range" min="0" max="100" value="0">
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/*
+  Updated STALKER-style Detector
+  - Proximity: 0 = far/invisible, >0 visible when sweep crosses. 100 = found (show stats).
+  - Direction slider is flipped so ends correspond to behind (see mapping).
+  - Beep/LED start when proximity > 0 and scale linearly; at 100 LED steady and continuous tone.
+  - Trail for sweep: multiple faded arcs behind the current sweep angle.
+  - Scanlines + streaks + subtle noise drawn on canvas for analog effect.
+  - Price depends on rarity, energy, weight, radiation.
+*/
+
+const canvas = document.getElementById('radar');
+const ctx = canvas.getContext('2d');
+const proximityEl = document.getElementById('proximity');
+const directionEl = document.getElementById('direction');
+const proxValEl = document.getElementById('proxVal');
+const dirValEl = document.getElementById('dirVal');
+const ledEl = document.getElementById('led');
+const randBtn = document.getElementById('randBtn');
+
+const infoPanel = document.getElementById('info');
+const artifactNameEl = document.getElementById('artifactName');
+const typeEl = document.getElementById('atype');
+const rarityEl = document.getElementById('rarity');
+const priceEl = document.getElementById('price');
+const energyEl = document.getElementById('energy');
+const statsEl = document.getElementById('stats');
+
+let dpr = Math.max(window.devicePixelRatio || 1, 1);
+function sizeCanvas(){
+  // Make square canvas, centered. Use available width inside frame without causing CSS stretch.
+  const maxW = Math.min(window.innerWidth - 48, 420);
+  const cssSize = Math.floor(maxW);
+  canvas.style.width = cssSize + 'px';
+  canvas.style.height = cssSize + 'px';
+  canvas.width = cssSize * dpr;
+  canvas.height = cssSize * dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+window.addEventListener('resize', sizeCanvas);
+sizeCanvas();
+
+/* CONFIG */
+const SWEEP_SPEED = 3.2;   // degrees per frame - slower (tweakable)
+const TRAIL_STEPS = 20;    // how many faded arcs behind arm
+const TRAIL_STEP_ANGLE = 2.6; // degrees between each trail step
+const DETECT_ARC = 28;     // detection width (deg)
+const LERP = 0.12;
+const FADE_MS = 1100;      // artifact fade after detection
+const MIN_BEEP_INTERVAL = 110;   // fastest between p close to 100
+const MAX_BEEP_INTERVAL = 2000;  // slowest at p near 0
+const BEEP_DURATION = 70;
+
+/* state */
+let sweepAngle = 0;
+let artifact = { angleDeg: 0, proximity: Number(proximityEl.value), meta: null };
+let current = { angleDeg: artifact.angleDeg, proximity: artifact.proximity };
+let lastDetectedAt = -999999;
+let visibleAlpha = 0;
+
+/* audio */
+let audioCtx = null;
+let beepTimer = null;
+let continuousOsc = null;
+let continuousGain = null;
+let isAudioEnabled = false;
+
+/* artifacts db */
+const names = ["Krovavaya","Siren","Mire","Tesla","Viper","Lump","Echo","Glimmer","Cvar","Nexus","Shard","Wisp"];
+const types = ["Electro","Gravity","Thermal","Bio","Psy","Rad"];
+const rarities = [
+  {name:"Common",prob:60, base:500, mult:1.0},
+  {name:"Uncommon",prob:30, base:1500, mult:1.6},
+  {name:"Rare",prob:9, base:4500, mult:2.5},
+  {name:"Legendary",prob:1, base:10000, mult:6.0}
+];
+function weightedRandom(arr){
+  const sum = arr.reduce((s,i)=>s+i.prob,0);
+  const r = Math.random()*sum;
+  let s=0;
+  for(const a of arr){ s+=a.prob; if(r<=s) return a; }
+  return arr[0];
+}
+
+/* audio helpers */
+function ensureAudio(){
+  if(audioCtx) return;
+  try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ audioCtx = null; }
+}
+function playBeep(){
+  if(!audioCtx) return;
+  const t = audioCtx.currentTime;
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.type = 'sine';
+  o.frequency.value = 700 + (artifact.meta?.energy || 0) * 2;
+  g.gain.value = 0;
+  o.connect(g); g.connect(audioCtx.destination);
+  const dur = BEEP_DURATION / 1000;
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(0.18, t + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.start(t);
+  o.stop(t + dur + 0.02);
+}
+function startContinuousTone(){
+  if(!audioCtx || continuousOsc) return;
+  continuousOsc = audioCtx.createOscillator();
+  continuousGain = audioCtx.createGain();
+  continuousOsc.type = 'sine';
+  continuousOsc.frequency.value = 900;
+  continuousGain.gain.value = 0.0;
+  continuousOsc.connect(continuousGain); continuousGain.connect(audioCtx.destination);
+  continuousOsc.start();
+  continuousGain.gain.linearRampToValueAtTime(0.18, audioCtx.currentTime + 0.05);
+}
+function stopContinuousTone(){
+  if(!continuousOsc) return;
+  try{
+    continuousGain.gain.linearRampToValueAtTime(0.0001, audioCtx.currentTime + 0.02);
+    setTimeout(()=>{ try{ continuousOsc.stop(); continuousOsc.disconnect(); continuousGain.disconnect(); }catch(e){} continuousOsc=null; continuousGain=null; }, 80);
+  }catch(e){ continuousOsc = null; continuousGain = null; }
+}
+
+/* beep scheduling (starts when prox>0 and <100) */
+function proxToInterval(p){
+  const ratio = Math.max(0, Math.min(1, p/100));
+  return Math.round(MAX_BEEP_INTERVAL - (MAX_BEEP_INTERVAL - MIN_BEEP_INTERVAL) * ratio);
+}
+function scheduleRepeatingBeep(){
+  if(beepTimer){ clearTimeout(beepTimer); beepTimer = null; }
+  if(!isAudioEnabled || !audioCtx) return;
+  const p = artifact.proximity;
+  if(p <= 0 || p >= 100) return;
+  const interval = proxToInterval(p);
+  function beat(){
+    // LED flash & beep
+    ledEl.classList.add('on');
+    playBeep();
+    setTimeout(()=>{ if(artifact.proximity < 100) ledEl.classList.remove('on'); }, Math.max(60, BEEP_DURATION));
+    const nextInterval = proxToInterval(artifact.proximity);
+    beepTimer = setTimeout(beat, nextInterval);
+  }
+  beepTimer = setTimeout(beat, interval);
+}
+
+/* manage audio state based on proximity */
+function manageAudioState(){
+  if(!isAudioEnabled || !audioCtx) return;
+  const p = artifact.proximity;
+  if(p >= 100){
+    // found: steady LED + continuous tone
+    if(beepTimer){ clearTimeout(beepTimer); beepTimer=null; }
+    startContinuousTone();
+    ledEl.classList.add('on');
+  } else if(p > 0){
+    // intermittent beeps
+    stopContinuousTone();
+    ledEl.classList.remove('on');
+    if(beepTimer){ clearTimeout(beepTimer); beepTimer=null; }
+    scheduleRepeatingBeep();
+  } else {
+    // nothing
+    if(beepTimer){ clearTimeout(beepTimer); beepTimer=null; }
+    stopContinuousTone();
+    ledEl.classList.remove('on');
+  }
+}
+
+/* artifact generator: sets proximity to 0 (far), random angle and stats */
+function randomizeArtifact(){
+  const baseName = names[Math.floor(Math.random()*names.length)];
+  const type = types[Math.floor(Math.random()*types.length)];
+  const rarityObj = weightedRandom(rarities);
+  const energy = Math.floor(10 + Math.random()*90); // 10..100
+  const weight = +( (0.2 + Math.random()*6).toFixed(2) ); // 0.2..6.2 kg
+  const radiation = +( (Math.random()*24).toFixed(1) ); // 0..24 rads
+  // price calc: base * rarity.mult * energyFactor * weightFactor * radPenalty * randomVariance
+  // rarity.mult use rarityObj.mult from array above
+  const base = rarityObj.base;
+  const rarityMult = rarityObj.mult;
+  const energyFactor = 1 + (energy/200);           // energy contributes up to +0.5
+  const weightFactor = 1 + (weight/5);             // heavier => pricier
+  const radPenalty = Math.max(0.25, 1 - (radiation/60)); // more rads reduces price, min 25%
+  const randomVar = 0.85 + Math.random()*0.4;
+  const price = Math.round(base * rarityMult * energyFactor * weightFactor * radPenalty * randomVar);
+
+  artifact.meta = {
+    name: baseName,
+    type,
+    rarity: rarityObj.name,
+    energy,
+    weight,
+    radiation,
+    price
+  };
+
+  // set far / invisible
+  artifact.proximity = 0;
+  proximityEl.value = 0; proxValEl.textContent = 0;
+  lastDetectedAt = -999999;
+  visibleAlpha = 0;
+
+  // random angle: place artifact anywhere; mapping from slider: slider->angleDeg = (val/100)*360 + 180 (flipped)
+  const angle = Math.random()*360;
+  artifact.angleDeg = angle; // we store true world angle; slider will be set accordingly below
+  // compute slider value that corresponds to angle (inverse of mapping below)
+  // We want sliderVal such that angle = (sliderVal/100)*360 + 180  (mod 360)
+  // => sliderVal = ((angle - 180 + 360) % 360) / 360 * 100
+  let sliderVal = (((angle - 180 + 360) % 360) / 360) * 100;
+  directionEl.value = Math.round(sliderVal);
+  dirValEl.textContent = Math.round((directionEl.value/100)*360) + "° (slider)";
+  updateInfoUI(); // we still prepare meta but don't show until found
+  manageAudioState();
+}
+
+/* UI updates */
+function updateInfoUI(){
+  if(!artifact.meta) return;
+  artifactNameEl.textContent = artifact.meta.name;
+  typeEl.textContent = "Type: " + artifact.meta.type;
+  rarityEl.textContent = "Rarity: " + artifact.meta.rarity;
+  priceEl.textContent = "Price: " + artifact.meta.price + " RU";
+  energyEl.textContent = "Energy: " + artifact.meta.energy + "%";
+  statsEl.innerHTML = `<div><strong>Weight:</strong> ${artifact.meta.weight} kg</div><div><strong>Radiation:</strong> ${artifact.meta.radiation} rads</div>`;
+}
+
+/* slider event handlers */
+/* Direction slider mapping: user requested flipping so ends correspond to behind.
+   Mapping used:
+     sliderVal in 0..100 -> displayed degree = sliderVal/100*360
+     internal artifact angle (canvas coords) = (sliderVal/100)*360 + 180  (mod 360)
+   This makes slider ends map to "behind" (180°).
+*/
+proximityEl.addEventListener('input', (e)=>{
+  artifact.proximity = Number(e.target.value);
+  proxValEl.textContent = artifact.proximity;
+  // when changing to 0, ensure artifact invisible
+  if(artifact.proximity <= 0){
+    lastDetectedAt = -999999;
+    visibleAlpha = 0;
+  }
+  manageAudioState();
+});
+directionEl.addEventListener('input', (e)=>{
+  const sv = Number(e.target.value);
+  dirValEl.textContent = Math.round((sv/100)*360) + "° (slider)";
+  artifact.angleDeg = ((sv/100)*360 + 180) % 360;
+});
+
+/* Randomize button acts as user gesture to enable audio, and randomize artifact */
+randBtn.addEventListener('click', ()=>{
+  ensureAudio();
+  if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  isAudioEnabled = true;
+  randomizeArtifact();
+});
+
+/* allow initial touch to enable audio too */
+document.addEventListener('touchstart', function once(){
+  ensureAudio();
+  if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  isAudioEnabled = true;
+  document.removeEventListener('touchstart', once);
+}, {passive:true});
+
+/* DRAWING: radar, sweep with trailing fade, analog scanlines & noise, artifact fade */
+let noiseTime = 0;
+function draw(){
+  sizeCanvas(); // ensure size in case of small rotations
+  const cssW = canvas.clientWidth;
+  const cssH = canvas.clientHeight;
+  const size = Math.min(cssW, cssH);
+  const cx = size/2; const cy = size/2;
+  const maxR = size*0.42;
+
+  // smoothing state
+  current.proximity = lerp(current.proximity, artifact.proximity, LERP);
+  current.angleDeg = lerpAngle(current.angleDeg, artifact.angleDeg, LERP);
+
+  ctx.clearRect(0,0,size,size);
+
+  // draw background circle
+  const g = ctx.createRadialGradient(cx,cy,8,cx,cy,maxR);
+  g.addColorStop(0, "rgba(2,40,8,0.98)");
+  g.addColorStop(0.6, "rgba(8,70,18,0.6)");
+  g.addColorStop(1, "rgba(2,20,6,0.9)");
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.arc(cx,cy,maxR,0,Math.PI*2); ctx.fill();
+
+  // concentric rings
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = "rgba(0,180,90,0.11)";
+  for(let i=1;i<=4;i++){ ctx.beginPath(); ctx.arc(cx,cy,maxR*(i/4),0,Math.PI*2); ctx.stroke(); }
+
+  // crosshair faint
+  ctx.strokeStyle = "rgba(0,220,120,0.06)";
+  ctx.beginPath(); ctx.moveTo(cx-maxR,cy); ctx.lineTo(cx+maxR,cy); ctx.moveTo(cx,cy-maxR); ctx.lineTo(cx,cy+maxR); ctx.stroke();
+
+  // draw scanlines & slight vertical streaks (analog effect)
+  ctx.save();
+  ctx.beginPath();
+  for(let y = cy - maxR; y <= cy + maxR; y += 2.2){
+    const dx = Math.sqrt(Math.max(0, maxR*maxR - (y-cy)*(y-cy)));
+    ctx.strokeStyle = `rgba(0,0,0,${0.02 + 0.02*Math.sin((y+noiseTime*12)/40)})`;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(cx-dx, y); ctx.lineTo(cx+dx,y); ctx.stroke();
+  }
+  // vertical faint streaks
+  for(let s=-2;s<=2;s++){
+    ctx.fillStyle = `rgba(0,255,120,${0.006 * (3-Math.abs(s))})`;
+    ctx.fillRect(cx + s*12 - 1, cy - maxR, 2, maxR*2);
+  }
+  ctx.restore();
+
+  // sweep arm with trailing faded arcs
+  sweepAngle += SWEEP_SPEED;
+  sweepAngle %= 360;
+  // draw trail steps from newest to oldest
+  for(let i=0;i<TRAIL_STEPS;i++){
+    const a = degToRad(sweepAngle - i * TRAIL_STEP_ANGLE);
+    const alpha = Math.max(0, 0.32 * (1 - (i / TRAIL_STEPS)) );
+    const inner = 0;
+    const outer = maxR;
+    const start = degToRad(-6); // small width before rotation then expand
+    const end = degToRad(6);
+    ctx.save();
+    ctx.translate(cx,cy);
+    ctx.rotate(a);
+    const grad = ctx.createLinearGradient(0,0,outer,0);
+    grad.addColorStop(0, `rgba(0,255,120,${alpha*0.9})`);
+    grad.addColorStop(1, `rgba(0,255,80,${alpha*0.02})`);
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.moveTo(0,0);
+    ctx.arc(0,0, outer, start, end);
+    ctx.closePath();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // artifact position - only if proximity > 0
+  if(artifact.proximity > 0){
+    const artifactAngle = current.angleDeg;
+    const diff = angleDiff(sweepAngle, artifactAngle);
+    const visibleNow = Math.abs(diff) <= DETECT_ARC;
+    const dist = maxR * (1 - (current.proximity/100));
+    const aRad = degToRad(artifactAngle);
+    const ax = cx + Math.cos(aRad)*dist;
+    const ay = cy + Math.sin(aRad)*dist;
+
+    // when sweep passes set detection time
+    if(visibleNow){
+      lastDetectedAt = Date.now();
+      visibleAlpha = 1;
+    } else {
+      const since = Date.now() - lastDetectedAt;
+      visibleAlpha = Math.max(0, 1 - (since / FADE_MS));
+    }
+
+    // draw artifact only while visibleAlpha>0
+    if(visibleAlpha > 0.02){
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(100,255,140,${0.95 * visibleAlpha})`;
+      const pulse = 1.0 + 0.12 * Math.sin(Date.now()/120);
+      ctx.arc(ax,ay,6 * pulse,0,Math.PI*2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.strokeStyle = `rgba(100,255,140,${0.18 * visibleAlpha})`;
+      ctx.arc(ax,ay,12 * pulse,0,Math.PI*2);
+      ctx.stroke();
+    }
+  } else {
+    // if proximity is 0, ensure no last detection lingering
+    lastDetectedAt = -999999;
+    visibleAlpha = 0;
+  }
+
+  // center marker
+  ctx.beginPath();
+  ctx.fillStyle = "rgba(0,0,0,0.28)";
+  ctx.arc(cx,cy,6,0,Math.PI*2); ctx.fill();
+  ctx.beginPath();
+  ctx.strokeStyle = "rgba(0,255,140,0.5)"; ctx.arc(cx,cy,6,0,Math.PI*2); ctx.stroke();
+
+  // info panel show logic: only when proximity is effectively found (>=100)
+  if(Math.round(current.proximity) >= 100 && artifact.meta){
+    infoPanel.style.display = 'block';
+    // ensure UI shows the most recent computed price (price precomputed at spawn)
+    updateInfoUI();
+  } else {
+    infoPanel.style.display = 'none';
+  }
+
+  // subtle noise animation overlay (tiny moving dots)
+  noiseTime += 0.5;
+  for(let i=0;i<12;i++){
+    const nx = cx + Math.cos((i*23 + noiseTime*6)/12) * (maxR * (0.2 + 0.8*Math.random()));
+    const ny = cy + Math.sin((i*17 + noiseTime*5)/10) * (maxR * (0.2 + 0.8*Math.random()));
+    ctx.fillStyle = 'rgba(0,255,140,0.02)';
+    ctx.fillRect(nx, ny, 1, 1);
+  }
+
+  requestAnimationFrame(draw);
+}
+
+/* utility math */
+function degToRad(d){ return d * Math.PI/180; }
+function lerp(a,b,t){ return a + (b-a)*t; }
+function angleDiff(a,b){ let d = (((a - b + 540) % 360) - 180); return d; }
+function lerpAngle(a,b,t){ const diff = angleDiff(b,a); return (a + diff * t + 360) % 360; }
+
+/* init */
+randomizeArtifact(); // generate initial artifact
+draw();
+manageAudioState(); // initial audio state guard
+
+/* helper: update UI text for slider degrees (user-expected display) */
+directionEl.addEventListener('change', ()=>{ dirValEl.textContent = Math.round((directionEl.value/100)*360) + "° (slider)"; });
+proximityEl.addEventListener('change', ()=>{ proxValEl.textContent = proximityEl.value; });
+
+/* small helper functions */
+function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+
+/* End of script */
+</script>
+</body>
+</html>
