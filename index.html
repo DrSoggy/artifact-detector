@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Artifact Detector — Wider + 20m</title>
+<title>Artifact Detector — Compact + Desynced LEDs</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -16,15 +16,15 @@
   --screw-top:#6b3f2a;
 }
 
-/* make whole detector about 15% wider (max-width increased) */
+/* keep width increased ~15% but reduce vertical height by tightening paddings/margins */
 html,body{height:100%;margin:0;background:linear-gradient(180deg,#020202,#0b0b0b);font-family:Orbitron,system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--muted);display:flex;align-items:center;justify-content:center;}
-.wrap{width:100%;max-width:345px;padding:6px;box-sizing:border-box;} /* was 300 -> 345 */
+.wrap{width:100%;max-width:345px;padding:4px;box-sizing:border-box;} /* width increased, padding reduced */
 
 /* Frame & texture */
 .frame{
-  position:relative;border-radius:12px;padding:6px;
+  position:relative;border-radius:12px;padding:4px; /* reduced padding */
   background: linear-gradient(180deg,#5f442f,#3a281c);
-  box-shadow:0 10px 28px rgba(0,0,0,.75);
+  box-shadow:0 8px 22px rgba(0,0,0,.75);
   border:3px solid rgba(0,0,0,0.28);
   overflow:visible;
 }
@@ -34,70 +34,70 @@ html,body{height:100%;margin:0;background:linear-gradient(180deg,#020202,#0b0b0b
   mix-blend-mode:overlay;opacity:0.55;z-index:1;
 }
 
-/* screws (smaller + brown + centered + visible + less intrusive) */
+/* screws smaller + brown plus sign */
 .screw{position:absolute;width:14px;height:14px;border-radius:50%;background:linear-gradient(180deg,var(--screw-dark),#1b120d);box-shadow:inset 0 2px 4px rgba(255,200,150,0.04),0 2px 4px rgba(0,0,0,0.6);border:2px solid rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:60}
 .screw:after{content:"+";color:var(--screw-top);font-weight:800;font-size:11px;transform:rotate(30deg)}
 .screw.tl{left:6px;top:6px} .screw.tr{right:6px;top:6px} .screw.bl{left:6px;bottom:6px} .screw.br{right:6px;bottom:6px}
 
-/* Screen wrapper - inner seam removed as requested */
-.screen-outer{border-radius:10px;padding:4px;background:linear-gradient(180deg, rgba(0,0,0,0.3), rgba(0,0,0,0.5)); z-index:2}
+/* Screen outer (no inner seam) */
+.screen-outer{border-radius:10px;padding:3px;background:linear-gradient(180deg, rgba(0,0,0,0.3), rgba(0,0,0,0.5)); z-index:2}
 .screen-seam{display:none}
 
 /* inner canvas container */
-.screen-wrap{position:relative;border-radius:8px;padding:4px;background:linear-gradient(180deg,#021f12,#00140a);overflow:hidden;display:flex;align-items:center;justify-content:center;z-index:4}
+.screen-wrap{position:relative;border-radius:8px;padding:3px;background:linear-gradient(180deg,#021f12,#00140a);overflow:hidden;display:flex;align-items:center;justify-content:center;z-index:4}
 
-/* canvas */
+/* canvas: keep it square and wide; overall vertical space reduced by shrinking other elements */
 canvas{display:block;border-radius:6px;width:100%;height:auto;}
 
 /* glass dark plane */
 .glass-cover{position:absolute;left:12px;right:12px;top:12px;bottom:12px;border-radius:8px;background:rgba(0,0,0,0.18);z-index:18;pointer-events:none}
 
-/* corner labels only */
+/* corner-only labels (small) */
 .corner-label{position:absolute;color:#cbdcbd;font-size:11px;font-family:Orbitron,monospace;z-index:25}
-.lbl-tl{left:14px;top:12px} .lbl-tr{right:14px;top:12px} .lbl-bl{left:14px;bottom:14px} .lbl-br{right:14px;bottom:14px}
+.lbl-tl{left:14px;top:10px} .lbl-tr{right:14px;top:10px} .lbl-bl{left:14px;bottom:12px} .lbl-br{right:14px;bottom:12px}
 
-/* controls */
-.controls{display:flex;align-items:center;justify-content:space-between;margin-top:6px;gap:8px;z-index:50}
-.left-controls{display:flex;align-items:center;gap:8px}
-.led{width:16px;height:16px;border-radius:50%;background:#2b0b0b;border:2px solid #2b0000;box-shadow:inset 0 1px 3px rgba(0,0,0,0.6);transition:all .08s linear}
-.led.on{background:linear-gradient(180deg,#ff3b3b,#9b0000);box-shadow:0 0 12px rgba(255,60,60,.96)}
+/* controls - tightened spacing */
+.controls{display:flex;align-items:center;justify-content:space-between;margin-top:4px;gap:8px;z-index:50}
+.left-controls{display:flex;align-items:center;gap:6px}
+.led{width:14px;height:14px;border-radius:50%;background:#2b0b0b;border:2px solid #2b0000;box-shadow:inset 0 1px 3px rgba(0,0,0,0.6);transition:all .08s linear}
+.led.on{background:linear-gradient(180deg,#ff3b3b,#9b0000);box-shadow:0 0 10px rgba(255,60,60,.9)}
 .right-controls{display:flex;align-items:center;gap:8px;}
 
 /* decorative LEDs */
-.fake-led{width:10px;height:10px;border-radius:50%;background:#111;border:1px solid rgba(0,0,0,0.5);box-shadow:inset 0 1px 1px rgba(255,255,255,0.02);z-index:50}
-.fake-led.on{box-shadow:0 0 8px rgba(255,255,255,0.06)}
-.fake-led.blue.on{background:#70b8ff;box-shadow:0 0 8px rgba(110,180,255,0.6)}
-.fake-led.green.on{background:#9fffae;box-shadow:0 0 8px rgba(140,255,170,0.6)}
-.fake-led.red.on{background:#ff8b8b;box-shadow:0 0 8px rgba(255,140,140,0.5)}
+.fake-led{width:9px;height:9px;border-radius:50%;background:#111;border:1px solid rgba(0,0,0,0.5);box-shadow:inset 0 1px 1px rgba(255,255,255,0.02);z-index:50}
+.fake-led.on{box-shadow:0 0 7px rgba(255,255,255,0.06)}
+.fake-led.blue.on{background:#70b8ff;box-shadow:0 0 7px rgba(110,180,255,0.6)}
+.fake-led.green.on{background:#9fffae;box-shadow:0 0 7px rgba(140,255,170,0.6)}
+.fake-led.red.on{background:#ff8b8b;box-shadow:0 0 7px rgba(255,140,140,0.5)}
 
 /* randomize button */
-.green-btn{width:36px;height:36px;border-radius:50%;background:linear-gradient(180deg,#163f22,#0b2a17);box-shadow:inset 0 2px 0 rgba(255,255,255,0.02), 0 6px 14px rgba(0,0,0,0.6);color:#9fe8b7;font-weight:700;border:0;display:flex;align-items:center;justify-content:center;z-index:50}
+.green-btn{width:34px;height:34px;border-radius:50%;background:linear-gradient(180deg,#163f22,#0b2a17);box-shadow:inset 0 2px 0 rgba(255,255,255,0.02), 0 6px 12px rgba(0,0,0,0.6);color:#9fe8b7;font-weight:700;border:0;display:flex;align-items:center;justify-content:center;z-index:50}
 
-/* power */
-.power-btn{display:block;margin:6px auto 4px auto;width:78px;height:32px;border-radius:8px;background:linear-gradient(180deg,#ff6b2b,#d4491a);color:#fff;border:0;font-weight:800;box-shadow:0 8px 20px rgba(0,0,0,0.45);z-index:50} /* slightly wider */
+/* power button slightly smaller height */
+.power-btn{display:block;margin:5px auto 4px auto;width:78px;height:28px;border-radius:8px;background:linear-gradient(180deg,#ff6b2b,#d4491a);color:#fff;border:0;font-weight:800;box-shadow:0 8px 20px rgba(0,0,0,0.45);z-index:50}
 .power-btn.off{filter:grayscale(50%) brightness(.7)}
 
 /* fake buttons */
-.fake-btn{width:26px;height:18px;border-radius:6px;background:linear-gradient(180deg,#3a2b1f,#25170e);display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:#c8d8c8;box-shadow:inset 0 1px 0 rgba(255,255,255,0.02);z-index:50}
+.fake-btn{width:24px;height:16px;border-radius:6px;background:linear-gradient(180deg,#3a2b1f,#25170e);display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:#c8d8c8;box-shadow:inset 0 1px 0 rgba(255,255,255,0.02);z-index:50}
 
 /* slider labels */
-.slider-label{display:inline-block;background:#000;padding:6px 8px;border-radius:6px;color:var(--muted);font-size:12px;font-family:Orbitron,monospace;box-shadow:inset 0 1px 0 rgba(255,255,255,0.02), 0 6px 12px rgba(0,0,0,0.45);z-index:50}
+.slider-label{display:inline-block;background:#000;padding:5px 7px;border-radius:6px;color:var(--muted);font-size:12px;font-family:Orbitron,monospace;box-shadow:inset 0 1px 0 rgba(255,255,255,0.02), 0 6px 12px rgba(0,0,0,0.45);z-index:50}
 
-/* sliders: solid track; thumb texture */
+/* sliders: compact */
 .sliders{display:flex;flex-direction:column;gap:6px;margin-top:6px;z-index:50}
-input[type=range]{-webkit-appearance:none;width:100%;height:30px;background:transparent;padding:6px 0;margin:0}
+input[type=range]{-webkit-appearance:none;width:100%;height:28px;background:transparent;padding:6px 0;margin:0}
 input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:8px;background:#0d0d0d;border:1px solid rgba(255,255,255,0.02)}
 input[type=range]::-moz-range-track{height:8px;border-radius:8px;background:#0d0d0d;border:1px solid rgba(255,255,255,0.02)}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;margin-top:-7px;width:46px;height:22px;border-radius:12px;background:
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;margin-top:-7px;width:44px;height:20px;border-radius:10px;background:
   linear-gradient(180deg,#4b301d,#2d1a11),
   repeating-linear-gradient(45deg, rgba(0,0,0,0.06) 0 2px, rgba(255,255,255,0.01) 2px 4px);
 border:2px solid rgba(0,0,0,0.72);box-shadow:inset 0 2px 0 rgba(255,220,170,0.04);cursor:grab}
-input[type=range]::-moz-range-thumb{width:46px;height:22px;border-radius:12px;background:
+input[type=range]::-moz-range-thumb{width:44px;height:20px;border-radius:10px;background:
   linear-gradient(180deg,#4b301d,#2d1a11);border:2px solid rgba(0,0,0,0.72)}
 
-/* info panel moved down */
-.info{position:absolute;left:12px;top:40px;z-index:55;background:rgba(0,0,0,0.36);padding:6px 8px;border-radius:8px;color:#dfffe0;font-size:12px;min-width:120px;max-width:170px;box-shadow:0 6px 18px rgba(0,0,0,0.6);display:none}
-.info h3{margin:0 0 6px 0;font-size:14px}
+/* info panel moved down slightly and smaller */
+.info{position:absolute;left:12px;top:40px;z-index:55;background:rgba(0,0,0,0.36);padding:6px 8px;border-radius:8px;color:#dfffe0;font-size:12px;min-width:110px;max-width:160px;box-shadow:0 6px 18px rgba(0,0,0,0.6);display:none}
+.info h3{margin:0 0 6px 0;font-size:13px}
 .info .badge{display:block;padding:3px 4px;border-radius:6px;margin-bottom:4px;background:rgba(0,0,0,0.18);border:1px solid rgba(0,255,140,0.06);font-size:12px}
 .badge.I{color:#ffffff} .badge.II{color:#9fffae} .badge.III{color:#a9d6ff} .badge.IV{color:#ffd868}
 
@@ -105,8 +105,8 @@ input[type=range]::-moz-range-thumb{width:46px;height:22px;border-radius:12px;ba
 .power-off-overlay{position:absolute;left:12px;right:12px;top:12px;bottom:12px;border-radius:8px;background:#000;z-index:40;display:block;pointer-events:none}
 .power-off-overlay.hidden{display:none}
 
-/* responsive */
-@media(max-width:420px){ .wrap{padding:4px} canvas{max-width:92vw;} input[type=range]::-webkit-slider-thumb{width:42px;height:20px} }
+/* responsive tweaks */
+@media(max-width:420px){ .wrap{padding:3px} canvas{max-width:92vw;} input[type=range]::-webkit-slider-thumb{width:40px;height:18px} }
 </style>
 </head>
 <body>
@@ -146,11 +146,11 @@ input[type=range]::-moz-range-thumb{width:46px;height:22px;border-radius:12px;ba
     </div>
 
     <!-- controls -->
-    <div class="controls" style="margin-top:6px">
+    <div class="controls" style="margin-top:4px">
       <div class="left-controls">
         <div id="led" class="led"></div>
         <div style="margin-left:6px;font-size:12px;color:#9fcf9c">LED</div>
-        <div style="width:8px"></div>
+        <div style="width:6px"></div>
         <div id="fakeLedBlue" class="fake-led blue" title="status blue"></div>
         <div style="width:6px"></div>
         <div id="fakeLedGreen" class="fake-led green" title="status green"></div>
@@ -177,15 +177,14 @@ input[type=range]::-moz-range-thumb{width:46px;height:22px;border-radius:12px;ba
       </div>
     </div>
 
-    <!-- slider labels: left Distance (meters, X if outside), right Bearing in degrees -->
-    <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:8px">
+    <!-- slider labels: left Distance (meters, X if outside), right Bearing degrees -->
+    <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:6px">
       <div class="slider-label" id="proxLabel">Distance = X</div>
       <div class="slider-label" id="distLabel">Bearing = 180°</div>
     </div>
 
-    <div class="sliders">
+    <div class="sliders" style="margin-top:6px">
       <div><input id="proximity" type="range" min="0" max="100" value="50"></div>
-      <!-- bearing slider now 0..360 degrees -->
       <div><input id="direction" type="range" min="0" max="360" value="180"></div>
     </div>
 
@@ -193,22 +192,16 @@ input[type=range]::-moz-range-thumb{width:46px;height:22px;border-radius:12px;ba
 </div>
 
 <script>
-/* Wider + 20m update script:
- - canvas and wrap increased (15% wider)
- - distance now maps to 20m at just inside and 0m at found
- - bearing slider is 0..360 degrees (0 => behind (180 internal), 180 => front (0 internal))
- - decorative LEDs check every 250ms; chance scales linearly with proximity:
-    proximity 0 -> 0%,
-    proximity corresponding to 20m -> 10% (this is p ~= 0+),
-    proximity near centre (1m -> p~95) -> ~80%,
-    found (p==100) -> small LEDs constant ON, muted (no sound)
- - small LED quiet beeps when they flash (muted when found)
- - info box hidden when power off
- - haptic on each main beep and a short found pattern when artifact found
+/* Compact + desynced LEDs
+ - kept all behavior, tightened vertical footprint while keeping width
+ - distance scale uses 20m start -> 0m found
+ - bearing slider 0..360°, displayed -> internal mapping kept
+ - descriptive LEDs now use separate timers: blue 33ms, green 66ms, red 99ms
+ - probability per check: 0% at proximity==0, else linearly from 5%..60% with p in [0..100]
+ - at proximity==100, small LEDs constant ON and muted
 */
 
 const canvas = document.getElementById('radar'), ctx = canvas.getContext('2d');
-
 const proximityEl = document.getElementById('proximity'), directionEl = document.getElementById('direction');
 const proxLabel = document.getElementById('proxLabel'), distLabel = document.getElementById('distLabel');
 const ledEl = document.getElementById('led'), randBtn = document.getElementById('randBtn'), powerBtn = document.getElementById('powerBtn');
@@ -220,8 +213,7 @@ const fakeLedBlue = document.getElementById('fakeLedBlue'), fakeLedGreen = docum
 
 let dpr = Math.max(window.devicePixelRatio || 1, 1);
 function sizeCanvas(){
-  // bigger canvas (about 15% wider than before): cap around 299-320 depending on screen
-  const maxW = Math.min(window.innerWidth - 48, 299);
+  const maxW = Math.min(window.innerWidth - 48, 299); // keep wide
   const cssSize = Math.floor(maxW);
   canvas.style.width = cssSize + 'px';
   canvas.style.height = cssSize + 'px';
@@ -290,7 +282,7 @@ function hapticFound(){ try{ if(navigator.vibrate) navigator.vibrate([28,60,20])
 function startContinuousTone(){ if(!audioCtx||!powerOn||continuousOsc) return; continuousOsc = audioCtx.createOscillator(); continuousGain = audioCtx.createGain(); continuousOsc.type='sine'; continuousOsc.frequency.value=920; continuousGain.gain.value=0; continuousOsc.connect(continuousGain); continuousGain.connect(audioCtx.destination); continuousOsc.start(); continuousGain.gain.linearRampToValueAtTime(0.18,audioCtx.currentTime+0.05); }
 function stopContinuousTone(){ if(!continuousOsc) return; try{ continuousGain.gain.linearRampToValueAtTime(0.0001,audioCtx.currentTime+0.02); setTimeout(()=>{ try{ continuousOsc.stop(); continuousOsc.disconnect(); continuousGain.disconnect(); }catch(e){} continuousOsc=null; continuousGain=null; },80);}catch(e){ continuousOsc=null; continuousGain=null; } }
 
-/* pricing */
+/* price */
 function computePrice(meta){ if(!meta) return 0; const base=meta._base; const energyFactor=1 + (meta.energy * 0.0065); const weightFactor=1 + (meta.weight * 0.01); const radPenalty=Math.max(0.6,1 - (meta.radiation * 0.005)); const randomVar=0.93 + Math.random()*0.14; let p=Math.round(base * energyFactor * weightFactor * radPenalty * randomVar); return Math.max(100,p); }
 
 /* randomize artifact */
@@ -328,20 +320,15 @@ function updateInfoUI(){
   rarityEl.className = 'badge ' + ({'I':'','II':'II','III':'III','IV':'IV'}[artifact.meta.tier]||'');
 }
 
-/* slider->angle mapping for Bearing slider value (displayedDegrees 0..360)
-   displayedDegrees -> internalAngle = (180 - displayedDegrees + 360) % 360
-*/
+/* displayed degrees -> internal angle mapping */
 function displayedToInternalAngle(dd){ return (180 - dd + 360) % 360; }
 
-/* Distance mapping: meters range 20m (just inside) -> 0m (found)
-   meters = round((1 - p/100) * 20)
-   when p==0 => outside => show "X"
-*/
+/* Distance mapping: 20m at just-inside -> 0m at found */
 function updateDistanceLabel(){
   const p = artifact.proximity;
   if(p <= 0){ proxLabel.textContent = "Distance = X"; }
   else {
-    const meters = Math.round((1 - (p/100)) * 20);
+    const meters = Math.round((1 - (p/100)) * 20); // 20m max
     proxLabel.textContent = "Distance = " + meters + "m";
   }
 }
@@ -369,59 +356,59 @@ randBtn.addEventListener('click', ()=>{ ensureAudio(); if(audioCtx && audioCtx.s
 
 document.addEventListener('touchstart', function once(){ ensureAudio(); if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); isAudioEnabled=true; document.removeEventListener('touchstart', once); }, {passive:true});
 
-/* decorative LEDs: every 250ms; chance linear with proximity; if p==0 -> 0%; if p==100 -> constant ON (muted)
-   mapping: let p = artifact.proximity (0..100).
-   We'll map chance = clamp( (p/95)*0.8 , 0, 0.8 ) for p in (0..95). At p=95 -> ~0.8 (80%). At p=100 -> constant ON.
+/* decorative LEDs: separate timers 33ms / 66ms / 99ms
+   chance per check: 0% if proximity==0
+   otherwise chance = minChance + (maxChance-minChance) * (p/100)
+   minChance = 0.05, maxChance = 0.60
+   when p==100: LEDs constant ON (muted)
 */
-(function decorativeBlinkers(){
+(function desyncedBlinkers(){
   const leds = [
-    {el: fakeLedBlue, freq: 1200, mult: 1.00},
-    {el: fakeLedGreen, freq: 920, mult: 0.98},
-    {el: fakeLedRed, freq: 700, mult: 0.92}
+    {el: fakeLedBlue, freq: 1200, interval: 33},
+    {el: fakeLedGreen, freq: 920, interval: 66},
+    {el: fakeLedRed, freq: 700, interval: 99}
   ];
-  setInterval(()=>{
-    if(!powerOn) return; // only when on
-    if(!audioCtx) ensureAudio();
-    const p = Math.max(0, Math.min(100, artifact.proximity || 0));
-    if(p <= 0) {
-      // ensure off if previously left on
-      leds.forEach(l=> l.el.classList.remove('on'));
-      return;
-    }
-    if(p >= 100){
-      // found: keep all on but muted (no small beeps)
-      leds.forEach(l=> l.el.classList.add('on'));
-      return;
-    }
-    const scale = Math.min(1, p/95); // 0..~1
-    // linear chance up to 0.8 (80%)
-    const maxChance = 0.8;
-    leds.forEach(l=>{
-      const chance = maxChance * scale * l.mult;
+  const minChance = 0.05, maxChance = 0.60;
+
+  leds.forEach(l=>{
+    setInterval(()=>{
+      if(!powerOn) return;
+      if(!audioCtx) ensureAudio();
+      const p = Math.max(0, Math.min(100, artifact.proximity || 0));
+      if(p <= 0){
+        l.el.classList.remove('on');
+        return;
+      }
+      if(p >= 100){
+        // found: keep on, muted
+        l.el.classList.add('on');
+        return;
+      }
+      const chance = minChance + (maxChance - minChance) * (p / 100);
       if(Math.random() < chance){
         l.el.classList.add('on');
-        // quiet beep for this LED (muted compared to main beep)
+        // small quiet beep (muted relative to main). If artifact is found (p==100) we skip sound above
         if(audioCtx && isAudioEnabled){
           try{
             const t = audioCtx.currentTime;
             const o = audioCtx.createOscillator();
             const g = audioCtx.createGain();
             o.type = 'sine'; o.frequency.value = l.freq;
-            g.gain.value = 0.00003; // very quiet
+            g.gain.value = 0.00002; // very quiet
             o.connect(g); g.connect(audioCtx.destination);
-            g.gain.setValueAtTime(0.00003, t);
-            g.gain.linearRampToValueAtTime(0.02, t + 0.005);
-            g.gain.exponentialRampToValueAtTime(0.00003, t + 0.095);
-            o.start(t); o.stop(t + 0.11);
+            g.gain.setValueAtTime(0.00002, t);
+            g.gain.linearRampToValueAtTime(0.018, t + 0.004);
+            g.gain.exponentialRampToValueAtTime(0.00002, t + 0.09);
+            o.start(t); o.stop(t + 0.10);
           }catch(e){}
         }
         setTimeout(()=> l.el.classList.remove('on'), 100);
       }
-    });
-  }, 250);
+    }, l.interval);
+  });
 })();
 
-/* mapping proximity to beep interval */
+/* mapping proximity to beep interval (main) */
 function proxToInterval(p){ const ratio = Math.max(0, Math.min(1, p/100)); return Math.round(MAX_BEEP_INTERVAL - (MAX_BEEP_INTERVAL - MIN_BEEP_INTERVAL) * ratio); }
 
 /* DRAW loop */
@@ -439,7 +426,7 @@ function draw(now){
 
   ctx.clearRect(0,0,size,size);
 
-  // full-canvas analog scanlines
+  // analog horizontal lines
   ctx.save();
   for(let y=0;y<=size;y+=1.6){
     ctx.strokeStyle = `rgba(0,0,0,${0.08 + 0.04*Math.sin((y+noiseTime*12)/20)})`;
@@ -448,7 +435,7 @@ function draw(now){
   }
   ctx.restore();
 
-  // radar circle centered
+  // radar circle
   const g = ctx.createRadialGradient(cx,cy,6,cx,cy,maxR);
   g.addColorStop(0,"rgba(2,40,8,0.98)"); g.addColorStop(0.6,"rgba(8,70,18,0.6)"); g.addColorStop(1,"rgba(2,20,6,0.9)");
   ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx,cy,maxR,0,Math.PI*2); ctx.fill();
@@ -499,7 +486,7 @@ function draw(now){
   ctx.beginPath(); ctx.fillStyle="rgba(0,0,0,0.28)"; ctx.arc(cx,cy,6,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.strokeStyle="rgba(0,255,140,0.5)"; ctx.arc(cx,cy,6,0,Math.PI*2); ctx.stroke();
 
-  // info panel visibility: show only when ON + found
+  // info panel show/hide
   if(Math.round(current.proximity) >= 100 && artifact.meta && powerOn){
     infoPanel.style.display='block';
     updateInfoUI();
@@ -554,8 +541,8 @@ function proxToInterval(p){ const ratio = Math.max(0, Math.min(1, p/100)); retur
 ensureAudio(); randomizeArtifact(); draw();
 
 /* small UI updates */
-directionEl.addEventListener('change', ()=>{ distLabel.textContent = "Bearing = " + Math.round(directionEl.value) + "°"; });
-proximityEl.addEventListener('change', ()=>{ updateDistanceLabel(); });
+directionEl.addEventListener('input', ()=>{ distLabel.textContent = "Bearing = " + Math.round(directionEl.value) + "°"; });
+proximityEl.addEventListener('input', ()=>{ updateDistanceLabel(); });
 
 </script>
 </body>
