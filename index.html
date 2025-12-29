@@ -3,78 +3,98 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Artifact Detector — Fit & Centered</title>
+<title>Artifact Detector — Final Compact</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --muted:#bfe9b6; --accent:#0ff08a; --rust1:#8b5a3a; --rust2:#5b3b2a;
-  --dark-panel:#030403;
+  --muted:#bfe9b6; --accent:#0ff08a; --rust1:#8b5a3a; --rust2:#5b3b2a; --panel:#0b1409;
+  --screw-dark: #2c1c14;
 }
 html,body{height:100%;margin:0;background:linear-gradient(180deg,#020202,#0b0b0b);font-family:Orbitron,system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--muted);display:flex;align-items:center;justify-content:center;}
-.wrap{width:100%;max-width:330px;padding:8px;box-sizing:border-box;}
-.frame{position:relative;border-radius:12px;padding:8px;background:linear-gradient(180deg,#6f5237,#403022);box-shadow:0 10px 30px rgba(0,0,0,.75);border:3px solid rgba(0,0,0,0.28);overflow:visible}
+.wrap{width:100%;max-width:300px;padding:6px;box-sizing:border-box;}
+.frame{
+  position:relative;border-radius:12px;padding:6px;background:
+    linear-gradient(180deg,#5f442f,#3a281c),
+    repeating-linear-gradient(135deg, rgba(255,255,255,0.01) 0 2px, rgba(0,0,0,0.01) 2px 6px); /* subtle crosshatch */
+  box-shadow:0 10px 28px rgba(0,0,0,.75);border:3px solid rgba(0,0,0,0.28);overflow:visible;
+}
 
-/* screws bigger and darker */
-.screw{position:absolute;width:22px;height:22px;border-radius:50%;background:linear-gradient(180deg,#3f2b1f,#26180f);box-shadow:inset 0 2px 6px rgba(255,200,150,0.04),0 3px 6px rgba(0,0,0,0.65);border:2px solid rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:40}
-.screw:after{content:"+";color:rgba(0,0,0,0.35);font-weight:900;font-size:12px;transform:rotate(30deg)}
+/* screws: slightly smaller, stronger + sign */
+.screw{position:absolute;width:20px;height:20px;border-radius:50%;background:linear-gradient(180deg,var(--screw-dark),#1b120d);box-shadow:inset 0 2px 6px rgba(255,200,150,0.04),0 3px 6px rgba(0,0,0,0.7);border:2px solid rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:40}
+.screw:after{content:"+";color:rgba(240,230,210,0.92);font-weight:900;font-size:14px;transform:rotate(30deg)}
 .screw.tl{left:6px;top:6px} .screw.tr{right:6px;top:6px} .screw.bl{left:6px;bottom:6px} .screw.br{right:6px;bottom:6px}
 
-/* display seam & simplified glass plane */
-.screen-outer{border-radius:10px;padding:6px;background:linear-gradient(180deg, rgba(0,0,0,0.28), rgba(0,0,0,0.46));box-shadow: inset 0 3px 10px rgba(0,0,0,0.6)}
-.screen-seam{position:absolute;left:8px;right:8px;top:8px;bottom:8px;border-radius:8px;pointer-events:none;z-index:14;box-shadow: inset 0 0 0 2px rgba(120,70,40,0.36)}
-.screen-wrap{position:relative;border-radius:8px;padding:4px;background:linear-gradient(180deg,#03250f,#01160a);overflow:hidden;display:flex;align-items:center;justify-content:center}
+/* display seam with stronger criss-cross metallic texture */
+.screen-outer{border-radius:10px;padding:4px;background:
+  linear-gradient(180deg, rgba(0,0,0,0.3), rgba(0,0,0,0.5));
+  box-shadow: inset 0 3px 10px rgba(0,0,0,0.6);}
+.screen-seam{position:absolute;left:8px;right:8px;top:8px;bottom:8px;border-radius:8px;pointer-events:none;z-index:14;
+  box-shadow: inset 0 0 0 2px rgba(120,70,40,0.36);
+  background-image:
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.01) 0 2px, rgba(0,0,0,0.02) 2px 6px),
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.01) 0 2px, rgba(0,0,0,0.02) 2px 6px);
+}
+.screen-wrap{position:relative;border-radius:8px;padding:4px;background:linear-gradient(180deg,#021f12,#00140a);overflow:hidden;display:flex;align-items:center;justify-content:center}
 
-/* canvas responsive square */
+/* canvas */
 canvas{display:block;border-radius:6px;width:100%;height:auto;}
 
-/* translucent dark plane to emulate glass (keeps CRT visible but darker) */
+/* glass dark plane */
 .glass-cover{position:absolute;left:10px;right:10px;top:10px;bottom:10px;border-radius:8px;background:rgba(0,0,0,0.18);z-index:22;pointer-events:none}
 
-/* corner labels only (no center text) */
+/* corner labels only (none in center) */
 .corner-label{position:absolute;color:#cbdcbd;font-size:11px;font-family:Orbitron,monospace;z-index:25}
-.lbl-tl{left:12px;top:10px} .lbl-tr{right:12px;top:10px} .lbl-bl{left:12px;bottom:12px} .lbl-br{right:12px;bottom:12px}
+.lbl-tl{left:10px;top:8px} .lbl-tr{right:10px;top:8px} .lbl-bl{left:10px;bottom:10px} .lbl-br{right:10px;bottom:10px}
 
-/* control row */
-.controls{display:flex;align-items:center;justify-content:space-between;margin-top:8px;gap:8px}
+/* controls row */
+.controls{display:flex;align-items:center;justify-content:space-between;margin-top:6px;gap:8px}
 .left-controls{display:flex;align-items:center;gap:8px}
-.led{width:18px;height:18px;border-radius:50%;background:#2b0b0b;border:2px solid #2b0000;box-shadow:inset 0 2px 4px rgba(0,0,0,0.6);transition:all .08s linear}
+.led{width:16px;height:16px;border-radius:50%;background:#2b0b0b;border:2px solid #2b0000;box-shadow:inset 0 2px 4px rgba(0,0,0,0.6);transition:all .08s linear}
 .led.on{background:linear-gradient(180deg,#ff3b3b,#9b0000);box-shadow:0 0 12px rgba(255,60,60,.96)}
 .right-controls{display:flex;align-items:center;gap:8px}
 
-/* randomize button: dark green 3D, no white border */
-.green-btn{width:36px;height:36px;border-radius:50%;background:linear-gradient(180deg,#1f5f2a,#133818);box-shadow:inset 0 2px 0 rgba(255,255,255,0.02), 0 6px 14px rgba(0,0,0,0.6);color:#9fe8b7;font-weight:700;border:0;display:flex;align-items:center;justify-content:center}
+/* fully opaque dark-green randomize button (3D) */
+.green-btn{width:36px;height:36px;border-radius:50%;background:linear-gradient(180deg,#163f22,#0b2a17);box-shadow:inset 0 2px 0 rgba(255,255,255,0.02), 0 6px 14px rgba(0,0,0,0.6);color:#9fe8b7;font-weight:700;border:0;display:flex;align-items:center;justify-content:center}
 
 /* power */
-.power-btn{display:block;margin:8px auto 6px auto;width:72px;height:32px;border-radius:8px;background:linear-gradient(180deg,#ff6b2b,#d4491a);color:#fff;border:0;font-weight:800;box-shadow:0 8px 20px rgba(0,0,0,0.45)}
+.power-btn{display:block;margin:6px auto 4px auto;width:68px;height:30px;border-radius:8px;background:linear-gradient(180deg,#ff6b2b,#d4491a);color:#fff;border:0;font-weight:800;box-shadow:0 8px 20px rgba(0,0,0,0.45)}
 .power-btn.off{filter:grayscale(50%) brightness(.7)}
 
-/* fake buttons/leds near controls */
-.fake-led{width:10px;height:10px;border-radius:50%;background:#1c0b09;border:1px solid rgba(0,0,0,0.5);box-shadow:inset 0 1px 1px rgba(255,255,255,0.02)}
-.fake-btn{width:26px;height:18px;border-radius:6px;background:linear-gradient(180deg,#412f22,#2a1b12);display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:#c8d8c8}
+/* decorative leds (blue/green/red) */
+.fake-led{width:10px;height:10px;border-radius:50%;background:#111;border:1px solid rgba(0,0,0,0.5);box-shadow:inset 0 1px 1px rgba(255,255,255,0.02)}
+.fake-led.on{box-shadow:0 0 8px rgba(255,255,255,0.06)}
+.fake-led.blue.on{background:#70b8ff; box-shadow:0 0 10px rgba(110,180,255,0.6)}
+.fake-led.green.on{background:#9fffae; box-shadow:0 0 10px rgba(140,255,170,0.6)}
+.fake-led.red.on{background:#ff8b8b; box-shadow:0 0 10px rgba(255,140,140,0.5)}
 
-/* labels above sliders: black panels with analog look */
+/* fake buttons fully opaque */
+.fake-btn{width:26px;height:18px;border-radius:6px;background:linear-gradient(180deg,#3a2b1f,#25170e);display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:#c8d8c8;box-shadow:inset 0 1px 0 rgba(255,255,255,0.02)}
+
+/* slider labels black panels */
 .slider-label{display:inline-block;background:#000;padding:6px 8px;border-radius:6px;color:var(--muted);font-size:12px;font-family:Orbitron,monospace;box-shadow:inset 0 1px 0 rgba(255,255,255,0.02), 0 6px 12px rgba(0,0,0,0.45)}
 
-/* sliders: fully opaque rusty thumb */
-.sliders{display:flex;flex-direction:column;gap:6px;margin-top:8px}
-label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
+/* sliders with criss-cross textured thumb (opaque) */
+.sliders{display:flex;flex-direction:column;gap:6px;margin-top:6px}
 input[type=range]{-webkit-appearance:none;width:100%;height:30px;background:transparent;padding:6px 0;margin:0}
 input[type=range]::-webkit-slider-runnable-track{height:10px;border-radius:10px;background:linear-gradient(90deg,#3b2b1e,#8b5a3a)}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;margin-top:-7px;width:48px;height:22px;border-radius:12px;background:linear-gradient(180deg,#4f2e1b,#2f1a0f);border:2px solid rgba(0,0,0,0.6);box-shadow:inset 0 2px 0 rgba(255,220,170,0.06);cursor:grab}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;margin-top:-7px;width:48px;height:22px;border-radius:12px;background:
+  linear-gradient(180deg,#4f2e1b,#2f1a0f),
+  repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0 2px, rgba(0,0,0,0.04) 2px 4px); border:2px solid rgba(0,0,0,0.6); cursor:grab}
 input[type=range]::-moz-range-track{height:10px;border-radius:10px;background:linear-gradient(90deg,#3b2b1e,#8b5a3a)}
-input[type=range]::-moz-range-thumb{width:48px;height:22px;border-radius:12px;background:linear-gradient(180deg,#4f2e1b,#2f1a0f);border:2px solid rgba(0,0,0,0.6)}
+input[type=range]::-moz-range-thumb{width:48px;height:22px;border-radius:12px;background:
+  linear-gradient(180deg,#4f2e1b,#2f1a0f); border:2px solid rgba(0,0,0,0.6)}
 
-/* info panel with stats (each stat separate line) */
-.info{position:absolute;left:10px;top:10px;z-index:28;background:rgba(0,0,0,0.36);padding:6px 8px;border-radius:8px;color:#dfffe0;font-size:12px;min-width:120px;max-width:170px;box-shadow:0 6px 18px rgba(0,0,0,0.6);display:none}
+/* info panel */
+.info{position:absolute;left:8px;top:8px;z-index:28;background:rgba(0,0,0,0.36);padding:6px 8px;border-radius:8px;color:#dfffe0;font-size:12px;min-width:120px;max-width:170px;box-shadow:0 6px 18px rgba(0,0,0,0.6);display:none}
 .info h3{margin:0 0 6px 0;font-size:14px}
 .info .badge{display:block;padding:3px 4px;border-radius:6px;margin-bottom:4px;background:rgba(0,0,0,0.18);border:1px solid rgba(0,255,140,0.06);font-size:12px}
 .badge.I{color:#ffffff} .badge.II{color:#9fffae} .badge.III{color:#a9d6ff} .badge.IV{color:#ffd868}
 
-/* power overlay when off: full black plane (ensures nothing visible) */
+/* power overlay when off */
 .power-off-overlay{position:absolute;left:10px;right:10px;top:10px;bottom:10px;border-radius:8px;background:#000;z-index:40;display:block;pointer-events:none}
 .power-off-overlay.hidden{display:none}
 
-@media(max-width:360px){ .wrap{padding:6px} .power-btn{width:66px;height:30px} input[type=range]::-webkit-slider-thumb{width:42px;height:20px} }
+@media(max-width:340px){ .wrap{padding:4px} .power-btn{width:64px;height:30px} input[type=range]::-webkit-slider-thumb{width:42px;height:20px} }
 </style>
 </head>
 <body>
@@ -88,12 +108,12 @@ input[type=range]::-moz-range-thumb{width:48px;height:22px;border-radius:12px;ba
       <div class="screen-seam"></div>
 
       <div class="screen-wrap" id="screenWrap">
-        <canvas id="radar" width="420" height="420"></canvas>
+        <canvas id="radar" width="360" height="360"></canvas>
 
         <!-- glass dark plane -->
         <div class="glass-cover" id="glassCover"></div>
 
-        <!-- info (shown only when found) -->
+        <!-- info (only when found) -->
         <div class="info" id="info">
           <h3 id="artifactName">—</h3>
           <div id="atype" class="badge">Type: —</div>
@@ -113,78 +133,80 @@ input[type=range]::-moz-range-thumb{width:48px;height:22px;border-radius:12px;ba
       </div>
     </div>
 
-    <!-- decorative controls row -->
-    <div class="controls" style="margin-top:8px">
+    <!-- controls row -->
+    <div class="controls" style="margin-top:6px">
       <div class="left-controls">
         <div id="led" class="led"></div>
-        <div style="margin-left:6px;font-size:13px;color:#9fcf9c">LED</div>
+        <div style="margin-left:6px;font-size:12px;color:#9fcf9c">LED</div>
         <div style="width:8px"></div>
-        <div class="fake-led" id="fakeLed1"></div>
+        <div id="fakeLedBlue" class="fake-led blue"></div>
         <div style="width:6px"></div>
-        <div class="fake-btn">A</div>
+        <div id="fakeLedGreen" class="fake-led green"></div>
+        <div style="width:6px"></div>
+        <div id="fakeLedRed" class="fake-led red"></div>
       </div>
 
       <div class="right-controls">
-        <div class="fake-btn">B</div>
+        <div class="fake-btn">RST</div>
         <button id="randBtn" class="green-btn" title="Randomize">R</button>
       </div>
     </div>
 
     <button id="powerBtn" class="power-btn off">ON</button>
 
-    <!-- decorative small row -->
+    <!-- small decor row -->
     <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:6px">
       <div style="display:flex;gap:8px;align-items:center">
-        <div class="fake-btn">RST</div>
-        <div class="fake-led" id="fakeLed2"></div>
+        <div class="fake-btn">A</div>
+        <div class="fake-btn">B</div>
       </div>
       <div style="display:flex;gap:8px;align-items:center">
         <div class="fake-btn">X</div>
       </div>
     </div>
 
-    <!-- slider labels (black panels) -->
+    <!-- slider labels -->
     <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:8px">
       <div class="slider-label" id="proxLabel">Proximity = 50</div>
       <div class="slider-label" id="distLabel">Distance = 50</div>
     </div>
 
     <div class="sliders">
-      <div>
-        <input id="proximity" type="range" min="0" max="100" value="50">
-      </div>
-      <div>
-        <input id="direction" type="range" min="0" max="100" value="50">
-      </div>
+      <div><input id="proximity" type="range" min="0" max="100" value="50"></div>
+      <div><input id="direction" type="range" min="0" max="100" value="50"></div>
     </div>
 
   </div>
 </div>
 
 <script>
-/* Fit & centered detector script
- - adjusted canvas sizing to fit iPhone SE
- - radar circle centered; scanlines extend full canvas
- - slider mapping: 0->180°, 50->0°, 100->180°
- - slider labels updated in black panels "Proximity = X" & "Distance = X"
- - stats formatted one-per-line (use pre-line)
- - when power off, nothing is drawn (overlay covers)
+/* Final compact detector:
+ - smaller canvas that fits SE, centered radar
+ - full-canvas stronger analog lines
+ - criss-cross textures added to frame and slider thumb
+ - screw + sign larger and more visible
+ - random decorative leds blink independently (blue/green/red)
+ - randomize button fully opaque
+ - slider panels updated
+ - keeping detector functionality from earlier versions
 */
 
 const canvas = document.getElementById('radar'), ctx = canvas.getContext('2d');
 const proximityEl = document.getElementById('proximity'), directionEl = document.getElementById('direction');
-const proxValEl = document.getElementById('proxVal'), dirValEl = document.getElementById('dirVal'); // not used visually
+const proxLabel = document.getElementById('proxLabel'), distLabel = document.getElementById('distLabel');
 const ledEl = document.getElementById('led'), randBtn = document.getElementById('randBtn'), powerBtn = document.getElementById('powerBtn');
 const powerOverlay = document.getElementById('powerOverlay');
 const infoPanel = document.getElementById('info'), artifactNameEl = document.getElementById('artifactName');
 const typeEl = document.getElementById('atype'), rarityEl = document.getElementById('rarity'), priceEl = document.getElementById('price');
 const energyEl = document.getElementById('energy'), statsEl = document.getElementById('stats');
-const proxLabel = document.getElementById('proxLabel'), distLabel = document.getElementById('distLabel');
+
+const fakeLedBlue = document.getElementById('fakeLedBlue');
+const fakeLedGreen = document.getElementById('fakeLedGreen');
+const fakeLedRed = document.getElementById('fakeLedRed');
 
 let dpr = Math.max(window.devicePixelRatio || 1, 1);
 function sizeCanvas(){
-  // target smaller square that fits SE: max 300 px approx
-  const maxW = Math.min(window.innerWidth - 40, 300);
+  const maxW = Math.min(window.innerWidth - 48, 260);
   const cssSize = Math.floor(maxW);
   canvas.style.width = cssSize + 'px';
   canvas.style.height = cssSize + 'px';
@@ -195,9 +217,9 @@ function sizeCanvas(){
 window.addEventListener('resize', sizeCanvas);
 sizeCanvas();
 
-/* CONFIG */
+/* Config */
 let SWEEP_SPEED = 5.0;
-const TRAIL_STEPS = 16;
+const TRAIL_STEPS = 14;
 const TRAIL_STEP_ANGLE = 3.2;
 const DETECT_ARC = 28;
 const LERP = 0.12;
@@ -206,11 +228,11 @@ const MIN_BEEP_INTERVAL = 80;
 const MAX_BEEP_INTERVAL = 2200;
 const BEEP_DURATION = 70;
 
-/* audio */
-let audioCtx = null, continuousOsc = null, continuousGain = null, isAudioEnabled = false, powerOn = false;
+/* audio & state */
+let audioCtx = null, continuousOsc = null, continuousGain = null, isAudioEnabled=false, powerOn = false;
 let lastBeepTime = 0, ledFlashUntil = 0;
 
-/* DB & rarities */
+/* DB & rarities (I..IV 50/30/15/5) */
 const names = ["Krovavaya","Siren","Mire","Tesla","Viper","Lump","Echo","Glimmer","Cvar","Nexus","Shard","Wisp"];
 const types = ["Electro","Gravity","Thermal","Bio","Psy","Rad"];
 const rarities = [
@@ -221,23 +243,23 @@ const rarities = [
 ];
 function weightedRandom(arr){ const sum = arr.reduce((s,i)=>s+i.prob,0); const r=Math.random()*sum; let s=0; for(const a of arr){ s+=a.prob; if(r<=s) return a; } return arr[0]; }
 
-/* state */
+/* detector state */
 let sweepAngle = 0;
-let artifact = { angleDeg:0, proximity:Number(proximityEl.value), meta:null };
-let current = { angleDeg:artifact.angleDeg, proximity:artifact.proximity };
+let artifact = { angleDeg:0, proximity: Number(proximityEl.value), meta:null };
+let current = { angleDeg: artifact.angleDeg, proximity: artifact.proximity };
 let lastDetectedAt = -999999, visibleAlpha = 0;
 
 /* audio helpers */
-function ensureAudio(){ if(audioCtx) return; try{ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ audioCtx=null; } }
-function clickSound(){ if(!audioCtx){ ensureAudio(); if(!audioCtx) return; } try{ const t=audioCtx.currentTime; const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); o.type='triangle'; o.frequency.value=900; g.gain.value=0.0006; o.connect(g); g.connect(audioCtx.destination); g.gain.setValueAtTime(0.0006,t); g.gain.linearRampToValueAtTime(0.18,t+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+0.06); o.start(t); o.stop(t+0.08); }catch(e){} }
-function playBeep(){ if(!audioCtx || !powerOn) return; const t=audioCtx.currentTime; const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); o.type='sine'; o.frequency.value=680 + (artifact.meta?.energy||0)*1.6; g.gain.value=0; o.connect(g); g.connect(audioCtx.destination); const dur=BEEP_DURATION/1000; g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.15,t+0.008); g.gain.exponentialRampToValueAtTime(0.0001,t+dur); o.start(t); o.stop(t+dur+0.02); }
+function ensureAudio(){ if(audioCtx) return; try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ audioCtx=null; } }
+function clickSound(){ if(!audioCtx){ ensureAudio(); if(!audioCtx) return; } try{ const t=audioCtx.currentTime; const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); o.type='triangle'; o.frequency.value=900; g.gain.value=0.0006; o.connect(g); g.connect(audioCtx.destination); g.gain.setValueAtTime(0.0006,t); g.gain.linearRampToValueAtTime(0.18,t+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+0.06); o.start(t); o.stop(t+0.08);}catch(e){} }
+function playBeep(){ if(!audioCtx || !powerOn) return; const t=audioCtx.currentTime; const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); o.type='sine'; o.frequency.value = 680 + (artifact.meta?.energy||0)*1.6; g.gain.value=0; o.connect(g); g.connect(audioCtx.destination); const dur=BEEP_DURATION/1000; g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.15,t+0.008); g.gain.exponentialRampToValueAtTime(0.0001,t+dur); o.start(t); o.stop(t+dur+0.02); }
 function startContinuousTone(){ if(!audioCtx||!powerOn||continuousOsc) return; continuousOsc=audioCtx.createOscillator(); continuousGain=audioCtx.createGain(); continuousOsc.type='sine'; continuousOsc.frequency.value=920; continuousGain.gain.value=0; continuousOsc.connect(continuousGain); continuousGain.connect(audioCtx.destination); continuousOsc.start(); continuousGain.gain.linearRampToValueAtTime(0.18,audioCtx.currentTime+0.05); }
 function stopContinuousTone(){ if(!continuousOsc) return; try{ continuousGain.gain.linearRampToValueAtTime(0.0001,audioCtx.currentTime+0.02); setTimeout(()=>{ try{ continuousOsc.stop(); continuousOsc.disconnect(); continuousGain.disconnect(); }catch(e){} continuousOsc=null; continuousGain=null; },80);}catch(e){ continuousOsc=null; continuousGain=null; } }
 
-/* price */
-function computePrice(meta){ if(!meta) return 0; const base=meta._base; const energyFactor=1+(meta.energy*0.0065); const weightFactor=1+(meta.weight*0.01); const radPenalty=Math.max(0.6,1-(meta.radiation*0.005)); const randomVar=0.93+Math.random()*0.14; let p=Math.round(base*energyFactor*weightFactor*radPenalty*randomVar); return Math.max(100,p); }
+/* pricing */
+function computePrice(meta){ if(!meta) return 0; const base=meta._base; const energyFactor=1 + (meta.energy * 0.0065); const weightFactor = 1 + (meta.weight * 0.01); const radPenalty = Math.max(0.6, 1 - (meta.radiation * 0.005)); const randomVar = 0.93 + Math.random()*0.14; let p = Math.round(base * energyFactor * weightFactor * radPenalty * randomVar); return Math.max(100,p); }
 
-/* randomize artifact */
+/* artifact spawn */
 function randomizeArtifact(){
   const baseName = names[Math.floor(Math.random()*names.length)];
   const type = types[Math.floor(Math.random()*types.length)];
@@ -251,13 +273,14 @@ function randomizeArtifact(){
   artifact.proximity = 0;
   proximityEl.value = 0; proxLabel.textContent = "Proximity = 0";
   lastDetectedAt = -999999; visibleAlpha = 0;
-  const angle = Math.random()*360; artifact.angleDeg = angle;
+  const angle = Math.random()*360;
+  artifact.angleDeg = angle;
   const sliderVal = (((angle - 180 + 360) % 360) / 360) * 100;
   directionEl.value = Math.round(sliderVal); distLabel.textContent = "Distance = " + Math.round(directionEl.value);
   updateInfoUI();
 }
 
-/* update info panel (each stat on its own line) */
+/* update info */
 function updateInfoUI(){
   if(!artifact.meta) return;
   artifactNameEl.textContent = artifact.meta.name;
@@ -265,14 +288,14 @@ function updateInfoUI(){
   rarityEl.textContent = "Tier: " + artifact.meta.tier + " (" + artifact.meta.rarityName + ")";
   priceEl.textContent = "Price: " + artifact.meta.price + " RU";
   energyEl.textContent = "Energy: " + artifact.meta.energy + "%";
-  statsEl.innerHTML = `Weight: ${artifact.meta.weight} kg\nRadiation: ${artifact.meta.radiation} rads`;
+  statsEl.innerText = `Weight: ${artifact.meta.weight} kg\nRadiation: ${artifact.meta.radiation} rads`;
   rarityEl.className = 'badge ' + ({'I':'','II':'II','III':'III','IV':'IV'}[artifact.meta.tier]||'');
 }
 
-/* slider->angle mapping: slider 0..100 -> angle = (50 - slider)/50 * 180  */
+/* slider->angle mapping: slider 0..100 -> angle = (50 - slider)/50 * 180 */
 function sliderToAngle(sl){ return ((50 - sl) / 50) * 180; }
 
-/* UI handlers */
+/* UI events */
 proximityEl.addEventListener('input', e=>{
   artifact.proximity = Number(e.target.value);
   proxLabel.textContent = "Proximity = " + artifact.proximity;
@@ -280,14 +303,14 @@ proximityEl.addEventListener('input', e=>{
 });
 directionEl.addEventListener('input', e=>{
   const sv = Number(e.target.value);
-  distLabel.textContent = "Distance = " + sv;
+  distLabel.textContent = "Distance = " + Math.round(sv);
   artifact.angleDeg = (sliderToAngle(sv) + 360) % 360;
 });
 
-/* power & buttons */
+/* power & randomize buttons */
 powerBtn.addEventListener('click', ()=>{
   powerOn = !powerOn;
-  if(powerOn){ powerBtn.classList.remove('off'); powerOverlay.classList.add('hidden'); ensureAudio(); if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); isAudioEnabled=true; }
+  if(powerOn){ powerBtn.classList.remove('off'); powerOverlay.classList.add('hidden'); ensureAudio(); if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); isAudioEnabled = true; }
   else { powerBtn.classList.add('off'); powerOverlay.classList.remove('hidden'); stopContinuousTone(); isAudioEnabled=false; ledEl.classList.remove('on'); }
   clickSound();
 });
@@ -295,7 +318,29 @@ randBtn.addEventListener('click', ()=>{ ensureAudio(); if(audioCtx && audioCtx.s
 
 document.addEventListener('touchstart', function once(){ ensureAudio(); if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); isAudioEnabled=true; document.removeEventListener('touchstart', once); }, {passive:true});
 
-function proxToInterval(p){ const ratio = Math.max(0, Math.min(1, p/100)); return Math.round(MAX_BEEP_INTERVAL - (MAX_BEEP_INTERVAL - MIN_BEEP_INTERVAL)*ratio); }
+/* decorative led blinkers: randomly flicker each second with different color */
+function startDecorativeBlinkers(){
+  const leds = [
+    {el: fakeLedBlue, prob: 0.25},
+    {el: fakeLedGreen, prob: 0.33},
+    {el: fakeLedRed, prob: 0.2}
+  ];
+  setInterval(()=>{
+    leds.forEach(l=>{
+      const r = Math.random();
+      if(r < l.prob){
+        l.el.classList.add('on');
+        // ensure color class present
+        // (blue/green/red classes are already in markup)
+        setTimeout(()=> l.el.classList.remove('on'), 220 + Math.random()*600);
+      }
+    });
+  }, 900);
+}
+startDecorativeBlinkers();
+
+/* beep interval mapping */
+function proxToInterval(p){ const ratio = Math.max(0, Math.min(1, p/100)); return Math.round(MAX_BEEP_INTERVAL - (MAX_BEEP_INTERVAL - MIN_BEEP_INTERVAL) * ratio); }
 
 /* DRAW loop */
 let noiseTime = 0;
@@ -305,50 +350,45 @@ function draw(now){
   const size = Math.min(cssW, cssH);
   const cx = size/2, cy = size/2, maxR = size*0.42;
 
-  // smoothing
   current.proximity = lerp(current.proximity, artifact.proximity, LERP);
   current.angleDeg = lerpAngle(current.angleDeg, artifact.angleDeg, LERP);
 
-  if(!powerOn){ // if off, do not draw radar (overlay is black)
-    requestAnimationFrame(draw); return;
-  }
+  if(!powerOn){ requestAnimationFrame(draw); return; }
 
   ctx.clearRect(0,0,size,size);
 
-  // full-canvas scanlines first (analog lines over entire area)
+  // strong full-canvas scanlines
   ctx.save();
-  ctx.globalCompositeOperation = 'source-over';
-  for(let y=0; y<=size; y += 1.7){
-    ctx.strokeStyle = `rgba(0,0,0,${0.06 + 0.03*Math.sin((y+noiseTime*12)/20)})`;
-    ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(size, y); ctx.stroke();
+  for(let y=0;y<=size;y+=1.6){
+    ctx.strokeStyle = `rgba(0,0,0,${0.08 + 0.04*Math.sin((y+noiseTime*12)/20)})`;
+    ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(size,y); ctx.stroke();
   }
   ctx.restore();
 
   // radar circle background centered
-  const g = ctx.createRadialGradient(cx,cy,8,cx,cy,maxR);
+  const g = ctx.createRadialGradient(cx,cy,6,cx,cy,maxR);
   g.addColorStop(0,"rgba(2,40,8,0.98)"); g.addColorStop(0.6,"rgba(8,70,18,0.6)"); g.addColorStop(1,"rgba(2,20,6,0.9)");
   ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx,cy,maxR,0,Math.PI*2); ctx.fill();
 
-  // concentric rings (inside circle)
+  // concentric rings
   ctx.lineWidth = 1.2; ctx.strokeStyle = "rgba(0,200,90,0.16)";
   for(let i=1;i<=4;i++){ ctx.beginPath(); ctx.arc(cx,cy,maxR*(i/4),0,Math.PI*2); ctx.stroke(); }
 
   // crosshair
   ctx.strokeStyle="rgba(0,220,120,0.09)"; ctx.beginPath(); ctx.moveTo(cx-maxR,cy); ctx.lineTo(cx+maxR,cy); ctx.moveTo(cx,cy-maxR); ctx.lineTo(cx,cy+maxR); ctx.stroke();
 
-  // sweep trail behind front wedge
+  // sweep trail behind wedge
   sweepAngle = (sweepAngle + SWEEP_SPEED) % 360;
   ctx.save(); ctx.translate(cx,cy);
   for(let i=TRAIL_STEPS;i>0;i--){
     const stepAngle = sweepAngle - i * TRAIL_STEP_ANGLE;
     const a = degToRad(stepAngle);
-    const alpha = Math.max(0,0.46*(1 - i/TRAIL_STEPS));
-    if(i > TRAIL_STEPS*0.45) ctx.filter='blur(5px)'; else ctx.filter='none';
+    const alpha = Math.max(0, 0.46 * (1 - i / TRAIL_STEPS));
+    if(i > TRAIL_STEPS * 0.45) ctx.filter='blur(4px)'; else ctx.filter='none';
     const halfWidth = degToRad(10);
     const grad = ctx.createLinearGradient(Math.cos(a)*0, Math.sin(a)*0, Math.cos(a)*maxR, Math.sin(a)*maxR);
     grad.addColorStop(0, `rgba(0,255,120,${alpha})`); grad.addColorStop(1, `rgba(0,255,80,${alpha*0.02})`);
-    ctx.fillStyle = grad; ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,maxR,a-halfWidth,a+halfWidth); ctx.closePath(); ctx.globalCompositeOperation='lighter'; ctx.fill();
+    ctx.fillStyle = grad; ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0, maxR, a-halfWidth, a+halfWidth); ctx.closePath(); ctx.globalCompositeOperation='lighter'; ctx.fill();
   }
   ctx.restore();
   ctx.filter='none'; ctx.globalCompositeOperation='source-over';
@@ -361,14 +401,14 @@ function draw(now){
   ctx.fillStyle = gradFront; ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,maxR,aFront-halfFront,aFront+halfFront); ctx.closePath(); ctx.globalCompositeOperation='lighter'; ctx.fill();
   ctx.restore();
 
-  // artifact display (only if prox>0)
+  // artifact visibility
   if(artifact.proximity > 0){
     const artAngle = current.angleDeg; const diff = angleDiff(sweepAngle, artAngle); const visibleNow = Math.abs(diff) <= DETECT_ARC;
     const dist = maxR * (1 - (current.proximity/100)); const aRad = degToRad(artAngle); const ax = cx + Math.cos(aRad)*dist; const ay = cy + Math.sin(aRad)*dist;
-    if(visibleNow){ lastDetectedAt = Date.now(); visibleAlpha = 1; } else { const since = Date.now() - lastDetectedAt; visibleAlpha = Math.max(0,1 - (since/FADE_MS)); }
+    if(visibleNow){ lastDetectedAt = Date.now(); visibleAlpha = 1; } else { const since = Date.now() - lastDetectedAt; visibleAlpha = Math.max(0, 1 - (since / FADE_MS)); }
     if(visibleAlpha > 0.02){
-      ctx.beginPath(); ctx.fillStyle = `rgba(100,255,140,${0.95*visibleAlpha})`; const pulse = 1 + 0.12*Math.sin(Date.now()/120); ctx.arc(ax,ay,6*pulse,0,Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.strokeStyle = `rgba(100,255,140,${0.18*visibleAlpha})`; ctx.arc(ax,ay,12*pulse,0,Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.fillStyle = `rgba(100,255,140,${0.95 * visibleAlpha})`; const pulse = 1 + 0.12*Math.sin(Date.now()/120); ctx.arc(ax,ay,6*pulse,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.strokeStyle = `rgba(100,255,140,${0.18 * visibleAlpha})`; ctx.arc(ax,ay,12*pulse,0,Math.PI*2); ctx.stroke();
     }
   } else { lastDetectedAt = -999999; visibleAlpha = 0; }
 
@@ -376,12 +416,12 @@ function draw(now){
   ctx.beginPath(); ctx.fillStyle="rgba(0,0,0,0.28)"; ctx.arc(cx,cy,6,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.strokeStyle="rgba(0,255,140,0.5)"; ctx.arc(cx,cy,6,0,Math.PI*2); ctx.stroke();
 
-  // info panel show when found and powered
+  // info panel display logic
   if(Math.round(current.proximity) >= 100 && artifact.meta && powerOn){ infoPanel.style.display='block'; updateInfoUI(); } else { infoPanel.style.display='none'; }
 
-  // noise dots
-  noiseTime += 0.9; if(noiseTime>10000) noiseTime=0;
-  for(let i=0;i<10;i++){ const nx = cx + Math.cos((i*23+noiseTime*6)/12)*(maxR*(0.2+0.8*Math.random())); const ny = cy + Math.sin((i*17+noiseTime*5)/10)*(maxR*(0.2+0.8*Math.random())); ctx.fillStyle='rgba(0,255,140,0.02)'; ctx.fillRect(nx,ny,1,1); }
+  // noise pixels
+  noiseTime += 0.9; if(noiseTime > 10000) noiseTime = 0;
+  for(let i=0;i<8;i++){ const nx = cx + Math.cos((i*23 + noiseTime*6)/12) * (maxR*(0.2 + 0.8*Math.random())); const ny = cy + Math.sin((i*17 + noiseTime*5)/10) * (maxR*(0.2 + 0.8*Math.random())); ctx.fillStyle = 'rgba(0,255,140,0.02)'; ctx.fillRect(nx, ny, 1, 1); }
 
   // beeping driven by RAF
   const nowMs = performance.now();
@@ -393,18 +433,35 @@ function draw(now){
   requestAnimationFrame(draw);
 }
 
+/* decorative blinkers (separate random flicker each second) */
+(function decorativeBlinkers(){
+  const ledList = [
+    {el: fakeLedBlue, cls: 'blue', prob: 0.28},
+    {el: fakeLedGreen, cls: 'green', prob: 0.33},
+    {el: fakeLedRed, cls: 'red', prob: 0.22}
+  ];
+  setInterval(()=>{
+    ledList.forEach(l=>{
+      if(Math.random() < l.prob){
+        l.el.classList.add('on');
+        setTimeout(()=> l.el.classList.remove('on'), 200 + Math.random()*700);
+      }
+    });
+  }, 900);
+})();
+
 /* helpers */
-function degToRad(d){ return d*Math.PI/180; }
+function degToRad(d){ return d * Math.PI/180; }
 function lerp(a,b,t){ return a + (b-a)*t; }
 function angleDiff(a,b){ let d = (((a - b + 540) % 360) - 180); return d; }
 function lerpAngle(a,b,t){ const diff = angleDiff(b,a); return (a + diff*t + 360) % 360; }
-function ensureAudio(){ if(audioCtx) return; try{ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ audioCtx=null; } }
+function ensureAudio(){ if(audioCtx) return; try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ audioCtx=null; } }
 function proxToInterval(p){ const ratio = Math.max(0, Math.min(1, p/100)); return Math.round(MAX_BEEP_INTERVAL - (MAX_BEEP_INTERVAL - MIN_BEEP_INTERVAL) * ratio); }
 
 /* startup */
 ensureAudio(); randomizeArtifact(); draw();
 
-/* small UI updates for labels */
+/* UI small handlers */
 directionEl.addEventListener('input', ()=>{ distLabel.textContent = "Distance = " + Math.round(directionEl.value); });
 proximityEl.addEventListener('input', ()=>{ proxLabel.textContent = "Proximity = " + Math.round(proximityEl.value); });
 
