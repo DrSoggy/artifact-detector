@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Artifact Detector — Final Touches</title>
+<title>Artifact Detector — Fixed</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -13,101 +13,101 @@
   --rust2:#5b3b2a;
   --panel:#0b1409;
   --screw-dark:#2c1c14;
-  --screw-top:#6b3f2a; /* brown screw top */
+  --screw-top:#6b3f2a;
 }
-/* Page / container */
+
+/* Page */
 html,body{height:100%;margin:0;background:linear-gradient(180deg,#020202,#0b0b0b);font-family:Orbitron,system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--muted);display:flex;align-items:center;justify-content:center;}
 .wrap{width:100%;max-width:300px;padding:6px;box-sizing:border-box;}
-/* Frame with its own subtle diagonal texture */
+
+/* Frame + single uniform texture applied to frame */
 .frame{
   position:relative;border-radius:12px;padding:6px;
-  background:
-    linear-gradient(180deg,#5f442f,#3a281c);
-  box-shadow:0 10px 28px rgba(0,0,0,.75);border:3px solid rgba(0,0,0,0.28);overflow:visible;
+  background: linear-gradient(180deg,#5f442f,#3a281c);
+  box-shadow:0 10px 28px rgba(0,0,0,.75);
+  border:3px solid rgba(0,0,0,0.28);
+  overflow:visible;
 }
-/* apply a frame-specific diagonal texture (separate from slider thumb) */
+/* frame texture (diagonal lines) - now only here so it doesn't overlap inner UI */
 .frame::before{
   content:"";position:absolute;inset:0;border-radius:12px;pointer-events:none;
   background-image: repeating-linear-gradient(135deg, rgba(0,0,0,0.03) 0 3px, transparent 3px 6px);
   mix-blend-mode:overlay;opacity:0.55;
+  z-index:1;
 }
 
-/* screws smaller and screw-top brown */
-.screw{position:absolute;width:16px;height:16px;border-radius:50%;background:linear-gradient(180deg,var(--screw-dark),#1b120d);box-shadow:inset 0 2px 6px rgba(255,200,150,0.04),0 3px 6px rgba(0,0,0,0.7);border:2px solid rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:40}
-.screw:after{content:"+";color:var(--screw-top);font-weight:800;font-size:12px;transform:rotate(30deg)}
+/* screws: smaller with brown plus sign */
+.screw{position:absolute;width:14px;height:14px;border-radius:50%;background:linear-gradient(180deg,var(--screw-dark),#1b120d);box-shadow:inset 0 2px 4px rgba(255,200,150,0.04),0 2px 4px rgba(0,0,0,0.6);border:2px solid rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:60}
+.screw:after{content:"+";color:var(--screw-top);font-weight:800;font-size:11px;transform:rotate(30deg)}
 .screw.tl{left:6px;top:6px} .screw.tr{right:6px;top:6px} .screw.bl{left:6px;bottom:6px} .screw.br{right:6px;bottom:6px}
 
-/* display seam + texture for display rim */
-.screen-outer{border-radius:10px;padding:4px;background:linear-gradient(180deg, rgba(0,0,0,0.3), rgba(0,0,0,0.5))}
-.screen-seam{position:absolute;left:8px;right:8px;top:8px;bottom:8px;border-radius:8px;pointer-events:none;z-index:14;box-shadow: inset 0 0 0 2px rgba(120,70,40,0.36);}
+/* Screen outer (inner seam kept minimal and non-textured) */
+.screen-outer{border-radius:10px;padding:4px;background:linear-gradient(180deg, rgba(0,0,0,0.3), rgba(0,0,0,0.5)); z-index:2}
+.screen-seam{position:absolute;left:10px;right:10px;top:10px;bottom:10px;border-radius:8px;pointer-events:none;z-index:3;box-shadow: inset 0 0 0 2px rgba(120,70,40,0.28);background:transparent}
 
-/* inner screen wrap (canvas container) */
-.screen-wrap{position:relative;border-radius:8px;padding:4px;background:linear-gradient(180deg,#021f12,#00140a);overflow:hidden;display:flex;align-items:center;justify-content:center}
+/* inner canvas container */
+.screen-wrap{position:relative;border-radius:8px;padding:4px;background:linear-gradient(180deg,#021f12,#00140a);overflow:hidden;display:flex;align-items:center;justify-content:center;z-index:4}
 
 /* canvas */
 canvas{display:block;border-radius:6px;width:100%;height:auto;}
 
-/* translucent dark plane (glass cover) - remains but simple */
-.glass-cover{position:absolute;left:10px;right:10px;top:10px;bottom:10px;border-radius:8px;background:rgba(0,0,0,0.18);z-index:22;pointer-events:none}
+/* glass dark plane - simple translucent dark layer */
+.glass-cover{position:absolute;left:12px;right:12px;top:12px;bottom:12px;border-radius:8px;background:rgba(0,0,0,0.18);z-index:18;pointer-events:none}
 
 /* corner-only labels */
 .corner-label{position:absolute;color:#cbdcbd;font-size:11px;font-family:Orbitron,monospace;z-index:25}
-.lbl-tl{left:10px;top:8px} .lbl-tr{right:10px;top:8px} .lbl-bl{left:10px;bottom:10px} .lbl-br{right:10px;bottom:10px}
+.lbl-tl{left:14px;top:12px} .lbl-tr{right:14px;top:12px} .lbl-bl{left:14px;bottom:14px} .lbl-br{right:14px;bottom:14px}
 
-/* controls row */
-.controls{display:flex;align-items:center;justify-content:space-between;margin-top:6px;gap:8px}
+/* controls area (kept above frame texture) */
+.controls{display:flex;align-items:center;justify-content:space-between;margin-top:6px;gap:8px;z-index:50}
 .left-controls{display:flex;align-items:center;gap:8px}
-.led{width:16px;height:16px;border-radius:50%;background:#2b0b0b;border:2px solid #2b0000;box-shadow:inset 0 2px 4px rgba(0,0,0,0.6);transition:all .08s linear}
+.led{width:16px;height:16px;border-radius:50%;background:#2b0b0b;border:2px solid #2b0000;box-shadow:inset 0 1px 3px rgba(0,0,0,0.6);transition:all .08s linear}
 .led.on{background:linear-gradient(180deg,#ff3b3b,#9b0000);box-shadow:0 0 12px rgba(255,60,60,.96)}
-.right-controls{display:flex;align-items:center;gap:8px}
+.right-controls{display:flex;align-items:center;gap:8px;}
 
-/* decorative LED small colors */
-.fake-led{width:10px;height:10px;border-radius:50%;background:#111;border:1px solid rgba(0,0,0,0.5);box-shadow:inset 0 1px 1px rgba(255,255,255,0.02)}
+/* decorative LEDs */
+.fake-led{width:10px;height:10px;border-radius:50%;background:#111;border:1px solid rgba(0,0,0,0.5);box-shadow:inset 0 1px 1px rgba(255,255,255,0.02);z-index:50}
 .fake-led.on{box-shadow:0 0 8px rgba(255,255,255,0.06)}
-.fake-led.blue.on{background:#70b8ff; box-shadow:0 0 8px rgba(110,180,255,0.6)}
-.fake-led.green.on{background:#9fffae; box-shadow:0 0 8px rgba(140,255,170,0.6)}
-.fake-led.red.on{background:#ff8b8b; box-shadow:0 0 8px rgba(255,140,140,0.5)}
+.fake-led.blue.on{background:#70b8ff;box-shadow:0 0 8px rgba(110,180,255,0.6)}
+.fake-led.green.on{background:#9fffae;box-shadow:0 0 8px rgba(140,255,170,0.6)}
+.fake-led.red.on{background:#ff8b8b;box-shadow:0 0 8px rgba(255,140,140,0.5)}
 
-/* randomize button fully opaque dark-green 3D */
-.green-btn{width:36px;height:36px;border-radius:50%;background:linear-gradient(180deg,#163f22,#0b2a17);box-shadow:inset 0 2px 0 rgba(255,255,255,0.02), 0 6px 14px rgba(0,0,0,0.6);color:#9fe8b7;font-weight:700;border:0;display:flex;align-items:center;justify-content:center}
+/* randomize button - fully opaque dark green 3D */
+.green-btn{width:36px;height:36px;border-radius:50%;background:linear-gradient(180deg,#163f22,#0b2a17);box-shadow:inset 0 2px 0 rgba(255,255,255,0.02), 0 6px 14px rgba(0,0,0,0.6);color:#9fe8b7;font-weight:700;border:0;display:flex;align-items:center;justify-content:center;z-index:50}
 
 /* power button */
-.power-btn{display:block;margin:6px auto 4px auto;width:68px;height:30px;border-radius:8px;background:linear-gradient(180deg,#ff6b2b,#d4491a);color:#fff;border:0;font-weight:800;box-shadow:0 8px 20px rgba(0,0,0,0.45)}
+.power-btn{display:block;margin:6px auto 4px auto;width:68px;height:30px;border-radius:8px;background:linear-gradient(180deg,#ff6b2b,#d4491a);color:#fff;border:0;font-weight:800;box-shadow:0 8px 20px rgba(0,0,0,0.45);z-index:50}
 .power-btn.off{filter:grayscale(50%) brightness(.7)}
 
-/* fake buttons (opaque) */
-.fake-btn{width:26px;height:18px;border-radius:6px;background:linear-gradient(180deg,#3a2b1f,#25170e);display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:#c8d8c8;box-shadow:inset 0 1px 0 rgba(255,255,255,0.02)}
+/* fake buttons opaque */
+.fake-btn{width:26px;height:18px;border-radius:6px;background:linear-gradient(180deg,#3a2b1f,#25170e);display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:#c8d8c8;box-shadow:inset 0 1px 0 rgba(255,255,255,0.02);z-index:50}
 
 /* slider labels (black panels) */
-.slider-label{display:inline-block;background:#000;padding:6px 8px;border-radius:6px;color:var(--muted);font-size:12px;font-family:Orbitron,monospace;box-shadow:inset 0 1px 0 rgba(255,255,255,0.02), 0 6px 12px rgba(0,0,0,0.45)}
+.slider-label{display:inline-block;background:#000;padding:6px 8px;border-radius:6px;color:var(--muted);font-size:12px;font-family:Orbitron,monospace;box-shadow:inset 0 1px 0 rgba(255,255,255,0.02), 0 6px 12px rgba(0,0,0,0.45);z-index:50}
 
-/* sliders: track is a solid dark slit; each thumb has its own textured pattern */
-.sliders{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+/* sliders: solid dark slit; thumb has distinct texture different from frame */
+.sliders{display:flex;flex-direction:column;gap:6px;margin-top:6px;z-index:50}
 input[type=range]{-webkit-appearance:none;width:100%;height:30px;background:transparent;padding:6px 0;margin:0}
-
-/* solid dark track */
 input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:8px;background:#0d0d0d;border:1px solid rgba(255,255,255,0.02)}
 input[type=range]::-moz-range-track{height:8px;border-radius:8px;background:#0d0d0d;border:1px solid rgba(255,255,255,0.02)}
-
-/* thumb - textured (different than frame) */
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;margin-top:-7px;width:46px;height:22px;border-radius:12px;background:
   linear-gradient(180deg,#4b301d,#2d1a11),
   repeating-linear-gradient(45deg, rgba(0,0,0,0.06) 0 2px, rgba(255,255,255,0.01) 2px 4px);
-border:2px solid rgba(0,0,0,0.7);box-shadow:inset 0 2px 0 rgba(255,220,170,0.04);cursor:grab}
+border:2px solid rgba(0,0,0,0.72);box-shadow:inset 0 2px 0 rgba(255,220,170,0.04);cursor:grab}
 input[type=range]::-moz-range-thumb{width:46px;height:22px;border-radius:12px;background:
-  linear-gradient(180deg,#4b301d,#2d1a11);border:2px solid rgba(0,0,0,0.7)}
+  linear-gradient(180deg,#4b301d,#2d1a11);border:2px solid rgba(0,0,0,0.72)}
 
-/* info panel moved down a bit so no overlap */
-.info{position:absolute;left:8px;top:36px;z-index:28;background:rgba(0,0,0,0.36);padding:6px 8px;border-radius:8px;color:#dfffe0;font-size:12px;min-width:120px;max-width:170px;box-shadow:0 6px 18px rgba(0,0,0,0.6);display:none}
+/* info panel moved down to avoid overlap (top-left) */
+.info{position:absolute;left:12px;top:40px;z-index:55;background:rgba(0,0,0,0.36);padding:6px 8px;border-radius:8px;color:#dfffe0;font-size:12px;min-width:120px;max-width:170px;box-shadow:0 6px 18px rgba(0,0,0,0.6);display:none}
 .info h3{margin:0 0 6px 0;font-size:14px}
 .info .badge{display:block;padding:3px 4px;border-radius:6px;margin-bottom:4px;background:rgba(0,0,0,0.18);border:1px solid rgba(0,255,140,0.06);font-size:12px}
 .badge.I{color:#ffffff} .badge.II{color:#9fffae} .badge.III{color:#a9d6ff} .badge.IV{color:#ffd868}
 
-/* power overlay when off */
-.power-off-overlay{position:absolute;left:10px;right:10px;top:10px;bottom:10px;border-radius:8px;background:#000;z-index:40;display:block;pointer-events:none}
+/* overlay when off (inside screen only) */
+.power-off-overlay{position:absolute;left:12px;right:12px;top:12px;bottom:12px;border-radius:8px;background:#000;z-index:40;display:block;pointer-events:none}
 .power-off-overlay.hidden{display:none}
 
-/* responsive tweaks */
+/* responsiveness */
 @media(max-width:340px){ .wrap{padding:4px} .power-btn{width:64px;height:30px} input[type=range]::-webkit-slider-thumb{width:42px;height:20px} }
 </style>
 </head>
@@ -118,16 +118,16 @@ input[type=range]::-moz-range-thumb{width:46px;height:22px;border-radius:12px;ba
     <!-- screws -->
     <div class="screw tl"></div><div class="screw tr"></div><div class="screw bl"></div><div class="screw br"></div>
 
-    <div class="screen-outer">
+    <div class="screen-outer" id="screenOuter">
       <div class="screen-seam"></div>
 
       <div class="screen-wrap" id="screenWrap">
         <canvas id="radar" width="320" height="320"></canvas>
 
-        <!-- glass dark plane -->
+        <!-- simple dark 'glass' plane -->
         <div class="glass-cover" id="glassCover"></div>
 
-        <!-- info -->
+        <!-- info (top-left, moved down) -->
         <div class="info" id="info">
           <h3 id="artifactName">—</h3>
           <div id="atype" class="badge">Type: —</div>
@@ -147,7 +147,7 @@ input[type=range]::-moz-range-thumb{width:46px;height:22px;border-radius:12px;ba
       </div>
     </div>
 
-    <!-- controls -->
+    <!-- controls row -->
     <div class="controls" style="margin-top:6px">
       <div class="left-controls">
         <div id="led" class="led"></div>
@@ -179,7 +179,7 @@ input[type=range]::-moz-range-thumb{width:46px;height:22px;border-radius:12px;ba
       </div>
     </div>
 
-    <!-- slider labels (black panels) -->
+    <!-- slider label panels -->
     <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:8px">
       <div class="slider-label" id="proxLabel">Proximity = 50</div>
       <div class="slider-label" id="distLabel">Distance = 50</div>
@@ -194,16 +194,15 @@ input[type=range]::-moz-range-thumb{width:46px;height:22px;border-radius:12px;ba
 </div>
 
 <script>
-/* Final touches behavior:
- - decorative blinkers only when powerOn; checked each 1000ms; 100ms flash; quiet pitch per LED
- - decorative blinkers produce quieter beeps (short)
- - screws are smaller; + top is brown (CSS)
- - frame & thumb textures are distinct (CSS)
- - track is solid dark slit
- - stats box moved down
+/* Fixed detector script:
+ - fixed syntax error that stopped JS
+ - frame texture now applied only to frame (::before) so it doesn't overlap inner UI
+ - screws smaller; plus sign brown
+ - decorative blinkers only when powered on; check 1000 ms; flash 100 ms; quiet beep per LED
+ - all controls wired correctly; randomize updates sliders and sets proximity to 0
+ - when power OFF, radar drawing and blinkers are paused
 */
 
-/* Basic DOM refs */
 const canvas = document.getElementById('radar'), ctx = canvas.getContext('2d');
 const proximityEl = document.getElementById('proximity'), directionEl = document.getElementById('direction');
 const proxLabel = document.getElementById('proxLabel'), distLabel = document.getElementById('distLabel');
@@ -214,9 +213,9 @@ const typeEl = document.getElementById('atype'), rarityEl = document.getElementB
 const energyEl = document.getElementById('energy'), statsEl = document.getElementById('stats');
 const fakeLedBlue = document.getElementById('fakeLedBlue'), fakeLedGreen = document.getElementById('fakeLedGreen'), fakeLedRed = document.getElementById('fakeLedRed');
 
-let dpr = Math.max(window.devicePixelRatio||1,1);
+let dpr = Math.max(window.devicePixelRatio || 1, 1);
 function sizeCanvas(){
-  const maxW = Math.min(window.innerWidth - 48, 260); // small so it fits
+  const maxW = Math.min(window.innerWidth - 48, 260);
   const cssSize = Math.floor(maxW);
   canvas.style.width = cssSize + 'px';
   canvas.style.height = cssSize + 'px';
@@ -227,7 +226,7 @@ function sizeCanvas(){
 window.addEventListener('resize', sizeCanvas);
 sizeCanvas();
 
-/* CONFIG */
+/* Config */
 let SWEEP_SPEED = 5.0;
 const TRAIL_STEPS = 14;
 const TRAIL_STEP_ANGLE = 3.2;
@@ -251,16 +250,16 @@ const rarities = [
   {tier:"III",name:"Rare",prob:15,base:8000},
   {tier:"IV",name:"Legendary",prob:5,base:50000}
 ];
-function weightedRandom(arr){ const sum=arr.reduce((s,i)=>s+i.prob,0); const r=Math.random()*sum; let s=0; for(const a of arr){ s+=a.prob; if(r<=s) return a; } return arr[0]; }
+function weightedRandom(arr){ const sum = arr.reduce((s,i)=>s+i.prob,0); const r=Math.random()*sum; let s=0; for(const a of arr){ s+=a.prob; if(r<=s) return a; } return arr[0]; }
 
-/* state */
-let sweepAngle=0;
-let artifact={ angleDeg:0, proximity: Number(proximityEl.value), meta:null };
-let current={ angleDeg:artifact.angleDeg, proximity:artifact.proximity };
-let lastDetectedAt=-999999, visibleAlpha=0;
+/* detector state */
+let sweepAngle = 0;
+let artifact = { angleDeg:0, proximity: Number(proximityEl.value), meta:null };
+let current = { angleDeg: artifact.angleDeg, proximity: artifact.proximity };
+let lastDetectedAt = -999999, visibleAlpha = 0;
 
 /* audio helpers */
-function ensureAudio(){ if(audioCtx) return; try{ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ audioCtx=null;} }
+function ensureAudio(){ if(audioCtx) return; try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ audioCtx=null; } }
 function clickSound(){ if(!audioCtx){ ensureAudio(); if(!audioCtx) return; } try{ const t=audioCtx.currentTime; const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); o.type='triangle'; o.frequency.value=900; g.gain.value=0.0006; o.connect(g); g.connect(audioCtx.destination); g.gain.setValueAtTime(0.0006,t); g.gain.linearRampToValueAtTime(0.12,t+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+0.06); o.start(t); o.stop(t+0.08);}catch(e){} }
 function playBeep(){ if(!audioCtx || !powerOn) return; const t=audioCtx.currentTime; const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); o.type='sine'; o.frequency.value = 680 + (artifact.meta?.energy||0)*1.6; g.gain.value = 0; o.connect(g); g.connect(audioCtx.destination); const dur = BEEP_DURATION/1000; g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.15,t+0.008); g.gain.exponentialRampToValueAtTime(0.0001,t+dur); o.start(t); o.stop(t+dur+0.02); }
 function startContinuousTone(){ if(!audioCtx||!powerOn||continuousOsc) return; continuousOsc = audioCtx.createOscillator(); continuousGain = audioCtx.createGain(); continuousOsc.type='sine'; continuousOsc.frequency.value=920; continuousGain.gain.value=0; continuousOsc.connect(continuousGain); continuousGain.connect(audioCtx.destination); continuousOsc.start(); continuousGain.gain.linearRampToValueAtTime(0.18,audioCtx.currentTime+0.05); }
@@ -289,7 +288,7 @@ function randomizeArtifact(){
   updateInfoUI();
 }
 
-/* update info panel */
+/* update info */
 function updateInfoUI(){
   if(!artifact.meta) return;
   artifactNameEl.textContent = artifact.meta.name;
@@ -301,7 +300,7 @@ function updateInfoUI(){
   rarityEl.className = 'badge ' + ({'I':'','II':'II','III':'III','IV':'IV'}[artifact.meta.tier]||'');
 }
 
-/* slider mapping 0..100 -> angle (0->180deg behind, 50 front, 100 behind) */
+/* mapping slider -> angle (0..100 => behind/front/behind) */
 function sliderToAngle(sl){ return ((50 - sl) / 50) * 180; }
 
 /* UI handlers */
@@ -316,48 +315,45 @@ directionEl.addEventListener('input', e=>{
   artifact.angleDeg = (sliderToAngle(sv) + 360) % 360;
 });
 
-/* power & buttons */
+/* power & randomize */
 powerBtn.addEventListener('click', ()=>{
   powerOn = !powerOn;
   if(powerOn){ powerBtn.classList.remove('off'); powerOverlay.classList.add('hidden'); ensureAudio(); if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); isAudioEnabled = true; }
   else { powerBtn.classList.add('off'); powerOverlay.classList.remove('hidden'); stopContinuousTone(); isAudioEnabled=false; ledEl.classList.remove('on'); }
   clickSound();
 });
-randBtn.addEventListener('click', ()=>{ ensureAudio(); if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); isAudioEnabled=true; randomizeArtifact(); });
+randBtn.addEventListener('click', ()=>{ ensureAudio(); if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); isAudioEnabled = true; randomizeArtifact(); });
 
-document.addEventListener('touchstart', function once(){ ensureAudio(); if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); isAudioEnabled=true; document.removeEventListener('touchstart', once); }, {passive:true});
+document.addEventListener('touchstart', function once(){ ensureAudio(); if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); isAudioEnabled = true; document.removeEventListener('touchstart', once); }, {passive:true});
 
-/* decorative blinkers: check every 1000ms; each LED has independent small chance; flash 100ms; play quiet beep */
+/* decorative blinkers: 1000ms check; only when powered on; quiet beep; 100ms flash */
 (function decorativeBlinkers(){
   const leds = [
-    {el: fakeLedBlue, prob: 0.12, freq: 1100},  // blue - higher pitch
-    {el: fakeLedGreen, prob: 0.10, freq: 880},  // green - mid
-    {el: fakeLedRed, prob: 0.08, freq: 660}     // red - lower
+    {el: fakeLedBlue, prob: 0.12, freq: 1100},
+    {el: fakeLedGreen, prob: 0.10, freq: 880},
+    {el: fakeLedRed, prob: 0.08, freq: 660}
   ];
   setInterval(()=>{
-    if(!powerOn) return; // don't blink when power off
+    if(!powerOn) return;
     if(!audioCtx) ensureAudio();
     leds.forEach(l=>{
       if(Math.random() < l.prob){
         l.el.classList.add('on');
-        // quiet beep for this led
         if(audioCtx && isAudioEnabled){
           try{
             const t = audioCtx.currentTime;
             const o = audioCtx.createOscillator();
             const g = audioCtx.createGain();
             o.type = 'sine'; o.frequency.value = l.freq;
-            g.gain.value = 0.0001; // very quiet base
+            g.gain.value = 0.00005;
             o.connect(g); g.connect(audioCtx.destination);
-            // quick envelope, quiet
-            g.gain.setValueAtTime(0.0001, t);
-            g.gain.linearRampToValueAtTime(0.03, t + 0.005); // peak very low
-            g.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
-            o.start(t);
-            o.stop(t + 0.11);
+            g.gain.setValueAtTime(0.00005, t);
+            g.gain.linearRampToValueAtTime(0.02, t + 0.005);
+            g.gain.exponentialRampToValueAtTime(0.00005, t + 0.095);
+            o.start(t); o.stop(t + 0.11);
           }catch(e){}
         }
-        setTimeout(()=> l.el.classList.remove('on'), 100); // 100 ms flash
+        setTimeout(()=> l.el.classList.remove('on'), 100);
       }
     });
   }, 1000);
@@ -381,11 +377,11 @@ function draw(now){
 
   ctx.clearRect(0,0,size,size);
 
-  // stronger full-canvas analog horizontal lines
+  // full-canvas horizontal analog lines
   ctx.save();
   for(let y=0;y<=size;y+=1.6){
     ctx.strokeStyle = `rgba(0,0,0,${0.08 + 0.04*Math.sin((y+noiseTime*12)/20)})`;
-    ctx lineWidth = 1;
+    ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(size,y); ctx.stroke();
   }
   ctx.restore();
@@ -426,7 +422,7 @@ function draw(now){
   ctx.fillStyle = gradFront; ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,maxR,aFront-halfFront,aFront+halfFront); ctx.closePath(); ctx.globalCompositeOperation='lighter'; ctx.fill();
   ctx.restore();
 
-  // artifact
+  // artifact (visible only if proximity>0)
   if(artifact.proximity > 0){
     const artAngle = current.angleDeg; const diff = angleDiff(sweepAngle, artAngle); const visibleNow = Math.abs(diff) <= DETECT_ARC;
     const dist = maxR * (1 - (current.proximity/100)); const aRad = degToRad(artAngle); const ax = cx + Math.cos(aRad)*dist; const ay = cy + Math.sin(aRad)*dist;
@@ -437,18 +433,18 @@ function draw(now){
     }
   } else { lastDetectedAt = -999999; visibleAlpha = 0; }
 
-  // center marker
+  // center dot
   ctx.beginPath(); ctx.fillStyle="rgba(0,0,0,0.28)"; ctx.arc(cx,cy,6,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.strokeStyle="rgba(0,255,140,0.5)"; ctx.arc(cx,cy,6,0,Math.PI*2); ctx.stroke();
 
   // info panel show/hide
   if(Math.round(current.proximity) >= 100 && artifact.meta && powerOn){ infoPanel.style.display='block'; updateInfoUI(); } else { infoPanel.style.display='none'; }
 
-  // noise pixels
-  noiseTime += 0.9; if(noiseTime>10000) noiseTime=0;
-  for(let i=0;i<8;i++){ const nx = cx + Math.cos((i*23 + noiseTime*6)/12) * (maxR*(0.2 + 0.8*Math.random())); const ny = cy + Math.sin((i*17 + noiseTime*5)/10) * (maxR*(0.2 + 0.8*Math.random())); ctx.fillStyle='rgba(0,255,140,0.02)'; ctx.fillRect(nx,ny,1,1); }
+  // noise
+  noiseTime += 0.9; if(noiseTime > 10000) noiseTime = 0;
+  for(let i=0;i<8;i++){ const nx = cx + Math.cos((i*23 + noiseTime*6)/12) * (maxR*(0.2 + 0.8*Math.random())); const ny = cy + Math.sin((i*17 + noiseTime*5)/10) * (maxR*(0.2 + 0.8*Math.random())); ctx.fillStyle = 'rgba(0,255,140,0.02)'; ctx.fillRect(nx, ny, 1, 1); }
 
-  // beeping (main) driven by RAF
+  // main beeping driven by RAF
   const nowMs = performance.now();
   if(powerOn && artifact.proximity >= 100){ if(!continuousOsc && audioCtx && isAudioEnabled) startContinuousTone(); ledEl.classList.add('on'); } else {
     if(continuousOsc) stopContinuousTone();
@@ -464,7 +460,7 @@ function lerp(a,b,t){ return a + (b-a)*t; }
 function angleDiff(a,b){ let d = (((a - b + 540) % 360) - 180); return d; }
 function lerpAngle(a,b,t){ const diff = angleDiff(b,a); return (a + diff*t + 360) % 360; }
 
-/* startup */
+/* start */
 ensureAudio(); randomizeArtifact(); draw();
 
 /* UI small handlers */
